@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef LECTURES_MATRIX_H
-#define LECTURES_MATRIX_H
+#ifndef MATRIX_H
+#define MATRIX_H
 
 #include <stdexcept>
 #include <iostream>
@@ -17,11 +17,11 @@ public:
     T *values = nullptr;
 
     // tells us whether matrix is row major
-    bool is_row_major = true;
+    bool is_row_major;
 
     // constructor
-    Matrix(int rows, int cols, bool preallocate, bool is_row_major);
-    Matrix(int rows, int cols, T *values_ptr, bool is_row_major);
+    Matrix(int rows, int cols, bool preallocate, bool is_row_major = true);
+    Matrix(int rows, int cols, T *values_ptr, bool is_row_major = true);
 
     // destructor
     virtual ~Matrix();
@@ -35,26 +35,34 @@ public:
     // get the value of an element at a certain position
     void getValue(int row_index, int col_index);
 
+    void transpose();
+
     // print values of the matrix
     void printValues();
     virtual void printMatrix();
 
     /////////// Matrix Operations Methods /////
+
     // matrix multiplication
     void matMatMul(Matrix<T>& mat_right, Matrix<T>& output);
 
-    // function that implements gaussian elimination
-    Matrix<T> *gaussianElimination(Matrix<T> *b);
+    // jacobi iterative solver
+    Matrix<T> *solveJacobi(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[]);
 
-    // upper triangular elimination
+    // function that implements gaussian elimination
+    Matrix<T> *solveGaussian(Matrix<T> *b);
+
+    Matrix<T> *solveLU(Matrix<T> *b);
+
     void upperTriangular(Matrix<T> *b);
 
-    // back substitution
     Matrix<T> *backSubstitution(Matrix<T> *b);
+
+    Matrix<T> *forwardSubstitution(Matrix<T> *b);
 
     // lu decomposition function
     void luDecomposition(Matrix<T> *upper_tri, Matrix<T> *lower_tri);
-    void luDecomposition_pp(Matrix<T> *upper_tri, Matrix<T> *lower_tri);
+    void luDecompositionPivot(Matrix<T> *upper_tri, Matrix<T> *lower_tri, Matrix<T> *permutation);
 
     // swap rows
     void swapRows(Matrix<T> *b, int i, int j);
