@@ -6,7 +6,56 @@
 
 #define TOL 0.001
 
-#define RUN_ALL_TESTS
+//#define RUN_ALL_TESTS
+
+TEST_CASE("jacobi iteration")
+{
+    bool test_result = true;
+
+    int rows = 2;
+    int cols = 2;
+
+    auto *A = new Matrix<double>(rows, cols, true);
+
+    // create rhs vector
+    auto *b = new Matrix<double>(cols, 1, true);
+
+    double A_values[4] = {2, 1, 5, 7};
+    double b_values[2] {7, 3};
+
+    A->setMatrix(4, A_values);
+    b->setMatrix(2, b_values);
+
+    double initial_guess[2] = {1, 1};
+
+    auto solution = A->solveGaussSeidel(b, TOL, 1000, initial_guess);
+
+    double correct_values[2] = {5.11111, -3.22222};
+
+    for (int i=0; i<2; i++)
+    {
+        if (!fEqual(solution->values[i], correct_values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
+    }
+
+    delete A;
+    delete b;
+    delete solution;
+
+    REQUIRE(test_result);
+}
+
+
+
+
+
+
+
+
+
 
 #if defined(RUN_ALL_TESTS)
 TEST_CASE("test lu solver")

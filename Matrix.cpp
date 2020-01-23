@@ -522,6 +522,58 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
 }
 
 template<class T>
+Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_iterations, T *initial_guess) {
+
+    // create some space to hold the solution to the iteration
+    auto x_var = new Matrix<T>(b->rows, b->cols, true);
+
+    auto estimated_rhs = new Matrix<T>(b->rows, b->cols, true);
+
+    // initialize residual which will be used to determine ending position
+    double residual = tolerance * 2;
+    double resid_sum;
+    double sum;
+    int iteration = 0;
+
+    while (residual > tolerance && iteration < max_iterations)
+    {
+        for (int i=0; i<b->size_of_values; i++)
+        {
+            sum = 0;
+
+            for (int j=0; j<b->size_of_values; j++)
+            {
+                if (i != j)
+                {
+                    sum += this->values[i * this->cols + j] * x_var->values[j];
+                }
+            }
+
+            x_var->values[i] = 1 / this->values[i * this->cols + i] * (b->values[i] - sum);
+        }
+
+        resid_sum = 0;
+
+        this->matMatMul(*x_var, *estimated_rhs);
+
+        // check residual
+        for (int i=0; i<b->size_of_values; i++)
+        {
+            resid_sum += fabs(estimated_rhs->values[i] - b->values[i]);
+        }
+
+        residual = resid_sum;
+        ++iteration;
+    }
+
+    // clean memory
+    delete estimated_rhs;
+
+    return x_var;
+}
+
+
+template<class T>
 void Matrix<T>::transpose()
 {
     // create a new values array to hold the data
@@ -566,5 +618,7 @@ Matrix<T> *Matrix<T>::solveLU(Matrix<T> *b) {
 
     return solution;
 }
+
+
 
 

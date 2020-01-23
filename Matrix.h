@@ -49,6 +49,9 @@ public:
     // jacobi iterative solver
     Matrix<T> *solveJacobi(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[]);
 
+    // gauss seidel iterative solver
+    Matrix<T> *solveGaussSeidel(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[]);
+
     // function that implements gaussian elimination
     Matrix<T> *solveGaussian(Matrix<T> *b);
 
