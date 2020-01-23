@@ -1,0 +1,9 @@
+﻿Build started 7/5/2012 8:02:36 PM.
+     1>Project "C:\Users\julie\Desktop\NewEX\LAPACKE_examples\example_ZGESV_rowmajor\example_ZGESV_rowmajor.vcxproj" on node 2 (clean target(s)).
+     1>_PrepareForClean:
+         Deleting file "Release\example_ZGESV_rowmajor.lastbuildstate".
+     1>Done Building Project "C:\Users\julie\Desktop\NewEX\LAPACKE_examples\example_ZGESV_rowmajor\example_ZGESV_rowmajor.vcxproj" (clean target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.01
