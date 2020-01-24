@@ -1,4 +1,5 @@
 #include "Matrix.h"
+#include <memory>
 
 // constructor - creates a matrix initialized to 0
 template <class T>
@@ -211,6 +212,44 @@ Matrix<T> *Matrix<T>::backSubstitution(Matrix<T> *b)
 }
 
 template<class T>
+Matrix<T> *Matrix<T>::forwardSubstitution(Matrix<T> *b)
+{
+    // check if A is square
+    if (this->rows != this->cols)
+    {
+        throw std::invalid_argument("A should be a square matrix!");
+    }
+
+    // check that the dimensions of A and b are compatible
+    if (this->rows != b->size_of_values)
+    {
+        throw std::invalid_argument("A and b dimensions don't match");
+    }
+
+    // create an empty vector
+    Matrix<T> *solution = new Matrix<T>(b->rows, b->cols, true, true);
+
+    double s;
+
+    // iterate over system
+    for (int k=0; k<b->size_of_values; k++)
+    {
+        s = 0;
+
+        for (int j=0; j<k; j++)
+        {
+            // assumes row major order
+            s += this->values[k * this->cols + j] * solution->values[j];
+        }
+
+        solution->values[k] = (b->values[k] - s) / this->values[k * this->cols + k];
+    }
+
+    return solution;
+}
+
+
+template<class T>
 void Matrix<T>::swapRows(Matrix<T> *b, int i, int j)
 {
     // no swap required
@@ -290,7 +329,7 @@ void Matrix<T>::swapRowsMatrix(int i, int j)
 
 // function that implements gaussian elimination
 template<class T>
-Matrix<T> *Matrix<T>::gaussianElimination(Matrix<T> *b)
+Matrix<T> *Matrix<T>::solveGaussian(Matrix<T> *b)
 {
     // transform matrices to upper triangular
     this->upperTriangular(b);
@@ -344,8 +383,9 @@ void Matrix<T>::luDecomposition(Matrix<T> *upper_tri, Matrix<T> *lower_tri)
     }
 }
 
+
 template<class T>
-void Matrix<T>::luDecomposition_pp(Matrix<T> *upper_tri, Matrix<T> *lower_tri)
+void Matrix<T>::luDecompositionPivot(Matrix<T> *upper_tri, Matrix<T> *lower_tri, Matrix<T> *permutation)
 {
     // make sure the matrix is square
     if (this->cols != this->rows)
@@ -360,6 +400,12 @@ void Matrix<T>::luDecomposition_pp(Matrix<T> *upper_tri, Matrix<T> *lower_tri)
     for (int i=0; i<upper_tri->size_of_values; i++)
     {
         upper_tri->values[i] = this->values[i];
+    }
+
+    // make permuation matrix an idenity matrix
+    for (int i=0; i<permutation->rows; i++)
+    {
+        permutation->values[i * permutation->cols + i] = 1;
     }
 
     // loop over each pivot row
@@ -381,6 +427,8 @@ void Matrix<T>::luDecomposition_pp(Matrix<T> *upper_tri, Matrix<T> *lower_tri)
         max_index;
 
         upper_tri->swapRowsMatrix(k, max_index);
+        lower_tri->swapRowsMatrix(k, max_index);
+        permutation->swapRowsMatrix(k, max_index);
 
         // loop over each equation below the pivot
         for (int i=k+1; i<upper_tri->rows; i++)
@@ -402,6 +450,8 @@ void Matrix<T>::luDecomposition_pp(Matrix<T> *upper_tri, Matrix<T> *lower_tri)
     {
         lower_tri->values[i * lower_tri->rows + i] = 1;
     }
+
+    permutation->transpose();
 }
 
 // destructor
@@ -414,3 +464,161 @@ Matrix<T>::~Matrix()
         delete[] this->values;
     }
 }
+
+template<class T>
+Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[])
+{
+    // create some space to hold the solution to the iteration
+    auto x_var = new Matrix<T>(b->rows, b->cols, true);
+    auto x_var_prev = new Matrix<T>(b->rows, b->cols, true);
+
+    x_var_prev->setMatrix(b->size_of_values, initial_guess);
+
+    auto estimated_rhs = new Matrix<T>(b->rows, b->cols, true);
+
+    // initialize residual which will be used to determine ending position
+    double residual = tolerance * 2;
+    double resid_sum;
+    double sum;
+    int iteration = 0;
+
+    while (residual > tolerance && iteration < max_iterations)
+    {
+        for (int i=0; i<b->size_of_values; i++)
+        {
+            sum = 0;
+
+            for (int j=0; j<b->size_of_values; j++)
+            {
+                if (i != j)
+                {
+                    sum += this->values[i * this->cols + j] * x_var_prev->values[j];
+                }
+            }
+
+            x_var->values[i] = 1 / this->values[i * this->rows + i]  * (b->values[i] - sum);
+            x_var_prev->values[i] = x_var->values[i];
+        }
+
+        resid_sum = 0;
+
+        this->matMatMul(*x_var, *estimated_rhs);
+
+        // check residual
+        for (int i=0; i<b->size_of_values; i++)
+        {
+            resid_sum += fabs(estimated_rhs->values[i] - b->values[i]);
+        }
+
+        residual = resid_sum;
+        ++iteration;
+    }
+
+    // clean memory
+    delete x_var_prev;
+    delete estimated_rhs;
+
+    return x_var;
+}
+
+template<class T>
+Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_iterations, T *initial_guess) {
+
+    // create some space to hold the solution to the iteration
+    auto x_var = new Matrix<T>(b->rows, b->cols, true);
+
+    auto estimated_rhs = new Matrix<T>(b->rows, b->cols, true);
+
+    // initialize residual which will be used to determine ending position
+    double residual = tolerance * 2;
+    double resid_sum;
+    double sum;
+    int iteration = 0;
+
+    while (residual > tolerance && iteration < max_iterations)
+    {
+        for (int i=0; i<b->size_of_values; i++)
+        {
+            sum = 0;
+
+            for (int j=0; j<b->size_of_values; j++)
+            {
+                if (i != j)
+                {
+                    sum += this->values[i * this->cols + j] * x_var->values[j];
+                }
+            }
+
+            x_var->values[i] = 1 / this->values[i * this->cols + i] * (b->values[i] - sum);
+        }
+
+        resid_sum = 0;
+
+        this->matMatMul(*x_var, *estimated_rhs);
+
+        // check residual
+        for (int i=0; i<b->size_of_values; i++)
+        {
+            resid_sum += fabs(estimated_rhs->values[i] - b->values[i]);
+        }
+
+        residual = resid_sum;
+        ++iteration;
+    }
+
+    // clean memory
+    delete estimated_rhs;
+
+    return x_var;
+}
+
+
+template<class T>
+void Matrix<T>::transpose()
+{
+    // create a new values array to hold the data
+    T *new_values_ptr = new T[this->size_of_values];
+
+    for (int i=0; i<this->rows; i++)
+    {
+        for (int j=0; j<this->cols; j++)
+        {
+            new_values_ptr[i * this->cols + j] = this->values[j * this->cols + i];
+        }
+    }
+
+    delete[] this->values;
+
+    this->values = new_values_ptr;
+}
+
+template<class T>
+Matrix<T> *Matrix<T>::solveLU(Matrix<T> *b) {
+
+    auto upper_tri = new Matrix<T>(this->rows, this->cols, true);
+    auto lower_tri = new Matrix<T>(this->rows, this->cols, true);
+    auto permutation = new Matrix<T>(this->rows, this->cols, true);
+
+    auto p_inv_b = new Matrix<T>(b->rows, b->cols, true);
+
+    this->luDecompositionPivot(upper_tri, lower_tri, permutation);
+
+    permutation->transpose();
+    permutation->matMatMul(*b, *p_inv_b);
+
+    auto y_values = lower_tri->forwardSubstitution(p_inv_b);
+
+    auto *solution = upper_tri->backSubstitution(y_values);
+
+    delete upper_tri;
+    delete lower_tri;
+    delete permutation;
+    delete p_inv_b;
+    delete y_values;
+
+    return solution;
+}
+
+
+
+
