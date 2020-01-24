@@ -3,11 +3,53 @@
 #include "../Matrix.cpp"
 #include <stdexcept>
 #include "../utilities.h"
+#include "../CSRMatrix.h"
+#include "../CSRMatrix.cpp"
 
 #define TOL 0.0001
 
-#define RUN_ALL_TESTS
+//#define RUN_ALL_TESTS
 
+TEST_CASE("sparse matrix mat-vect mult")
+{
+    int rows = 4;
+    int cols = 4;
+    int nnzs = 4;
+
+    double values[4] = {5, 8, 3, 6};
+    int iA[5] = {0, 0, 2, 3, 4};
+    int jA[4] = {0, 1, 2, 1};
+
+    double vector[4] = {1, 1, 1, 1};
+    auto output = new double[4];
+
+    // create sparse matrix
+    auto sparse_matrix = new CSRMatrix<double>(rows, cols, nnzs, true, true);
+
+    sparse_matrix->setMatrix(values, iA, jA);
+
+//    sparse_matrix->printNonZeroValues();
+
+    sparse_matrix->matVecMult(vector, output);
+
+    for (int i=0; i<4; i++)
+    {
+        std::cout << output[i] << " ";
+    }
+
+    std::cout << std::endl;
+
+}
+
+
+
+
+
+
+
+
+
+#if defined(RUN_ALL_TESTS)
 TEST_CASE("gauss iteration")
 {
     bool test_result = true;
@@ -48,16 +90,6 @@ TEST_CASE("gauss iteration")
     REQUIRE(test_result);
 }
 
-
-
-
-
-
-
-
-
-
-#if defined(RUN_ALL_TESTS)
 TEST_CASE("test lu solver")
 {
     bool test_result = true;

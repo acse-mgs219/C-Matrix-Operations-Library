@@ -12,18 +12,25 @@ public:
 
     // constructor where we want to preallocate ourselves
     CSRMatrix(int rows, int cols, int nnzs, bool preallocate, bool is_row_major);
+
     // constructor where we already have allocated memory outside
     CSRMatrix(int rows, int cols, int nnzs, T *values_ptr, int *row_position, int *col_index, bool is_row_major);
+
     // destructor
     ~CSRMatrix();
 
     // Print out the values in our matrix
     virtual void printMatrix();
 
+    void printNonZeroValues();
+
+    void setMatrix(T *values_ptr, int iA[], int jA[]);
+
     // Perform some operations with our matrix
     void matMatMult(CSRMatrix<T>& mat_right, CSRMatrix<T>& output);
+
     // Perform some operations with our matrix
-    void matVecMult(double *input, double *output);
+    void matVecMult(T *input, T *output);
 
     // Explicitly using the C++11 nullptr here
     int *row_position = nullptr;

@@ -37,6 +37,7 @@ void Matrix<T>::setValue(int row_index, int col_index, T value)
     }
 }
 
+
 template <class T>
 void Matrix<T>::setMatrix(int length, T *values_ptr)
 {
@@ -337,6 +338,8 @@ Matrix<T> *Matrix<T>::solveGaussian(Matrix<T> *b)
     return solution;
 }
 
+
+
 // implementation of the LU decomposition function
 template<class T>
 void Matrix<T>::luDecomposition(Matrix<T> *upper_tri, Matrix<T> *lower_tri)
@@ -513,8 +516,6 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
         ++iteration;
     }
 
-    std::cout << iteration;
-
     // clean memory
     delete x_var_prev;
     delete estimated_rhs;
@@ -529,7 +530,6 @@ Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_i
     auto x_var = new Matrix<T>(b->rows, b->cols, true);
 
     x_var->setMatrix(b->rows, initial_guess);
-    x_var->printMatrix();
 
     auto estimated_rhs = new Matrix<T>(b->rows, b->cols, true);
 
@@ -569,8 +569,6 @@ Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_i
         residual = resid_sum / b->size_of_values;
         ++iteration;
     }
-
-    std::cout << iteration;
 
     // clean memory
     delete estimated_rhs;
@@ -623,6 +621,17 @@ Matrix<T> *Matrix<T>::solveLU(Matrix<T> *b) {
     delete y_values;
 
     return solution;
+}
+
+template<class T>
+T Matrix<T>::getValue(int row_index, int col_index)
+{
+    if (row_index >= this->rows || col_index >= this->cols)
+    {
+        throw std::invalid_argument("wrong index values");
+    }
+
+    return this->values[row_index * this->cols + col_index];
 }
 
 

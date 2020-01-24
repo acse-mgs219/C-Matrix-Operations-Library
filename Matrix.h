@@ -30,10 +30,10 @@ public:
     void setValue(int row_index, int col_index, T value);
 
     // set all the values of the matrix
-    void setMatrix(int length, T *values_ptr);
+    virtual void setMatrix(int length, T *values_ptr);
 
     // get the value of an element at a certain position
-    void getValue(int row_index, int col_index);
+    T getValue(int row_index, int col_index);
 
     void transpose();
 

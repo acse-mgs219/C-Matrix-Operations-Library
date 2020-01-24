@@ -19,6 +19,12 @@ Matrix<T>(rows, cols, false, is_row_major), nnzs(nnzs)
         this->values = new T[this->nnzs];
         this->row_position = new int[this->rows+1];
         this->col_index = new int[this->nnzs];
+
+        // set all the values to 0
+        for (int i=0; i<this->nnzs; i++)
+        {
+            this->values[i] = 0;
+        }
     }
 }
 
@@ -47,19 +53,23 @@ void CSRMatrix<T>::printMatrix()
 {
     std::cout << "Printing matrix" << std::endl;
     std::cout << "Values: ";
+
     for (int j = 0; j< this->nnzs; j++)
     {
         std::cout << this->values[j] << " ";
     }
     std::cout << std::endl;
     std::cout << "row_position: ";
-    for (int j = 0; j< this->rows+1; j++)
+
+    for (int j = 0; j< this->nnzs+1; j++)
     {
         std::cout << this->row_position[j] << " ";
     }
+
     std::cout << std::endl;
     std::cout << "col_index: ";
-    for (int j = 0; j< this->nnzs; j++)
+
+    for (int j = 0; j<this->nnzs; j++)
     {
         std::cout << this->col_index[j] << " ";
     }
@@ -69,7 +79,7 @@ void CSRMatrix<T>::printMatrix()
 // Do a matrix-vector product
 // output = this * input
 template<class T>
-void CSRMatrix<T>::matVecMult(double *input, double *output)
+void CSRMatrix<T>::matVecMult(T *input, T *output)
 {
     if (input == nullptr || output == nullptr)
     {
@@ -84,15 +94,24 @@ void CSRMatrix<T>::matVecMult(double *input, double *output)
     }
 
     int val_counter = 0;
+
     // Loop over each row
-    for (int i = 0; i < this->rows; i++)
+    for (int i = 0; i<this->rows; i++)
     {
         // Loop over all the entries in this col
         for (int val_index = this->row_position[i]; val_index < this->row_position[i+1]; val_index++)
         {
+//            std::cout << "value index " << val_index << std::endl;
+
+            std::cout << "this->row_position[i] " << this->row_position[i] << std::endl;
+
             // This is an example of indirect addressing
             // Can make it harder for the compiler to vectorize!
             output[i] += this->values[val_index] * input[this->col_index[val_index]];
+
+//            std::cout << "this->values[val_index] " << this->values[val_index] << std::endl;
+
+//            std::cout << "input[this->col_index[val_index]] " << input[this->col_index[val_index]] << std::endl;
 
         }
     }
@@ -132,9 +151,54 @@ void CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right, CSRMatrix<T>& output)
     // HOW DO WE SET THE SPARSITY OF OUR OUTPUT MATRIX HERE??
 }
 
+template<class T>
+void CSRMatrix<T>::printNonZeroValues()
+{
 
+    if (this->values == nullptr || this->row_position == nullptr || this->col_index == nullptr)
+    {
+        throw std::invalid_argument("matrix has not been set");
+    }
 
+    std::cout << "Printing non-zero values of the sparse matrix" << std::endl;
 
+    for (int i=0; i<this->nnzs; i++)
+    {
+        std::cout << this->values[i] << " ";
+    }
 
+    std::cout << std::endl;
+    std::cout << "row position: " << std::endl;
 
+    for (int i=0; i<this->nnzs+1; i++)
+    {
+        std::cout << this->row_position[i] << " ";
+    };
 
+    std::cout << std::endl;
+    std::cout << "column position: " << std::endl;
+
+    for (int i=0; i<this->nnzs; i++)
+    {
+        std::cout << this->col_index[i] << " ";
+    };
+
+    std::cout << std::endl;
+
+}
+
+template<class T>
+void CSRMatrix<T>::setMatrix(T *values_ptr, int iA[], int jA[])
+{
+    iA[0];
+    for (int i=0; i<this->nnzs+1; i++)
+    {
+        if (i<this->nnzs)
+        {
+            this->values[i] = values_ptr[i];
+            this->col_index[i] = jA[i];
+        }
+
+        this->row_position[i] = iA[i];
+    };
+}
