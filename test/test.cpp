@@ -4,11 +4,11 @@
 #include <stdexcept>
 #include "../utilities.h"
 
-#define TOL 0.001
+#define TOL 0.0001
 
-//#define RUN_ALL_TESTS
+#define RUN_ALL_TESTS
 
-TEST_CASE("jacobi iteration")
+TEST_CASE("gauss iteration")
 {
     bool test_result = true;
 
