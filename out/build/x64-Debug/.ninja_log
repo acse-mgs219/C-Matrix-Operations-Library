@@ -63,3 +63,8 @@
 69	677	601577341	CMakeFiles/Lectures.dir/Matrix.cpp.obj	95730c80473e0f20
 3	909	601577341	CMakeFiles/Lectures.dir/test/test.cpp.obj	d8e1ab070b4bf788
 910	2707	601577342	Lectures.exe	fefb5273e96d660
+141	1136	601598940	CMakeFiles/Lectures.dir/Matrix.cpp.obj	95730c80473e0f20
+209	1162	601598940	CMakeFiles/Lectures.dir/CSRMatrix.cpp.obj	7ab88b4e0c8c4e7d
+2	1467	601598941	CMakeFiles/Lectures.dir/test/test.cpp.obj	d8e1ab070b4bf788
+71	4302	601598944	CMakeFiles/Lectures.dir/test/test-main.cpp.obj	1013c47664fa47ec
+4303	6412	601598944	Lectures.exe	1e8aca5612248fcc

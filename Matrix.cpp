@@ -513,8 +513,6 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
         ++iteration;
     }
 
-    std::cout << iteration;
-
     // clean memory
     delete x_var_prev;
     delete estimated_rhs;
@@ -569,8 +567,6 @@ Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_i
         residual = resid_sum / b->size_of_values;
         ++iteration;
     }
-
-    std::cout << iteration;
 
     // clean memory
     delete estimated_rhs;

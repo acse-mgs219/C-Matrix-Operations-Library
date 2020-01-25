@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/abc/Downloads/Matrices
+# Install script for directory: C:/Users/abc/Documents/GitHub/acse-5-assignment-unique-pointers
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Users/abc/Downloads/Matrices/out/install/x64-Debug")
+  set(CMAKE_INSTALL_PREFIX "C:/Users/abc/Documents/GitHub/acse-5-assignment-unique-pointers/out/install/x64-Debug")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/abc/Downloads/Matrices/out/build/x64-Debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/abc/Documents/GitHub/acse-5-assignment-unique-pointers/out/build/x64-Debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
