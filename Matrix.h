@@ -44,7 +44,7 @@ public:
     /////////// Matrix Operations Methods /////
 
     // matrix multiplication
-    void matMatMul(Matrix<T>& mat_right, Matrix<T>& output);
+    void matMatMult(Matrix<T>& mat_right, Matrix<T>& output);
 
     // jacobi iterative solver
     Matrix<T> *solveJacobi(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[]);

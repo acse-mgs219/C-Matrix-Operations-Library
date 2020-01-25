@@ -90,7 +90,7 @@ void Matrix<T>::printMatrix()
 
 // assumes user has already created mat_right and output matrices
 template <class T>
-void Matrix<T>::matMatMul (Matrix& mat_right, Matrix& output)
+void Matrix<T>::matMatMult (Matrix& mat_right, Matrix& output)
 {
     // check dimensions make sense return without doing any multiplication
     if (this->cols != mat_right.rows)
@@ -99,6 +99,24 @@ void Matrix<T>::matMatMul (Matrix& mat_right, Matrix& output)
         return;
     }
 
+    // Check if our output matrix has had space allocated to it
+    if (output.values != nullptr)
+    {
+        // Check our dimensions match
+        if (this->rows != output.rows || this->cols != output.cols)
+        {
+            std::cerr << "Input dimensions for matrices don't match" << std::endl;
+            return;
+        }
+    }
+        // The output hasn't been preallocated, so we are going to do that
+    else
+    {
+        output.values = new T[this->rows * mat_right.cols];
+        output.preallocated = true;
+    }
+
+    // set output values to 0 beforehand
     for (int i = 0; i < output.size_of_values; i++)
     {
         output.values[i] = 0;

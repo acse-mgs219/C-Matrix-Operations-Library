@@ -101,17 +101,9 @@ void CSRMatrix<T>::matVecMult(T *input, T *output)
         // Loop over all the entries in this col
         for (int val_index = this->row_position[i]; val_index < this->row_position[i+1]; val_index++)
         {
-//            std::cout << "value index " << val_index << std::endl;
-
-            std::cout << "this->row_position[i] " << this->row_position[i] << std::endl;
-
             // This is an example of indirect addressing
             // Can make it harder for the compiler to vectorize!
             output[i] += this->values[val_index] * input[this->col_index[val_index]];
-
-//            std::cout << "this->values[val_index] " << this->values[val_index] << std::endl;
-
-//            std::cout << "input[this->col_index[val_index]] " << input[this->col_index[val_index]] << std::endl;
 
         }
     }
@@ -123,7 +115,6 @@ void CSRMatrix<T>::matVecMult(T *input, T *output)
 template <class T>
 void CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right, CSRMatrix<T>& output)
 {
-
     // Check our dimensions match
     if (this->cols != mat_right.rows)
     {
@@ -146,6 +137,34 @@ void CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right, CSRMatrix<T>& output)
     {
         std::cerr << "OUTPUT HASN'T BEEN ALLOCATED" << std::endl;
 
+    }
+
+    // Set the output to zero
+    for (int i = 0; i < this->rows; i++)
+    {
+        output.values[i] = 0;
+    }
+
+    // Loop over each row
+    for (int i = 0; i<this->rows; i++)
+    {
+        // Loop over all the entries in this row
+        for (int val_index = this->row_position[i]; val_index < this->row_position[i + 1]; val_index++)
+        {
+            std::cout << i << " " << this->col_index[val_index] << " " << this->values[val_index] << std::endl;
+
+
+            for (int c=0; c<mat_right.cols; c++)
+            {
+                if (c == i)
+                {
+                    std::cout << c << std::endl;
+                }
+            }
+
+
+        }
+        std::cout << std::endl;
     }
 
     // HOW DO WE SET THE SPARSITY OF OUR OUTPUT MATRIX HERE??

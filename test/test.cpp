@@ -17,27 +17,35 @@ TEST_CASE("sparse matrix mat-vect mult")
     int nnzs = 4;
 
     double values[4] = {5, 8, 3, 6};
+    double right_values[4] = {6, 3, 8, 5};
     int iA[5] = {0, 0, 2, 3, 4};
     int jA[4] = {0, 1, 2, 1};
 
-    double vector[4] = {1, 1, 1, 1};
-    auto output = new double[4];
+    double vector[4] = {1, 2, 3, 4};
+//    auto output = new double[4];
 
     // create sparse matrix
-    auto sparse_matrix = new CSRMatrix<double>(rows, cols, nnzs, true, true);
+    auto A = new CSRMatrix<double>(rows, cols, nnzs, true, true);
+    auto B = new CSRMatrix<double>(rows, cols, nnzs, true, true);
 
-    sparse_matrix->setMatrix(values, iA, jA);
+    auto output = new CSRMatrix<double>(rows, cols, nnzs, true, true);
 
-//    sparse_matrix->printNonZeroValues();
+    A->setMatrix(values, iA, jA);
+    B->setMatrix(right_values, iA, jA);
 
-    sparse_matrix->matVecMult(vector, output);
+//    B->printMatrix();
 
-    for (int i=0; i<4; i++)
-    {
-        std::cout << output[i] << " ";
-    }
+//
+    A->matMatMult(*B, *output);
+//
+    output->printNonZeroValues();
 
-    std::cout << std::endl;
+
+
+//    A->printNonZeroValues();
+
+//    A->matVecMult(vector, output);
+
 
 }
 
@@ -282,7 +290,7 @@ TEST_CASE("matrix multiplication; square matrix")
         // create output matrix to hold the results
         auto *output_matrix = new Matrix<double>(rows, cols, true, true);
 
-        matrix->matMatMul(*right_matrix, *output_matrix);
+        matrix->matMatMult(*right_matrix, *output_matrix);
 
         // check that the values in the result match the correct values
         for (int i=0; i<rows*cols; i++)
@@ -322,7 +330,7 @@ TEST_CASE("matrix multiplication; square matrix")
         // create output matrix to hold the results
         auto *output_matrix = new Matrix<double>(rows, cols, true, is_row_major);
 
-        matrix->matMatMul(*right_matrix, *output_matrix);
+        matrix->matMatMult(*right_matrix, *output_matrix);
 
         // check that the values in the result match the correct values
         for (int i=0; i<rows*cols; i++)
