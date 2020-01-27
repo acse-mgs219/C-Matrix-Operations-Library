@@ -98,6 +98,11 @@ void Matrix<T>::matMatMul (Matrix& mat_right, Matrix& output)
         return;
     }
 
+    for (int i = 0; i < output.size_of_values; i++)
+    {
+        output.values[i] = 0;
+    }
+
     // matrix multiplication is O(n^3) - need to be careful about performance - need to be contiguous for fast performance
     for (int i=0; i<this->rows; i++)
     {
@@ -105,15 +110,7 @@ void Matrix<T>::matMatMul (Matrix& mat_right, Matrix& output)
         {
             for (int j=0; j<mat_right.cols; j++)
             {
-
-                if (is_row_major)
-                {
-                    output.values[i * output.cols + j] += this->values[i * this->cols + k] * mat_right.values[k * mat_right.cols + j];
-                }
-                else {
-                    output.values[j * output.rows + i] += this->values[k * this->rows + i] * mat_right.values[j * mat_right.rows + k];
-                }
-
+                output.values[i * output.cols + j] += this->values[i * this->cols + k] * mat_right.values[k * mat_right.cols + j];
             }
         }
     }
@@ -470,36 +467,38 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
 {
     // create some space to hold the solution to the iteration
     auto x_var = new Matrix<T>(b->rows, b->cols, true);
-    auto x_var_prev = new Matrix<T>(b->rows, b->cols, true);
+    auto x_var_prev = new Matrix<T>(b->rows, b->cols, true); // is b->cols always 1?
 
-    x_var_prev->setMatrix(b->size_of_values, initial_guess);
+    x_var_prev->setMatrix(b->size_of_values, initial_guess); // should check that sizes are correct
 
     auto estimated_rhs = new Matrix<T>(b->rows, b->cols, true);
 
     // initialize residual which will be used to determine ending position
     double residual = tolerance * 2;
-    double resid_sum;
-    double sum;
+    double resid_sum; // not actually necessary
+    double *sum = new double(this->cols);
     int iteration = 0;
 
     while (residual > tolerance && iteration < max_iterations)
     {
-        for (int i=0; i<b->size_of_values; i++)
+        for (int i=0; i<this->rows; i++) // should be this->rows?
         {
-            sum = 0;
+            sum[i] = 0;
 
-            for (int j=0; j<b->size_of_values; j++)
+            for (int j=0; j<this->cols; j++) // should be this->cols?
             {
                 if (i != j)
                 {
-                    sum += this->values[i * this->cols + j] * x_var_prev->values[j];
+                    sum[i] += this->values[i * this->cols + j] * x_var_prev->values[j];
                 }
             }
-
-            x_var->values[i] = 1 / this->values[i * this->rows + i]  * (b->values[i] - sum);
-            x_var_prev->values[i] = x_var->values[i];
         }
 
+        for (int i = 0; i < this->rows; i++) // should be this->rows?
+        {
+            x_var->values[i] = 1 / this->values[i * this->rows + i] * (b->values[i] - sum[i]);
+            x_var_prev->values[i] = x_var->values[i];
+        }
         resid_sum = 0;
 
         this->matMatMul(*x_var, *estimated_rhs);
@@ -510,7 +509,7 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
             resid_sum += fabs(estimated_rhs->values[i] - b->values[i]);
         }
 
-        residual = resid_sum;
+        residual = resid_sum / b->size_of_values;
         ++iteration;
     }
 
@@ -526,6 +525,9 @@ Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_i
 
     // create some space to hold the solution to the iteration
     auto x_var = new Matrix<T>(b->rows, b->cols, true);
+
+    x_var->setMatrix(b->rows, initial_guess);
+    x_var->printMatrix();
 
     auto estimated_rhs = new Matrix<T>(b->rows, b->cols, true);
 
@@ -562,7 +564,7 @@ Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_i
             resid_sum += fabs(estimated_rhs->values[i] - b->values[i]);
         }
 
-        residual = resid_sum;
+        residual = resid_sum / b->size_of_values;
         ++iteration;
     }
 
