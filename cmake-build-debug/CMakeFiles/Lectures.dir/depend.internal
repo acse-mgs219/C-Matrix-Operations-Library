@@ -4,7 +4,7 @@
 CMakeFiles/Lectures.dir/CSRMatrix.cpp.o
  /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.cpp
  /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.h
- /Users/fazi/Desktop/acse-5-assignment-unique-pointers/matrix.h
+ /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
 CMakeFiles/Lectures.dir/Matrix.cpp.o
  /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.cpp
  /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
@@ -16,7 +16,6 @@ CMakeFiles/Lectures.dir/test/test.cpp.o
  /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.h
  /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.cpp
  /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
- /Users/fazi/Desktop/acse-5-assignment-unique-pointers/matrix.h
  /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/catch.hpp
  /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/test.cpp
  /Users/fazi/Desktop/acse-5-assignment-unique-pointers/utilities.h

@@ -1,11 +1,12 @@
 #include "CSRMatrix.h"
 #include <iostream>
 #include "CSRMatrix.h"
+#include <vector>
 
 // Constructor - using an initialisation list here
 template <class T>
-CSRMatrix<T>::CSRMatrix(int rows, int cols, int nnzs, bool preallocate, bool is_row_major):
-Matrix<T>(rows, cols, false, is_row_major), nnzs(nnzs)
+CSRMatrix<T>::CSRMatrix(int rows, int cols, int nnzs, bool preallocate):
+Matrix<T>(rows, cols, false), nnzs(nnzs)
 {
     // If we don't pass false in the initialisation list base constructor, it would allocate values to be of size
     // rows * cols in our base matrix class
@@ -30,8 +31,8 @@ Matrix<T>(rows, cols, false, is_row_major), nnzs(nnzs)
 
 // Constructor - now just setting the value of our T pointer
 template <class T>
-CSRMatrix<T>::CSRMatrix(int rows, int cols, int nnzs, T *values_ptr, int *row_position, int *col_index, bool is_row_major):
-Matrix<T>(rows, cols, values_ptr, is_row_major), nnzs(nnzs), row_position(row_position), col_index(col_index)
+CSRMatrix<T>::CSRMatrix(int rows, int cols, int nnzs, T *values_ptr, int *row_position, int *col_index):
+Matrix<T>(rows, cols, values_ptr), nnzs(nnzs), row_position(row_position), col_index(col_index)
 {}
 
 // destructor
@@ -109,12 +110,13 @@ void CSRMatrix<T>::matVecMult(T *input, T *output)
     }
 }
 
-
 // Do matrix matrix multiplication
 // output = this * mat_right
 template <class T>
 void CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right, CSRMatrix<T>& output)
 {
+    std::vector< std::pair< std::pair<int, int>, T> > result;
+
     // Check our dimensions match
     if (this->cols != mat_right.rows)
     {
@@ -136,7 +138,6 @@ void CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right, CSRMatrix<T>& output)
     else
     {
         std::cerr << "OUTPUT HASN'T BEEN ALLOCATED" << std::endl;
-
     }
 
     // Set the output to zero
@@ -151,23 +152,89 @@ void CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right, CSRMatrix<T>& output)
         // Loop over all the entries in this row
         for (int val_index = this->row_position[i]; val_index < this->row_position[i + 1]; val_index++)
         {
-            std::cout << i << " " << this->col_index[val_index] << " " << this->values[val_index] << std::endl;
+            int position = 0;
 
-
-            for (int c=0; c<mat_right.cols; c++)
+            // loop over rows of the right matrix
+            for (int r = 1; r<mat_right.rows+1; r++)
             {
-                if (c == i)
+                // if there are no elements in the row, go to the next one
+                if (mat_right.row_position[r] - mat_right.row_position[r-1] == 0)
                 {
-                    std::cout << c << std::endl;
+                    continue;
+                }
+
+//                std::cout << "row " << r-1 << std::endl;
+//                std::cout << " number of elements in row: " << mat_right.row_position[r] - mat_right.row_position[r-1] << std::endl;
+//                std::cout << "what elements are in this row: "  << std::endl;
+//                std::cout << "position " <<  mat_right.row_position[r] << std::endl;
+
+                // loop over columns
+                for (int s=0; s<mat_right.row_position[r] - mat_right.row_position[r-1]; s++)
+                {
+                    if (r-1 == this->col_index[val_index])
+                    {
+//                        std::cout << "row " << i << " col " << mat_right.col_index[position] << " val " <<  mat_right.values[position] * this->values[val_index] << std::endl;
+
+                        auto indices = std::make_pair(i, mat_right.col_index[position]);
+                        result.push_back(std::make_pair(indices, mat_right.values[position] * this->values[val_index]));
+                    }
+                    position++;
                 }
             }
-
-
         }
-        std::cout << std::endl;
     }
 
     // HOW DO WE SET THE SPARSITY OF OUR OUTPUT MATRIX HERE??
+
+    std::vector<T> non_zeros;
+    std::vector<int> row_position = {0};
+    std::vector<int> col_index;
+
+    // construct result arrays
+    for (auto itr = result.begin(); itr!=result.end()-1; itr++)
+    {
+        // compare with next element
+        if (itr->first.first == (itr+1)->first.first && itr->first.second == (itr+1)->first.second)
+        {
+            (*(itr+1)).second += itr->second;
+            continue;
+        }
+
+
+        if (itr->first.first != row_position.size())
+        {
+            row_position.push_back(1);
+        }
+        else {
+            row_position[itr->first.first] += row_position[itr->first.first-1];
+        }
+
+        non_zeros.push_back(itr->second);
+        col_index.push_back(itr->first.second);
+    }
+
+    // add final value
+    non_zeros.push_back((result.end()-1)->second);
+    col_index.push_back((result.end()-1)->first.second);
+
+    for (auto itr = non_zeros.begin(); itr!=non_zeros.end(); itr++)
+    {
+        std::cout << *itr << " ";
+    }
+
+    std::cout << std::endl;
+
+    for (auto itr = col_index.begin(); itr!=col_index.end(); itr++)
+    {
+        std::cout << *itr << " ";
+    }
+
+    std::cout << std::endl;
+
+    for (auto itr = row_position.begin(); itr!=row_position.end(); itr++)
+    {
+        std::cout << *itr << " ";
+    }
 }
 
 template<class T>
@@ -203,13 +270,11 @@ void CSRMatrix<T>::printNonZeroValues()
     };
 
     std::cout << std::endl;
-
 }
 
 template<class T>
 void CSRMatrix<T>::setMatrix(T *values_ptr, int iA[], int jA[])
 {
-    iA[0];
     for (int i=0; i<this->nnzs+1; i++)
     {
         if (i<this->nnzs)

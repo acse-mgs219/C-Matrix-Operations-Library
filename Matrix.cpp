@@ -3,12 +3,13 @@
 
 // constructor - creates a matrix initialized to 0
 template <class T>
-Matrix<T>::Matrix(int nrows, int ncols, bool preallocate, bool is_row_major) :
-rows(nrows), cols(ncols), size_of_values(nrows * ncols), preallocated(preallocate), is_row_major(is_row_major)
+Matrix<T>::Matrix(int nrows, int ncols, bool preallocate) :
+rows(nrows), cols(ncols), size_of_values(nrows * ncols), preallocated(preallocate)
 {
     if (this->preallocated)
     {
         this->values = new T[this->size_of_values];
+        // initialize values to 0
         for (int i=0; i<size_of_values; i++)
         {
             this->values[i] = 0;
@@ -18,25 +19,27 @@ rows(nrows), cols(ncols), size_of_values(nrows * ncols), preallocated(preallocat
 
 // constructor for not preallocated
 template <class T>
-Matrix<T>::Matrix(int nrows, int ncols, T *values_ptr, bool is_row_major) :
-rows(nrows), cols(ncols), size_of_values(nrows * ncols), values(values_ptr), is_row_major(is_row_major)
+Matrix<T>::Matrix(int nrows, int ncols, T *values_ptr) :
+rows(nrows), cols(ncols), size_of_values(nrows * ncols), values(values_ptr)
 {}
+
+// destructor
+template <class T>
+Matrix<T>::~Matrix()
+{
+    // if preallocated delete
+    if (this->preallocated)
+    {
+        delete[] this->values;
+    }
+}
 
 // sets an element of the matrix to a designated value
 template <class T>
 void Matrix<T>::setValue(int row_index, int col_index, T value)
 {
-    // matrix is in row major order
-    if (this->is_row_major)
-    {
-        this->values[row_index * this->cols + col_index] = value;
-    }
-    // matrix is in column major order
-    else {
-        this->values[col_index * this->rows + row_index] = value;
-    }
+    this->values[row_index * this->cols + col_index] = value;
 }
-
 
 template <class T>
 void Matrix<T>::setMatrix(int length, T *values_ptr)
@@ -75,14 +78,8 @@ void Matrix<T>::printMatrix()
     {
         for (int j=0; j<this->cols; j++)
         {
-            if (this->is_row_major) {
-                // we have explicitly assumed row-major ordering here
-                std::cout << this->values[i * this->cols + j] << " ";
-            }
-            else {
-                // we have explicitly assumed row-major ordering here
-                std::cout << this->values[j * this->rows + i] << " ";
-            }
+            // we have explicitly assumed row-major ordering here
+            std::cout << this->values[i * this->cols + j] << " ";
         }
         std::cout << "\n";
     }
@@ -90,7 +87,7 @@ void Matrix<T>::printMatrix()
 
 // assumes user has already created mat_right and output matrices
 template <class T>
-void Matrix<T>::matMatMult (Matrix& mat_right, Matrix& output)
+void Matrix<T>::matMatMult(Matrix& mat_right, Matrix& output)
 {
     // check dimensions make sense return without doing any multiplication
     if (this->cols != mat_right.rows)
@@ -103,9 +100,9 @@ void Matrix<T>::matMatMult (Matrix& mat_right, Matrix& output)
     if (output.values != nullptr)
     {
         // Check our dimensions match
-        if (this->rows != output.rows || this->cols != output.cols)
+        if (this->rows != output.rows || mat_right.cols != output.cols)
         {
-            std::cerr << "Input dimensions for matrices don't match" << std::endl;
+            std::cerr << "Input dimensions for output matrix incorrect" << std::endl;
             return;
         }
     }
@@ -206,7 +203,7 @@ Matrix<T> *Matrix<T>::backSubstitution(Matrix<T> *b)
     }
 
     // create an empty vector
-    Matrix<T> *solution = new Matrix<T>(b->rows, b->cols, true, true);
+    Matrix<T> *solution = new Matrix<T>(b->rows, b->cols, true);
 
     double s;
 
@@ -243,7 +240,7 @@ Matrix<T> *Matrix<T>::forwardSubstitution(Matrix<T> *b)
     }
 
     // create an empty vector
-    Matrix<T> *solution = new Matrix<T>(b->rows, b->cols, true, true);
+    Matrix<T> *solution = new Matrix<T>(b->rows, b->cols, true);
 
     double s;
 
@@ -411,7 +408,8 @@ void Matrix<T>::luDecompositionPivot(Matrix<T> *upper_tri, Matrix<T> *lower_tri,
         throw std::invalid_argument("input has wrong number dimensions");
     }
 
-    int max_index, max_val = -1;
+    int max_index = -1;
+    int max_val = -1;
     double s = -1;
 
     // copy the values of A into upper triangular matrix
@@ -472,16 +470,7 @@ void Matrix<T>::luDecompositionPivot(Matrix<T> *upper_tri, Matrix<T> *lower_tri,
     permutation->transpose();
 }
 
-// destructor
-template <class T>
-Matrix<T>::~Matrix()
-{
-    // if preallocated delete
-    if (this->preallocated)
-    {
-        delete[] this->values;
-    }
-}
+
 
 template<class T>
 Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[])
@@ -522,7 +511,7 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
         }
         resid_sum = 0;
 
-        this->matMatMul(*x_var, *estimated_rhs);
+        this->matMatMult(*x_var, *estimated_rhs);
 
         // check residual
         for (int i=0; i<b->size_of_values; i++)
@@ -576,7 +565,7 @@ Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_i
 
         resid_sum = 0;
 
-        this->matMatMul(*x_var, *estimated_rhs);
+        this->matMatMult(*x_var, *estimated_rhs);
 
         // check residual
         for (int i=0; i<b->size_of_values; i++)
@@ -626,7 +615,7 @@ Matrix<T> *Matrix<T>::solveLU(Matrix<T> *b) {
     this->luDecompositionPivot(upper_tri, lower_tri, permutation);
 
     permutation->transpose();
-    permutation->matMatMul(*b, *p_inv_b);
+    permutation->matMatMult(*b, *p_inv_b);
 
     auto y_values = lower_tri->forwardSubstitution(p_inv_b);
 

@@ -13,10 +13,12 @@ iostream
 -
 CSRMatrix.h
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.h
+vector
+-
 
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.h
-matrix.h
-/Users/fazi/Desktop/acse-5-assignment-unique-pointers/matrix.h
+Matrix.h
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
 
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.cpp
 Matrix.h
@@ -25,12 +27,6 @@ memory
 -
 
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
-stdexcept
--
-iostream
--
-
-/Users/fazi/Desktop/acse-5-assignment-unique-pointers/matrix.h
 stdexcept
 -
 iostream

@@ -3,7 +3,7 @@
 
 CMakeFiles/Lectures.dir/CSRMatrix.cpp.o: ../CSRMatrix.cpp
 CMakeFiles/Lectures.dir/CSRMatrix.cpp.o: ../CSRMatrix.h
-CMakeFiles/Lectures.dir/CSRMatrix.cpp.o: ../matrix.h
+CMakeFiles/Lectures.dir/CSRMatrix.cpp.o: ../Matrix.h
 
 CMakeFiles/Lectures.dir/Matrix.cpp.o: ../Matrix.cpp
 CMakeFiles/Lectures.dir/Matrix.cpp.o: ../Matrix.h
@@ -15,7 +15,6 @@ CMakeFiles/Lectures.dir/test/test.cpp.o: ../CSRMatrix.cpp
 CMakeFiles/Lectures.dir/test/test.cpp.o: ../CSRMatrix.h
 CMakeFiles/Lectures.dir/test/test.cpp.o: ../Matrix.cpp
 CMakeFiles/Lectures.dir/test/test.cpp.o: ../Matrix.h
-CMakeFiles/Lectures.dir/test/test.cpp.o: ../matrix.h
 CMakeFiles/Lectures.dir/test/test.cpp.o: ../test/catch.hpp
 CMakeFiles/Lectures.dir/test/test.cpp.o: ../test/test.cpp
 CMakeFiles/Lectures.dir/test/test.cpp.o: ../utilities.h

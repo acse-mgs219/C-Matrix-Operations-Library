@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "matrix.h"
+#include "Matrix.h"
 
 template <class T>
 class CSRMatrix: public Matrix<T>
@@ -11,10 +11,10 @@ class CSRMatrix: public Matrix<T>
 public:
 
     // constructor where we want to preallocate ourselves
-    CSRMatrix(int rows, int cols, int nnzs, bool preallocate, bool is_row_major);
+    CSRMatrix(int rows, int cols, int nnzs, bool preallocate);
 
     // constructor where we already have allocated memory outside
-    CSRMatrix(int rows, int cols, int nnzs, T *values_ptr, int *row_position, int *col_index, bool is_row_major);
+    CSRMatrix(int rows, int cols, int nnzs, T *values_ptr, int *row_position, int *col_index);
 
     // destructor
     ~CSRMatrix();
