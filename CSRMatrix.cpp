@@ -176,29 +176,38 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
             continue;
         }
 
-        // if the value for the row exists, simply increment the count
-        if ( (*row_pos)[itr->first.first+1] != 0 )
-        {
-            (*row_pos)[itr->first.first+1]++;
-        }
-        // if the value for the row does not exist, calculate the cumulative count
-        else {
-            (*row_pos)[itr->first.first+1] = (*row_pos)[itr->first.first] + 1;
-        }
+//        // if the value for the row exists, simply increment the count
+//        if ( (*row_pos)[itr->first.first+1] != 0 )
+//        {
+//            (*row_pos)[itr->first.first+1]++;
+//        }
+//        // if the value for the row does not exist, calculate the cumulative count
+//        else {
+//            (*row_pos)[itr->first.first+1] = (*row_pos)[itr->first.first] + 1;
+//        }
 
         non_zeros->push_back(itr->second);
         col_index->push_back(itr->first.second);
     }
 
-    // if the value for the row exists, simply increment the count
-    if ( (*row_pos)[(result.end()-1)->first.first+1] != 0 )
+
+    for (int i = result.begin()->first.first; i < this->rows + 1; i++)
     {
-        (*row_pos)[(result.end()-1)->first.first+1]++;
+        *(row_pos->begin() + i + 1) += 1;
+        *(row_pos->begin() + i + 1) += *(row_pos->begin() + i);
+
     }
-        // if the value for the row does not exist, calculate the cumulative count
-    else {
-        (*row_pos)[(result.end()-1)->first.first+1] = (*row_pos)[(result.end()-1)->first.first] + 1;
-    }
+
+
+//    // if the value for the row exists, simply increment the count
+//    if ( (*row_pos)[(result.end()-1)->first.first+1] != 0 )
+//    {
+//        (*row_pos)[(result.end()-1)->first.first+1]++;
+//    }
+//    // if the value for the row does not exist, calculate the cumulative count
+//    else {
+//        (*row_pos)[(result.end()-1)->first.first+1] = (*row_pos)[(result.end()-1)->first.first] + 1;
+//    }
 
     // add final value
     non_zeros->push_back((result.end()-1)->second);
