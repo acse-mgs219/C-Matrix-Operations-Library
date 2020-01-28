@@ -16,12 +16,9 @@ public:
     // pointer to where values are stored
     T *values = nullptr;
 
-    // tells us whether matrix is row major
-    bool is_row_major;
-
     // constructor
-    Matrix(int rows, int cols, bool preallocate, bool is_row_major = true);
-    Matrix(int rows, int cols, T *values_ptr, bool is_row_major = true);
+    Matrix(int rows, int cols, bool preallocate);
+    Matrix(int rows, int cols, T *values_ptr);
 
     // destructor
     virtual ~Matrix();
@@ -30,10 +27,10 @@ public:
     void setValue(int row_index, int col_index, T value);
 
     // set all the values of the matrix
-    void setMatrix(int length, T *values_ptr);
+    virtual void setMatrix(int length, T *values_ptr);
 
     // get the value of an element at a certain position
-    void getValue(int row_index, int col_index);
+    T getValue(int row_index, int col_index);
 
     void transpose();
 
@@ -44,7 +41,7 @@ public:
     /////////// Matrix Operations Methods /////
 
     // matrix multiplication
-    void matMatMul(Matrix<T>& mat_right, Matrix<T>& output);
+    void matMatMult(Matrix<T>& mat_right, Matrix<T>& output);
 
     // jacobi iterative solver
     Matrix<T> *solveJacobi(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[]);
