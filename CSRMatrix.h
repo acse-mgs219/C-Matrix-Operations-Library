@@ -27,7 +27,7 @@ public:
     void setMatrix(T *values_ptr, int iA[], int jA[]);
 
     // Perform some operations with our matrix
-    void matMatMult(CSRMatrix<T>& mat_right, CSRMatrix<T>& output);
+    CSRMatrix<T>* matMatMult(CSRMatrix<T>& mat_right);
 
     // Perform some operations with our matrix
     void matVecMult(T *input, T *output);
