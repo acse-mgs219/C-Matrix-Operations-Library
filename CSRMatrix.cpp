@@ -187,7 +187,7 @@ void CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right, CSRMatrix<T>& output)
     // HOW DO WE SET THE SPARSITY OF OUR OUTPUT MATRIX HERE??
 
     std::vector<T> non_zeros;
-    std::vector<int> row_position = {0};
+    std::vector<int> row_pos = {0};
     std::vector<int> col_index;
 
     // construct result arrays
@@ -199,48 +199,47 @@ void CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right, CSRMatrix<T>& output)
             (*(itr+1)).second += itr->second;
             continue;
         }
-
-
-        if (itr->first.first != row_position.size())
+        // we this is a new row, so insert a new row position variable
+        if ( itr->first.first != row_pos.size()-1 )
         {
-            row_position.push_back(1);
+            row_pos.push_back(*(row_pos.end()-1) + 1);
         }
+        // this is not a new variable, so increment the existing count for the row
         else {
-            row_position[itr->first.first] += row_position[itr->first.first-1];
+            *(row_pos.end()-1) += 1;
         }
 
         non_zeros.push_back(itr->second);
         col_index.push_back(itr->first.second);
     }
 
+    // do the same for the final element
+    if ( (result.end()-1)->first.first != row_pos.size()-1 )
+    {
+        row_pos.push_back(*(row_pos.end()-1) + 1);
+    }
+    else {
+        *(row_pos.end()-1) += 1;
+    }
+
     // add final value
     non_zeros.push_back((result.end()-1)->second);
     col_index.push_back((result.end()-1)->first.second);
 
-    for (auto itr = non_zeros.begin(); itr!=non_zeros.end(); itr++)
-    {
-        std::cout << *itr << " ";
-    }
+    delete this->values;
+    delete this->row_position;
+    delete this->col_index;
 
-    std::cout << std::endl;
+    T *new_values = &non_zeros[0];
 
-    for (auto itr = col_index.begin(); itr!=col_index.end(); itr++)
-    {
-        std::cout << *itr << " ";
-    }
+    this->values = new_values;
 
-    std::cout << std::endl;
 
-    for (auto itr = row_position.begin(); itr!=row_position.end(); itr++)
-    {
-        std::cout << *itr << " ";
-    }
 }
 
 template<class T>
 void CSRMatrix<T>::printNonZeroValues()
 {
-
     if (this->values == nullptr || this->row_position == nullptr || this->col_index == nullptr)
     {
         throw std::invalid_argument("matrix has not been set");
