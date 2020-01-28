@@ -205,7 +205,7 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
             *(row_pos->end()-1) += 1;
         }*/
 
-        for (int i = result.begin()->first.first; i < rows + 1; i++)
+        for (int i = result.begin()->first.first; i < this->rows + 1; i++)
         {
             std::cout << *(row_pos->begin() + i);
             *(row_pos->begin() + i) += 1;
@@ -217,7 +217,7 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
 
     // do the same for the final element
 
-    for (int i = result.begin()->first.first; i < rows + 1; i++)
+    for (int i = result.begin()->first.first; i < this->rows + 1; i++)
     {
         std::cout << *(row_pos->begin() + i);
         *(row_pos->begin() + i) += 1;
