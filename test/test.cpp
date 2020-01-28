@@ -10,6 +10,39 @@
 
 //#define RUN_ALL_TESTS
 
+TEST_CASE("Conjugate Gradient Method")
+{
+    bool test_result = true;
+
+    double A_values[9] = {2, -1, 0, -1, 3, -1, 0, -1, 2};
+    double b_values[3] = {1, 8, -5};
+
+    auto A = new Matrix<double>(3, 3, true);
+    auto b = new Matrix<double>(3, 1, true);
+
+    A->setMatrix(9, A_values);
+    b->setMatrix(3, b_values);
+
+//    A->printValues();
+//    b->printValues();
+
+    auto result = A->conjugateGradient(b);
+
+    result->printValues();
+
+
+    delete A;
+    delete b;
+    delete result;
+
+    REQUIRE(test_result);
+}
+
+
+
+
+
+
 
 //TEST_CASE("sparse matrix mat-vect mult, massive matrix size")
 //{
@@ -57,6 +90,12 @@
 //}
 
 
+
+
+
+
+
+#if defined(RUN_ALL_TESTS)
 TEST_CASE("set all values of the matrix")
 {
     // create new matrix
@@ -524,7 +563,6 @@ TEST_CASE("sparse matrix; mat-mat mult; small matrix")
     REQUIRE(test_result);
 }
 
-#if defined(RUN_ALL_TESTS)
 TEST_CASE("lu decomposition test - no partial pivoting")
 {
     bool test_result = true;

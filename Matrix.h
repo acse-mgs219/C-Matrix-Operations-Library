@@ -3,9 +3,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <stdexcept>
-#include <iostream>
-
 template<class T>
 class Matrix {
 public:
@@ -32,17 +29,22 @@ public:
     // get the value of an element at a certain position
     T getValue(int row_index, int col_index);
 
+    /////////// Matrix Operations Methods /////
+    // matrix multiplication
+    Matrix<T> *matMatMult(Matrix<T>& mat_right);
+
     void transpose();
+
+    // calculate inner product
+    T innerVectorProduct(Matrix<T>& mat_right);
 
     // print values of the matrix
     void printValues();
     virtual void printMatrix();
 
-    /////////// Matrix Operations Methods /////
-    // matrix multiplication
-    Matrix<T> *matMatMult(Matrix<T>& mat_right);
-
     /////////// Solvers /////
+    Matrix<T> *conjugateGradient(Matrix<T> *b);
+
     // jacobi iterative solver
     Matrix<T> *solveJacobi(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[]);
 
@@ -55,6 +57,12 @@ public:
     // uses direct LU decomposition to solve the matrix system
     Matrix<T> *solveLU(Matrix<T> *b);
 
+    /// HELPER FUNCTIONS - SHOULD EVENTUALLY BE MADE PRIVATE
+    // lu decomposition function
+    void luDecomposition(Matrix<T> *upper_tri, Matrix<T> *lower_tri);
+
+    void luDecompositionPivot(Matrix<T> *upper_tri, Matrix<T> *lower_tri, Matrix<T> *permutation);
+
     // changes the matrix to upper triangular
     void upperTriangular(Matrix<T> *b);
 
@@ -63,10 +71,6 @@ public:
 
     // helper function that forward substitutes solution
     Matrix<T> *forwardSubstitution(Matrix<T> *b);
-
-    // lu decomposition function
-    void luDecomposition(Matrix<T> *upper_tri, Matrix<T> *lower_tri);
-    void luDecompositionPivot(Matrix<T> *upper_tri, Matrix<T> *lower_tri, Matrix<T> *permutation);
 
     // swap rows
     void swapRows(Matrix<T> *b, int i, int j);

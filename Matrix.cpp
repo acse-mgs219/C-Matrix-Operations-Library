@@ -1,5 +1,7 @@
 #include "Matrix.h"
 #include <memory>
+#include <stdexcept>
+#include <iostream>
 
 // constructor - creates a matrix initialized to 0
 template <class T>
@@ -622,6 +624,113 @@ T Matrix<T>::getValue(int row_index, int col_index)
     }
 
     return this->values[row_index * this->cols + col_index];
+}
+
+// solve Ax = b;
+template<class T>
+Matrix<T> *Matrix<T>::conjugateGradient(Matrix<T> *b)
+{
+    int k = 0;
+    int k_max = 10;
+    T beta = 1;
+    double alpha = 1;
+    T delta_old = 1;
+
+    // intialize to x to 0
+    auto x = new Matrix<T>(b->rows, b->cols, true);
+
+    // workout Ax
+    auto Ax = this->matMatMult(*x);
+
+    // r = b - Ax
+    auto r = new Matrix<T>(b->rows, b->cols, true);
+    for (int i=0; i<r->size_of_values; i++)
+    {
+        r->values[i] = b->values[i] - Ax->values[i];
+    }
+
+    auto p = new Matrix<T>(r->rows, r->cols, true);
+    auto w = new Matrix<T>(r->rows, r->cols, true);
+
+    double delta = r->innerVectorProduct(*r);
+
+    while (k < k_max)
+    {
+        if (k==1)
+        {
+            for (int i=0; i<p->size_of_values; i++)
+            {
+                p->values[i] = r->values[i];
+            }
+
+        } else {
+            beta = delta / delta_old;
+
+            // p = r + beta * p
+            for (int i=0; i<p->size_of_values; i++)
+            {
+                p->values[i] = r->values[i] + beta*p->values[i];
+            }
+        }
+
+        auto Ap = this->matMatMult(*p);
+
+        for (int i=0; i<w->size_of_values; i++)
+        {
+            w->values[i] = Ap->values[i];
+        }
+
+        alpha = delta / p->innerVectorProduct(*w);
+
+        for (int i=0; i<x->size_of_values; i++)
+        {
+            x->values[i] = x->values[i] + alpha*p->values[i];
+        }
+
+        for (int i=0; i<r->size_of_values; i++)
+        {
+            r->values[i] = r->values[i] - alpha*w->values[i];
+        }
+
+        delta_old = delta;
+        delta = r->innerVectorProduct(*r);
+
+        delete Ap;
+        k++;
+    }
+
+    delete Ax;
+    delete r;
+    delete p;
+
+    return x;
+}
+
+template<class T>
+T Matrix<T>::innerVectorProduct(Matrix<T> &mat_right)
+{
+    // ensure function is called on a vector
+    if (this->cols != 1 || mat_right.cols != 1)
+    {
+        throw std::invalid_argument("both inputs should be vectors");
+    }
+
+    // check dimensions make sense
+    if (this->size_of_values != mat_right.size_of_values)
+    {
+        throw std::invalid_argument("The number of values must match");
+    }
+
+    T result = 0;
+
+    // calculate inner product
+    for (int i=0; i<this->size_of_values; i++)
+    {
+        result += this->values[i] * mat_right.values[i];
+    }
+
+    // return result
+    return result;
 }
 
 
