@@ -87,36 +87,21 @@ void Matrix<T>::printMatrix()
 
 // assumes user has already created mat_right and output matrices
 template <class T>
-void Matrix<T>::matMatMult(Matrix& mat_right, Matrix& output)
+Matrix<T> *Matrix<T>::matMatMult(Matrix& mat_right)
 {
     // check dimensions make sense return without doing any multiplication
     if (this->cols != mat_right.rows)
     {
-        std::cerr << "input dimensions don't match" << std::endl;
-        return;
+        throw std::invalid_argument("input dimensions don't match");
     }
 
-    // Check if our output matrix has had space allocated to it
-    if (output.values != nullptr)
-    {
-        // Check our dimensions match
-        if (this->rows != output.rows || mat_right.cols != output.cols)
-        {
-            std::cerr << "Input dimensions for output matrix incorrect" << std::endl;
-            return;
-        }
-    }
-        // The output hasn't been preallocated, so we are going to do that
-    else
-    {
-        output.values = new T[this->rows * mat_right.cols];
-        output.preallocated = true;
-    }
+   // create an output matrix that will hold our values
+   auto output = new Matrix(this->rows, mat_right.cols, this->preallocated);
 
     // set output values to 0 beforehand
-    for (int i = 0; i < output.size_of_values; i++)
+    for (int i = 0; i < output->size_of_values; i++)
     {
-        output.values[i] = 0;
+        output->values[i] = 0;
     }
 
     // matrix multiplication is O(n^3) - need to be careful about performance - need to be contiguous for fast performance
@@ -126,10 +111,12 @@ void Matrix<T>::matMatMult(Matrix& mat_right, Matrix& output)
         {
             for (int j=0; j<mat_right.cols; j++)
             {
-                output.values[i * output.cols + j] += this->values[i * this->cols + k] * mat_right.values[k * mat_right.cols + j];
+                output->values[i * output->cols + j] += this->values[i * this->cols + k] * mat_right.values[k * mat_right.cols + j];
             }
         }
     }
+
+    return output;
 }
 
 // convert A into upper triangular form - with partial pivoting
@@ -481,7 +468,7 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
 
     x_var_prev->setMatrix(b->size_of_values, initial_guess); // should check that sizes are correct
 
-    auto estimated_rhs = new Matrix<T>(b->rows, b->cols, true);
+    auto estimated_rhs = this->matMatMult(*x_var);
 
     // initialize residual which will be used to determine ending position
     double residual = tolerance * 2;
@@ -511,8 +498,6 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
         }
         resid_sum = 0;
 
-        this->matMatMult(*x_var, *estimated_rhs);
-
         // check residual
         for (int i=0; i<b->size_of_values; i++)
         {
@@ -538,7 +523,7 @@ Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_i
 
     x_var->setMatrix(b->rows, initial_guess);
 
-    auto estimated_rhs = new Matrix<T>(b->rows, b->cols, true);
+    auto estimated_rhs = this->matMatMult(*x_var);
 
     // initialize residual which will be used to determine ending position
     double residual = tolerance * 2;
@@ -564,8 +549,6 @@ Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_i
         }
 
         resid_sum = 0;
-
-        this->matMatMult(*x_var, *estimated_rhs);
 
         // check residual
         for (int i=0; i<b->size_of_values; i++)
@@ -610,14 +593,14 @@ Matrix<T> *Matrix<T>::solveLU(Matrix<T> *b) {
     auto lower_tri = new Matrix<T>(this->rows, this->cols, true);
     auto permutation = new Matrix<T>(this->rows, this->cols, true);
 
-    auto p_inv_b = new Matrix<T>(b->rows, b->cols, true);
-
     this->luDecompositionPivot(upper_tri, lower_tri, permutation);
 
     permutation->transpose();
-    permutation->matMatMult(*b, *p_inv_b);
+
+    auto p_inv_b = permutation->matMatMult(*b);
 
     auto y_values = lower_tri->forwardSubstitution(p_inv_b);
+
 
     auto *solution = upper_tri->backSubstitution(y_values);
 

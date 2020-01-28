@@ -9,24 +9,31 @@
 #define TOL 0.0001
 
 //#define RUN_ALL_TESTS
-//TEST_CASE("sparse matrix mat-vect mult")
+
+
+//TEST_CASE("sparse matrix mat-vect mult, massive matrix size")
 //{
-//    int rows = 4;
-//    int cols = 4;
+//    int rows = 400;
+//    int cols = 400;
 //    int nnzs = 4;
 //
-//    double values[4] = {5, 8, 3, 6};
-////    double right_values[4] = {5, 8, 3, 6};
-//    double right_values[5] = {3, 6, 3, 8, 5};
+//    double values[4] = { 5, 8, 3, 6 }; // i = 398, k = 399
+//    //    double right_values[4] = {5, 8, 3, 6}; // k = 399, j = 2
+//    double right_values[5] = { 3, 6, 3, 8, 5 }; //ij = ik + kj
 //
-//    int iA[5] = {0, 0, 2, 3, 4};
-//    int jA[4] = {0, 1, 2, 1};
+//    int iA[401] = { 0 };
+//    iA[399] = 2;
+//    iA[400] = 4;
+//    int jA[4] = { 0, 399, 2, 100 }; // col 0 row 399 col 1 row 399 col 2 row 400 col 100 row 400
 //
-////    int iA_right[5] = {0, 0, 2, 3, 4};
-////    int jA_right[4] = {0, 1, 2, 1};
+//    //    int iA_right[5] = {0, 0, 2, 3, 4};
+//    //    int jA_right[4] = {0, 1, 2, 1};
 //
-//    int iA_right[5] = {0, 1, 3, 4, 5};
-//    int jA_right[5] = {0, 0, 1, 2, 1};
+//    int iA_right[401] = { 0 };
+//    iA_right[398] = 1;
+//    iA_right[399] = 3;
+//    iA_right[400] = 5;
+//    int jA_right[5] = { 0, 0, 1, 2, 100 }; // col 0 row 398 col 0 row 399 col 1 row 399 col 2 row 400 col 100 row 400
 //
 //    // create sparse matrix
 //    auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
@@ -35,7 +42,10 @@
 //    A->setMatrix(values, iA, jA);
 //    B->setMatrix(right_values, iA_right, jA_right);
 //
-////    B->printMatrix();
+//    //A->printMatrix();
+//    //B->printMatrix();
+//
+//    //    B->printMatrix();
 //    auto output = A->matMatMult(*B);
 //
 //    output->printMatrix();
@@ -43,57 +53,46 @@
 //    delete A;
 //    delete B;
 //    delete output;
-//
 //    REQUIRE(true);
 //}
 
-TEST_CASE("sparse matrix mat-vect mult, massive matrix size")
+
+TEST_CASE("set all values of the matrix")
 {
-    int rows = 400;
-    int cols = 400;
-    int nnzs = 4;
+    // create new matrix
+    bool test_result = true;
 
-    double values[4] = { 5, 8, 3, 6 }; // i = 398, k = 399
-    //    double right_values[4] = {5, 8, 3, 6}; // k = 399, j = 2
-    double right_values[5] = { 3, 6, 3, 8, 5 }; //ij = ik + kj
+    int rows = 2;
+    int cols = 2;
 
-    int iA[401] = { 0 };
-    iA[399] = 2;
-    iA[400] = 4;
-    int jA[4] = { 0, 399, 2, 100 }; // col 0 row 399 col 1 row 399 col 2 row 400 col 100 row 400
+    // create matrix - preallocate memory
+    auto *matrix = new Matrix<int>(rows, cols, true);
 
-    //    int iA_right[5] = {0, 0, 2, 3, 4};
-    //    int jA_right[4] = {0, 1, 2, 1};
+    // set values in the matrix
+    int *values_ptr = new int[rows*cols];
 
-    int iA_right[401] = { 0 };
-    iA_right[398] = 1;
-    iA_right[399] = 3;
-    iA_right[400] = 5;
-    int jA_right[5] = { 0, 0, 1, 2, 100 }; // col 0 row 398 col 0 row 399 col 1 row 399 col 2 row 400 col 100 row 400
+    // set values
+    for (int i=0; i<rows*cols; i++) {
+        values_ptr[i] = i;
+    };
 
-    // create sparse matrix
-    auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
-    auto B = new CSRMatrix<double>(rows, cols, 5, true);
+    matrix->setMatrix(rows*cols, values_ptr);
 
-    A->setMatrix(values, iA, jA);
-    B->setMatrix(right_values, iA_right, jA_right);
+    // test values have been set
+    for (int i=0; i<rows*cols; i++) {
+        if (!fEqual(matrix->values[i], i, TOL))
+        {
+            test_result = false;
+            break;
+        }
+    };
 
-    //A->printMatrix();
-    //B->printMatrix();
+    delete matrix;
+    delete[] values_ptr;
 
-    //    B->printMatrix();
-    auto output = A->matMatMult(*B);
-
-    output->printMatrix();
-
-    delete A;
-    delete B;
-    delete output;
-    REQUIRE(true);
+    REQUIRE(test_result);
 }
 
-
-#if defined(RUN_ALL_TESTS)
 TEST_CASE("matrix multiplication; square matrix")
 {
     // flag to check if we pass or fail the test
@@ -102,43 +101,38 @@ TEST_CASE("matrix multiplication; square matrix")
     int rows = 2;
     int cols = 2;
 
-    SECTION("row major matrix multiplication")
+    // the values we want to set in our matrices
+    double matrix_values[4] = {1, 2, 3, 4};
+
+    // the correct output of multiply A * A
+    double correct_values[4] = {7, 10, 15, 22};
+
+    // create a matrix and set all the values to 10
+    auto *matrix = new Matrix<double>(rows, cols, true);
+    auto *right_matrix = new Matrix<double>(rows, cols, true);
+
+    matrix->setMatrix(rows*cols, matrix_values);
+    right_matrix->setMatrix(rows*cols, matrix_values);
+
+    // create output matrix to hold the results
+    auto *output_matrix =  matrix->matMatMult(*right_matrix);
+
+    // check that the values in the result match the correct values
+    for (int i=0; i<rows*cols; i++)
     {
-        // the values we want to set in our matrices
-        double matrix_values[4] = {1, 2, 3, 4};
-
-        // the correct output of multiply A * A
-        double correct_values[4] = {7, 10, 15, 22};
-
-        // create a matrix and set all the values to 10
-        auto *matrix = new Matrix<double>(rows, cols, true);
-        auto *right_matrix = new Matrix<double>(rows, cols, true);
-
-        matrix->setMatrix(rows*cols, matrix_values);
-        right_matrix->setMatrix(rows*cols, matrix_values);
-
-        // create output matrix to hold the results
-        auto *output_matrix = new Matrix<double>(rows, cols, true);
-
-        matrix->matMatMult(*right_matrix, *output_matrix);
-
-        // check that the values in the result match the correct values
-        for (int i=0; i<rows*cols; i++)
+        if (!fEqual(output_matrix->values[i], correct_values[i], TOL))
         {
-            if (!fEqual(output_matrix->values[i], correct_values[i], TOL))
-            {
-                test_result = false;
-                break;
-            }
+            test_result = false;
+            break;
         }
-
-        // clean up memory
-        delete matrix;
-        delete right_matrix;
-        delete output_matrix;
-
-        REQUIRE(test_result);
     }
+
+    // clean up memory
+    delete matrix;
+    delete right_matrix;
+    delete output_matrix;
+
+    REQUIRE(test_result);
 }
 
 TEST_CASE("test matrix row swap without right hand side vector")
@@ -305,47 +299,7 @@ TEST_CASE("testing the gaussian elimination function")
     REQUIRE(test_result);
 }
 
-TEST_CASE("gauss iteration")
-{
-    bool test_result = true;
-
-    int rows = 2;
-    int cols = 2;
-
-    auto *A = new Matrix<double>(rows, cols, true);
-
-    // create rhs vector
-    auto *b = new Matrix<double>(cols, 1, true);
-
-    double A_values[4] = {2, 1, 5, 7};
-    double b_values[2] {7, 3};
-
-    A->setMatrix(4, A_values);
-    b->setMatrix(2, b_values);
-
-    double initial_guess[2] = {1, 1};
-
-    auto solution = A->solveGaussSeidel(b, TOL, 1000, initial_guess);
-
-    double correct_values[2] = {5.11111, -3.22222};
-
-    for (int i=0; i<2; i++)
-    {
-        if (!fEqual(solution->values[i], correct_values[i], TOL))
-        {
-            test_result = false;
-            break;
-        }
-    }
-
-    delete A;
-    delete b;
-    delete solution;
-
-    REQUIRE(test_result);
-}
-
-TEST_CASE("Gauss-Seidel Solver")
+TEST_CASE("gauss-seidel solver")
 {
     bool test_result = true;
 
@@ -388,7 +342,7 @@ TEST_CASE("Gauss-Seidel Solver")
     REQUIRE(test_result);
 }
 
-TEST_CASE("Test LU Decomposition")
+TEST_CASE("lu decomposition")
 {
     bool test_result = true;
 
@@ -419,46 +373,6 @@ TEST_CASE("Test LU Decomposition")
     auto solution = A->solveLU(b);
 
     for (int i=0; i<4; i++)
-    {
-        if (!fEqual(solution->values[i], correct_values[i], TOL))
-        {
-            test_result = false;
-            break;
-        }
-    }
-
-    delete A;
-    delete b;
-    delete solution;
-
-    REQUIRE(test_result);
-}
-
-TEST_CASE("jacobi iteration")
-{
-    bool test_result = true;
-
-    int rows = 2;
-    int cols = 2;
-
-    auto *A = new Matrix<double>(rows, cols, true);
-
-    // create rhs vector
-    auto *b = new Matrix<double>(cols, 1, true);
-
-    double A_values[4] = {2, 1, 5, 7};
-    double b_values[2] {7, 3};
-
-    A->setMatrix(4, A_values);
-    b->setMatrix(2, b_values);
-
-    double initial_guess[2] = {1, 1};
-
-    auto solution = A->solveJacobi(b, TOL, 1000, initial_guess);
-
-    double correct_values[2] = {5.11111, -3.22222};
-
-    for (int i=0; i<2; i++)
     {
         if (!fEqual(solution->values[i], correct_values[i], TOL))
         {
@@ -519,43 +433,98 @@ TEST_CASE("lu decomposition test - partial pivoting")
     REQUIRE(test_result);
 }
 
-TEST_CASE("set all values of the matrix")
+TEST_CASE("jacobi iteration")
 {
-    // create new matrix
     bool test_result = true;
 
     int rows = 2;
     int cols = 2;
 
-    // create matrix - preallocate memory
-    auto *matrix = new Matrix<int>(rows, cols, true);
+    auto *A = new Matrix<double>(rows, cols, true);
 
-    // set values in the matrix
-    int *values_ptr = new int[rows*cols];
+    // create rhs vector
+    auto *b = new Matrix<double>(cols, 1, true);
 
-    // set values
-    for (int i=0; i<rows*cols; i++) {
-        values_ptr[i] = i;
-    };
+    double A_values[4] = {2, 1, 5, 7};
+    double b_values[2] {7, 3};
 
-    matrix->setMatrix(rows*cols, values_ptr);
+    A->setMatrix(4, A_values);
+    b->setMatrix(2, b_values);
 
-    // test values have been set
-    for (int i=0; i<rows*cols; i++) {
-        if (!fEqual(matrix->values[i], i, TOL))
+    double initial_guess[2] = {1, 1};
+
+    auto solution = A->solveJacobi(b, TOL, 1000, initial_guess);
+
+    double correct_values[2] = {5.11111, -3.22222};
+
+    for (int i=0; i<2; i++)
+    {
+        if (!fEqual(solution->values[i], correct_values[i], TOL))
         {
             test_result = false;
             break;
         }
-    };
+    }
 
-    delete matrix;
-    delete[] values_ptr;
+    delete A;
+    delete b;
+    delete solution;
 
     REQUIRE(test_result);
 }
 
+TEST_CASE("sparse matrix; mat-mat mult; small matrix")
+{
+    bool test_result = true;
 
+    int rows = 4;
+    int cols = 4;
+    int nnzs = 4;
+
+    // non-zero values of our sparse matrices
+    double values[4] = {5, 8, 3, 6};
+    double right_values[5] = {3, 6, 3, 8, 5};
+
+    int iA[5] = {0, 0, 2, 3, 4};
+    int jA[4] = {0, 1, 2, 1};
+
+    int iA_right[5] = {0, 1, 3, 4, 5};
+    int jA_right[5] = {0, 0, 1, 2, 1};
+
+    int correct_values[5] = {63, 24, 24, 36, 18};
+    int correct_col_index[5] = {0, 1, 2, 0, 1};
+
+    // create sparse matrices - smart pointers automatically exit after out of scope
+    std::unique_ptr< CSRMatrix<double> >  A(new CSRMatrix<double>(rows, cols, nnzs, true));
+    std::unique_ptr< CSRMatrix<double> > B(new CSRMatrix<double>(rows, cols, 5, true));
+
+    A->setMatrix(values, iA, jA);
+    B->setMatrix(right_values, iA_right, jA_right);
+
+    // generate the output matrix
+    auto output = A->matMatMult(*B);
+
+    // check values are correct
+    for (int i=0; i<output->nnzs; i++)
+    {
+        if (!fEqual(output->values[i], correct_values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
+
+        if (output->col_index[i] != correct_col_index[i]) {
+            test_result = false;
+            break;
+        }
+    }
+
+    delete output;
+
+    REQUIRE(test_result);
+}
+
+#if defined(RUN_ALL_TESTS)
 TEST_CASE("lu decomposition test - no partial pivoting")
 {
     bool test_result = true;

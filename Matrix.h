@@ -39,10 +39,10 @@ public:
     virtual void printMatrix();
 
     /////////// Matrix Operations Methods /////
-
     // matrix multiplication
-    void matMatMult(Matrix<T>& mat_right, Matrix<T>& output);
+    Matrix<T> *matMatMult(Matrix<T>& mat_right);
 
+    /////////// Solvers /////
     // jacobi iterative solver
     Matrix<T> *solveJacobi(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[]);
 
@@ -52,12 +52,16 @@ public:
     // function that implements gaussian elimination
     Matrix<T> *solveGaussian(Matrix<T> *b);
 
+    // uses direct LU decomposition to solve the matrix system
     Matrix<T> *solveLU(Matrix<T> *b);
 
+    // changes the matrix to upper triangular
     void upperTriangular(Matrix<T> *b);
 
+    // helper function that back substitutes solution
     Matrix<T> *backSubstitution(Matrix<T> *b);
 
+    // helper function that forward substitutes solution
     Matrix<T> *forwardSubstitution(Matrix<T> *b);
 
     // lu decomposition function

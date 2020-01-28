@@ -204,11 +204,6 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
     non_zeros->push_back((result.end()-1)->second);
     col_index->push_back((result.end()-1)->first.second);
 
-    for (auto itr = non_zeros->begin(); itr != non_zeros->end(); itr++)
-    {
-        std::cout << *itr << " ";
-    }
-
     // create an output matrix and set its values properly
     auto output = new CSRMatrix(this->rows, this->cols, non_zeros->size(), true);
     output->values = non_zeros->data();
