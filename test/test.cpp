@@ -40,12 +40,6 @@ TEST_CASE("jacobi iteration")
     REQUIRE(test_result);
 }
 
-
-
-
-
-
-
 TEST_CASE("sparse matrix; mat-mat mult; small matrix")
 {
     bool test_result = true;
