@@ -1,646 +1,397 @@
-#include "Matrix.h"
-#include <memory>
+//
+//  Matrix.cpp
+//  Matrix_solver_assignment
+//
+//  Created by Darren Shan on 2020/1/28.
+//  Copyright © 2020 Darren Shan. All rights reserved.
+//
 
-// constructor - creates a matrix initialized to 0
+#include <iostream>
+#include "Matrix.hpp"
+#include <vector>
+#include <cmath>
+
+// Constructor - using an initialisation list here
 template <class T>
-Matrix<T>::Matrix(int nrows, int ncols, bool preallocate) :
-rows(nrows), cols(ncols), size_of_values(nrows * ncols), preallocated(preallocate)
+Matrix<T>::Matrix(int rows, int cols, bool preallocate): rows(rows), cols(cols), size_of_values(rows * cols), preallocated(preallocate)
 {
-    if (this->preallocated)
-    {
-        this->values = new T[this->size_of_values];
-        // initialize values to 0
-        for (int i=0; i<size_of_values; i++)
-        {
-            this->values[i] = 0;
-        }
-    }
+   // If we want to handle memory ourselves
+   if (this->preallocated)
+   {
+      // Must remember to delete this in the destructor
+      this->values = new T[size_of_values];
+   }
 }
 
-// constructor for not preallocated
+// Constructor - now just setting the value of our T pointer
 template <class T>
-Matrix<T>::Matrix(int nrows, int ncols, T *values_ptr) :
-rows(nrows), cols(ncols), size_of_values(nrows * ncols), values(values_ptr)
+Matrix<T>::Matrix(int rows, int cols, T *values_ptr): rows(rows), cols(cols), size_of_values(rows * cols), values(values_ptr)
 {}
 
 // destructor
 template <class T>
 Matrix<T>::~Matrix()
 {
-    // if preallocated delete
-    if (this->preallocated)
-    {
-        delete[] this->values;
-    }
+   // Delete the values array
+   if (this->preallocated){
+      delete[] this->values;
+   }
 }
 
-// sets an element of the matrix to a designated value
-template <class T>
-void Matrix<T>::setValue(int row_index, int col_index, T value)
-{
-    this->values[row_index * this->cols + col_index] = value;
-}
-
-template <class T>
-void Matrix<T>::setMatrix(int length, T *values_ptr)
-{
-    // trying to set the matrix with wrong size inputs
-    if (length != this->size_of_values)
-    {
-        throw std::invalid_argument("input has wrong number of elements");
-    }
-
-    // set the values of the array (just overwrite as we don't want dangling pointers)
-    for (int i=0; i<length; i++)
-    {
-        this->values[i] = values_ptr[i];
-    }
-}
-
-// print values (not matrix form)
+// Just print out the values in our values array
 template <class T>
 void Matrix<T>::printValues()
 {
-    std::cout << "Printing values in memory order:\n";
-    for (int i=0; i<this->size_of_values; i++)
-    {
-        std::cout << this->values[i] << " ";
-    }
-    std::cout << std::endl;
-};
+   std::cout << "Printing values" << std::endl;
+    for (int i = 0; i< this->size_of_values; i++)
+   {
+      std::cout << this->values[i] << " ";
+   }
+   std::cout << std::endl;
+}
 
-// print matrix in matrix form
+// Explicitly print out the values in values array as if they are a matrix
 template <class T>
 void Matrix<T>::printMatrix()
 {
-    std::cout << "Printing in Matrix form:" << std::endl;
-    for (int i=0; i<this->rows; i++)
-    {
-        for (int j=0; j<this->cols; j++)
-        {
-            // we have explicitly assumed row-major ordering here
-            std::cout << this->values[i * this->cols + j] << " ";
-        }
-        std::cout << "\n";
-    }
+   std::cout << "Printing matrix" << std::endl;
+   for (int j = 0; j< this->rows; j++)
+   {
+      std::cout << std::endl;
+      for (int i = 0; i< this->cols; i++)
+      {
+         // We have explicitly used a row-major ordering here
+         std::cout << this->values[i + j * this->cols] << " ";
+      }
+   }
+   std::cout << std::endl;
 }
 
-// assumes user has already created mat_right and output matrices
+// Do matrix matrix multiplication
+// output = this * mat_right
 template <class T>
-void Matrix<T>::matMatMult(Matrix& mat_right, Matrix& output)
+void Matrix<T>::matMatMult(Matrix<T>& mat_right, Matrix<T>& output)
 {
-    // check dimensions make sense return without doing any multiplication
-    if (this->cols != mat_right.rows)
-    {
-        std::cerr << "input dimensions don't match" << std::endl;
-        return;
-    }
 
-    // Check if our output matrix has had space allocated to it
-    if (output.values != nullptr)
-    {
-        // Check our dimensions match
-        if (this->rows != output.rows || mat_right.cols != output.cols)
-        {
-            std::cerr << "Input dimensions for output matrix incorrect" << std::endl;
-            return;
-        }
-    }
-        // The output hasn't been preallocated, so we are going to do that
-    else
-    {
-        output.values = new T[this->rows * mat_right.cols];
-        output.preallocated = true;
-    }
+   // Check our dimensions match
+   if (this->cols != mat_right.rows)
+   {
+      std::cerr << "Input dimensions for matrices don't match" << std::endl;
+      return;
+   }
 
-    // set output values to 0 beforehand
-    for (int i = 0; i < output.size_of_values; i++)
-    {
-        output.values[i] = 0;
-    }
+   // Check if our output matrix has had space allocated to it
+   if (output.values != nullptr)
+   {
+      // Check our dimensions match
+      if (this->rows != output.rows || this->cols != output.cols)
+      {
+         std::cerr << "Input dimensions for matrices don't match" << std::endl;
+         return;
+      }
+   }
+   // The output hasn't been preallocated, so we are going to do that
+   else
+   {
+      output.values = new T[this->rows * mat_right.cols];
+      // Don't forget to set preallocate to true now it is protected
+      output.preallocated = true;
+   }
 
-    // matrix multiplication is O(n^3) - need to be careful about performance - need to be contiguous for fast performance
-    for (int i=0; i<this->rows; i++)
-    {
-        for (int k=0; k<this->cols; k++)
-        {
-            for (int j=0; j<mat_right.cols; j++)
-            {
-                output.values[i * output.cols + j] += this->values[i * this->cols + k] * mat_right.values[k * mat_right.cols + j];
-            }
-        }
-    }
+   // Set values to zero before hand
+   for (int i = 0; i < output.size_of_values; i++)
+   {
+      output.values[i] = 0;
+   }
+
+   // Now we can do our matrix-matrix multiplication
+   // CHANGE THIS FOR LOOP ORDERING AROUND
+   // AND CHECK THE TIME SPENT
+   // Does the ordering matter for performance. Why??
+   for(int i = 0; i < this->rows; i++)
+   {
+      for(int k = 0; k < this->cols; k++)
+      {
+         for(int j = 0; j < mat_right.cols; j++)
+         {
+               output.values[i * output.cols + j] += this->values[i * this->cols + k] * mat_right.values[k * mat_right.cols + j];
+         }
+      }
+   }
 }
-
-// convert A into upper triangular form - with partial pivoting
+/*
+ def LU_decomposition(A):
+ # construct upper triangular matrix contains Gaussian elimination result
+ # we won't change A in-place but create a local copy
+ # if we don't do this then A will be over-written by the U we
+ # compute and return
+ A = A.copy()
+ m, n = A.shape
+ assert(m == n)
+ # For simplicity we set up a matrix to store L, but note the comment above
+ # that if we had memory concerns we would reuse zeroed entries in A.
+ # We don't initialise this to the identity now, as this won't be correct
+ # when we use partial pivoting a little later.
+ L = np.zeros((n,n))
+ # Loop over each pivot row - don't need to consider the final row as a pivot
+ for k in range(n-1):
+     # Loop over each equation below the pivot row - now we do need to consider the last row
+     for i in range(k+1, n):
+         # Define the scaling factor outside the innermost
+         # loop otherwise its value gets changed.
+         s = (A[i, k] / A[k, k])
+         for j in range(k, n):
+             A[i, j] = A[i, j] - s*A[k, j]
+         # store the scaling factors which make up the lower tri matrix
+         L[i, k] = s
+ # remember to add in the ones on the main diagonal to L
+ L += np.eye(m)
+ # A now is the upper triangular matrix U
+ return L, A
+ */
 template <class T>
-void Matrix<T>::upperTriangular(Matrix<T> *b)
+void Matrix<T>::LU_decomposition(T *lmat, T *umat)
 {
-    // check if A is square
-    if (this->rows != this->cols)
-    {
-        throw std::invalid_argument("A should be a square matrix!");
-    }
-
-    // check that the dimensions of A and b are compatible
-    if (this->rows != b->size_of_values)
-    {
-        throw std::invalid_argument("A and b dimensions dont match");
-    }
-
-    // scaling factor
-    double s = -1;
-    int kmax = -1;
-
-    // loop over each pivot row except the last one
-    for (int k=0; k<this->rows-1; k++)
-    {
-        // initialize with current pivot row
-        kmax = k;
-
-        // find pivot column to avoid zeros on diagonal
-        for (int i=k+1; i<this->rows; i++)
-        {
-            if (fabs(this->values[kmax*this->cols + k]) < fabs(this->values[i*this->cols + k]))
-            {
-                kmax = i;
-            }
-        }
-
-        this->swapRows(b, kmax, k);
-
-        // loop over each row below the pivot
-        for (int i=k+1; i<this->rows; i++)
-        {
-            // calculate scaling value for this row
-            s = this->values[i * this->cols + k] / this->values[k * this->cols + k];
-
-            // start looping from k and update the row
-            for (int j=k; j<this->rows; j++)
-            {
-                this->values[i*this->cols + j] -= s * this->values[k*this->cols + j];
-            }
-
-            // update corresponding entry of b
-            b->values[i] -= s * b->values[k];
-        }
-    }
-}
-
-template <class T>
-Matrix<T> *Matrix<T>::backSubstitution(Matrix<T> *b)
-{
-    // check if A is square
-    if (this->rows != this->cols)
-    {
-        throw std::invalid_argument("A should be a square matrix!");
-    }
-
-    // check that the dimensions of A and b are compatible
-    if (this->rows != b->size_of_values)
-    {
-        throw std::invalid_argument("A and b dimensions don't match");
-    }
-
-    // create an empty vector
-    Matrix<T> *solution = new Matrix<T>(b->rows, b->cols, true);
-
-    double s;
-
-    // iterate over system backwards
-    for (int k=b->size_of_values-1; k>=0; k--)
-    {
-        s = 0;
-
-        for (int j=k+1; j<b->size_of_values; j++)
-        {
-            // assumes row major order
-            s += this->values[k * this->cols + j] * solution->values[j];
-        }
-
-        solution->values[k] = (b->values[k] - s) / this->values[k * this->cols + k];
-    }
-
-    return solution;
-}
-
-template<class T>
-Matrix<T> *Matrix<T>::forwardSubstitution(Matrix<T> *b)
-{
-    // check if A is square
-    if (this->rows != this->cols)
-    {
-        throw std::invalid_argument("A should be a square matrix!");
-    }
-
-    // check that the dimensions of A and b are compatible
-    if (this->rows != b->size_of_values)
-    {
-        throw std::invalid_argument("A and b dimensions don't match");
-    }
-
-    // create an empty vector
-    Matrix<T> *solution = new Matrix<T>(b->rows, b->cols, true);
-
-    double s;
-
-    // iterate over system
-    for (int k=0; k<b->size_of_values; k++)
-    {
-        s = 0;
-
-        for (int j=0; j<k; j++)
-        {
-            // assumes row major order
-            s += this->values[k * this->cols + j] * solution->values[j];
-        }
-
-        solution->values[k] = (b->values[k] - s) / this->values[k * this->cols + k];
-    }
-
-    return solution;
-}
-
-
-template<class T>
-void Matrix<T>::swapRows(Matrix<T> *b, int i, int j)
-{
-    // no swap required
-    if (i == j) {
-        return;
-    }
-
-    // create copy of the first row (both A and b)
-    T *iA = new T[this->cols];
-    T *ib = new T[b->cols];
-
-    for (int k=0; k<this->cols; k++)
-    {
-        iA[k] = this->values[i * this->cols + k];
-
-        // also copy b
-        if (k < b->cols)
-        {
-            ib[k] = b->values[i * b->cols + k];
-        }
-    }
-
-    // swap the rows
-    for (int k=0; k<this->cols; k++)
-    {
-        // copy row j of A into row i of A
-        this->values[i * this->cols + k] = this->values[j *this->cols + k];
-
-        // copy row 1 into row 2
-        this->values[j * this->cols + k] = iA[k];
-
-        if (k < b->cols)
-        {
-            // row j into row i of b
-            b->values[i * b->cols + k] = b->values[j * b->cols + k];
-
-            // row i into row j
-            b->values[j * b->cols + k] = ib[k];
-
-        }
-    }
-
-    // clean memory
-    delete[] iA;
-    delete[] ib;
-}
-
-template<class T>
-void Matrix<T>::swapRowsMatrix(int i, int j)
-{
-    // no swap required
-    if (i == j) {
-        return;
-    }
-
-//    // create copy of the first row
-    T *iA = new T[this->cols];
-
-    for (int k=0; k<this->cols; k++)
-    {
-        iA[k] = this->values[i * this->cols + k];
-    }
-
-    // swap the rows
-    for (int k=0; k<this->cols; k++)
-    {
-         //copy row j of A into row i of A
-        this->values[i * this->cols + k] = this->values[j * this->cols + k];
-
-         //copy row 1 into row 2
-        this->values[j * this->cols + k] = iA[k];
-    }
-
-    // clean memory
-    delete[] iA;
-}
-
-// function that implements gaussian elimination
-template<class T>
-Matrix<T> *Matrix<T>::solveGaussian(Matrix<T> *b)
-{
-    // transform matrices to upper triangular
-    this->upperTriangular(b);
-
-    // generate solution
-    auto *solution = this->backSubstitution(b);
-
-    return solution;
-}
-
-
-
-// implementation of the LU decomposition function
-template<class T>
-void Matrix<T>::luDecomposition(Matrix<T> *upper_tri, Matrix<T> *lower_tri)
-{
-    // make sure the matrix is square
-    if (this->cols != this->rows)
-    {
-        throw std::invalid_argument("input has wrong number dimensions");
-    }
-
-    double s = -1;
-
-    // copy the values of A into upper triangular matrix
+    if (this->cols != this->rows) std::cout<<"rows != cols, cannot be decomposed with LU method";
     for (int i=0; i<this->size_of_values; i++)
     {
-        upper_tri->values[i] = this->values[i];
+        lmat[i]=0;
+        umat[i]=this->values[i];
     }
-
-    // loop over each pivot row
-    for (int k=0; k<this->rows-1; k++)
+    
+    for (int k =0; k<this->cols-1; k++)
     {
-        // loop over each equation below the pivot
-       for (int i=k+1; i<this->rows; i++)
-       {
-           // assumes row major order
-           s = upper_tri->values[i * this->rows + k] / upper_tri->values[k * upper_tri->rows + k];
-
-           for (int j=k; j<this->rows; j++)
-           {
-               upper_tri->values[i * this->rows + j] -= s * upper_tri->values[k * upper_tri->rows + j];
-           }
-
-           lower_tri->values[i * this->rows + k] = s;
-       }
+        for (int i =k+1; i<this->cols; i++)
+        {
+            T s = (this->values[i*this->cols+k]/this->values[k*this->cols+k]);
+            
+            for (int j =k; j<this->cols;j++)
+            {
+                umat[i*this->cols + j] = this->values[i*this->cols + j]- s * this->values[k*this->cols + j];
+            }
+            lmat[i*this->cols + k] = s;
+            s = 0;
+        }
     }
-
-    // add zeroes to the diagonal
-    for (int i=0; i<this->rows; i++)
+    for (int i =0;i<this->rows; i++)
     {
-        lower_tri->values[i * lower_tri->rows + i] = 1;
+        lmat[i*this->cols+i] += 1;
     }
 }
 
-
-template<class T>
-void Matrix<T>::luDecompositionPivot(Matrix<T> *upper_tri, Matrix<T> *lower_tri, Matrix<T> *permutation)
+/*
+ def backward_substitution(A, b):
+ n = np.size(b)
+ x = np.zeros(n)
+ for k in range(n-1, -1, -1):
+     s = 0.
+     for j in range(k+1, n):
+         s = s + A[k, j]*x[j]
+     x[k] = (b[k] - s)/A[k, k]
+ return x
+ */
+template <class T>
+void Matrix<T>::backward_substitution(T * rhs, T * result)
 {
-    // make sure the matrix is square
-    if (this->cols != this->rows)
-    {
-        throw std::invalid_argument("input has wrong number dimensions");
+    for (int i = 0; i<this->rows; i++){
+        result[i] = 0;
     }
-
-    int max_index = -1;
-    int max_val = -1;
-    double s = -1;
-
-    // copy the values of A into upper triangular matrix
-    for (int i=0; i<upper_tri->size_of_values; i++)
-    {
-        upper_tri->values[i] = this->values[i];
-    }
-
-    // make permuation matrix an idenity matrix
-    for (int i=0; i<permutation->rows; i++)
-    {
-        permutation->values[i * permutation->cols + i] = 1;
-    }
-
-    // loop over each pivot row
-    for (int k=0; k<upper_tri->rows-1; k++)
-    {
-        max_val = -1;
-        max_index = k;
-
-        // find the index of the largest value in the column
-        for (int z=k; z<upper_tri->rows; z++)
+    double s;
+    for (int k = this->rows-1; k>-1; k--){
+        s = 0.0;
+        for (int j = k+1; j<this->rows; j++)
         {
-            if (fabs(upper_tri->values[z * upper_tri->cols + k]) > max_val)
-            {
-                max_val = fabs(upper_tri->values[z * upper_tri->cols + k]);
-                max_index = z;
-            }
+            s += this->values[k*this->cols +j]*result[j];
         }
-
-        max_index;
-
-        upper_tri->swapRowsMatrix(k, max_index);
-        lower_tri->swapRowsMatrix(k, max_index);
-        permutation->swapRowsMatrix(k, max_index);
-
-        // loop over each equation below the pivot
-        for (int i=k+1; i<upper_tri->rows; i++)
-        {
-            // assumes row major order
-            s = upper_tri->values[i * upper_tri->cols + k] / upper_tri->values[k * upper_tri->cols + k];
-
-            for (int j=k; j<upper_tri->cols; j++)
-            {
-                upper_tri->values[i * upper_tri->cols + j] -= s * upper_tri->values[k * upper_tri->cols + j];
-            }
-
-            lower_tri->values[i * lower_tri->rows + k] = s;
-        }
+        result[k] = (rhs[k]-s)/this->values[k*this->cols+k];
     }
-
-    // add zeroes to the diagonal
-    for (int i=0; i<upper_tri->rows; i++)
-    {
-        lower_tri->values[i * lower_tri->rows + i] = 1;
-    }
-
-    permutation->transpose();
 }
 
-
-
-template<class T>
-Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[])
+/*
+ def forward_substitution(A, b):
+ n = np.size(b)
+ x = np.zeros(n)
+ for k in range(n):
+     s = 0.
+     for j in range(k):
+         s = s + A[k, j]*x[j]
+     x[k] = (b[k] - s)/A[k, k]
+ 
+ return x
+ */
+template <class T>
+void Matrix<T>::forward_substitution(T * rhs, T * result)
 {
-    // create some space to hold the solution to the iteration
-    auto x_var = new Matrix<T>(b->rows, b->cols, true);
-    auto x_var_prev = new Matrix<T>(b->rows, b->cols, true); // is b->cols always 1?
-
-    x_var_prev->setMatrix(b->size_of_values, initial_guess); // should check that sizes are correct
-
-    auto estimated_rhs = new Matrix<T>(b->rows, b->cols, true);
-
-    // initialize residual which will be used to determine ending position
-    double residual = tolerance * 2;
-    double resid_sum; // not actually necessary
-    double *sum = new double(this->cols);
-    int iteration = 0;
-
-    while (residual > tolerance && iteration < max_iterations)
-    {
-        for (int i=0; i<this->rows; i++) // should be this->rows?
-        {
-            sum[i] = 0;
-
-            for (int j=0; j<this->cols; j++) // should be this->cols?
-            {
-                if (i != j)
-                {
-                    sum[i] += this->values[i * this->cols + j] * x_var_prev->values[j];
-                }
-            }
-        }
-
-        for (int i = 0; i < this->rows; i++) // should be this->rows?
-        {
-            x_var->values[i] = 1 / this->values[i * this->rows + i] * (b->values[i] - sum[i]);
-            x_var_prev->values[i] = x_var->values[i];
-        }
-        resid_sum = 0;
-
-        this->matMatMult(*x_var, *estimated_rhs);
-
-        // check residual
-        for (int i=0; i<b->size_of_values; i++)
-        {
-            resid_sum += fabs(estimated_rhs->values[i] - b->values[i]);
-        }
-
-        residual = resid_sum / b->size_of_values;
-        ++iteration;
+    for (int i = 0; i<this->rows; i++){
+        result[i] = 0;
     }
-
-    // clean memory
-    delete x_var_prev;
-    delete estimated_rhs;
-
-    return x_var;
+    
+    double s;
+    for (int k = 0; k<this->rows; k++){
+        s = 0.0;
+        for (int j = 0; j<k; j++)
+        {
+            s += this->values[k*this->cols +j]*result[j];
+        }
+        result[k] = (rhs[k]-s)/this->values[k*this->cols+k];
+    }
 }
 
-template<class T>
-Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_iterations, T *initial_guess) {
-
-    // create some space to hold the solution to the iteration
-    auto x_var = new Matrix<T>(b->rows, b->cols, true);
-
-    x_var->setMatrix(b->rows, initial_guess);
-
-    auto estimated_rhs = new Matrix<T>(b->rows, b->cols, true);
-
-    // initialize residual which will be used to determine ending position
-    double residual = tolerance * 2;
-    double resid_sum;
-    double sum;
-    int iteration = 0;
-
-    while (residual > tolerance && iteration < max_iterations)
-    {
-        for (int i=0; i<b->size_of_values; i++)
-        {
-            sum = 0;
-
-            for (int j=0; j<b->size_of_values; j++)
-            {
-                if (i != j)
-                {
-                    sum += this->values[i * this->cols + j] * x_var->values[j];
-                }
-            }
-
-            x_var->values[i] = 1 / this->values[i * this->cols + i] * (b->values[i] - sum);
-        }
-
-        resid_sum = 0;
-
-        this->matMatMult(*x_var, *estimated_rhs);
-
-        // check residual
-        for (int i=0; i<b->size_of_values; i++)
-        {
-            resid_sum += fabs(estimated_rhs->values[i] - b->values[i]);
-        }
-
-        residual = resid_sum / b->size_of_values;
-        ++iteration;
-    }
-
-    // clean memory
-    delete estimated_rhs;
-
-    return x_var;
-}
-
-
-template<class T>
-void Matrix<T>::transpose()
+/*
+ def LU_solve(A, b):
+ """ An LU solve function that makes use of our
+ non partial pivoting versions of LU_decomposition
+ followed by forward_substitution and
+ backward_substitution
+ """
+ L, U = LU_decomposition(A)
+ y = forward_substitution(L, b)
+ x = backward_substitution(U, y)
+ return x
+ */
+template <class T>
+void Matrix<T>::LU_solve(T* rhs, T* result)
 {
-    // create a new values array to hold the data
-    T *new_values_ptr = new T[this->size_of_values];
+    //LU_decomposition(T & lmat, T & umat)
+    auto *lmat = new T[this->size_of_values];
+    auto *umat = new T[this->size_of_values];
+    
+    auto *for_result = new T[this->rows];
 
-    for (int i=0; i<this->rows; i++)
+    this->LU_decomposition(lmat, umat);
+
+    auto *lmatrix = new Matrix<T>(this->rows, this->cols, lmat);
+    auto *umatrix = new Matrix<T>(this->rows, this->cols, lmat);
+    lmatrix->forward_substitution(rhs,for_result);
+    umatrix->backward_substitution(for_result, result);
+
+    delete[] lmat;
+    delete[] umat;
+    delete[] for_result;
+    delete lmatrix;
+    delete umatrix;
+
+}
+
+template <class T>
+void Matrix<T>::find_unique(std::vector<bool> check_list, std::vector<int> &unique_list)
+{
+    int row_index = 0;
+    int count = 0;
+    for (int i = 0; i < this->cols; i++)
     {
+        if (check_list[i] == false) continue;
+        
+        for (int j = 0; j < this->rows; j++)
+        {
+            if (this->values[i + j*this->cols] != 0)
+            {
+                row_index = j;
+                count++;
+            }
+        }
+        if (count >= 2)
+        {
+            unique_list[i] = -1;
+        }
+        else
+        {
+            unique_list[i] = row_index;
+        }
+        count = 0;
+    }
+//    for (int i = 0; i < this->cols; i++)
+//    {
+//        std::cout << unique_list[i] << " ";
+//    }
+}
+
+
+template <class T>
+void Matrix<T>::sort_mat(){
+    auto *temp_mat = new Matrix<double>(this->rows, this->cols, true);
+    
+    std::vector <bool> check_list (this->cols,true);
+//    check_list[1] = false;
+//    check_list[0] = false;
+//    check_list[2] = 0;
+//    check_list[3] = false;
+    while (!(std::none_of(check_list.begin(), check_list.end(), [](bool v) { return v; })))
+    {
+//        std::cout<<"some are still inside";
+        std::vector <int> unique_list (this->cols,-1);
+        
+        //update unique_list with hanchao's function
+        this->find_unique(check_list, unique_list);
+        //if column j has a unique entry on row i (equals to "unique_list[j]")
+        //then in temp_mat, set row j equals to (row i in original matrix)
+        //so that in temp_mat, the entry on [i,j] is the unique one;
+        //set this column j as false in the while loop to be excluded
         for (int j=0; j<this->cols; j++)
         {
-            new_values_ptr[i * this->cols + j] = this->values[j * this->cols + i];
+            if (unique_list[j]!=-1)
+            {
+                for (int col =0; col<this->cols; col++)
+                {
+                    temp_mat->values[j*this->cols+col]= this->values[unique_list[j]*this->cols+col];
+                    this->values[unique_list[j]*this->cols+col] =0;
+                }
+                check_list[j]=false;
+            }
         }
+        
+        //next, fill the 1st available column with max value,
+        //and remove it from check_list;
+        //remember to delete
+        
+        
+        for (int j=0; j<this->cols; j++)
+        {
+//            std::cout<<"unique value: "<<check_list[j]<<std::endl;
+            if (check_list[j])
+            {
+//                std::cout<<"random assignment in progress: "<< j<<std::endl;
+                int index_row(-1);
+                int max_value(0);
+                //now we fill temp_mat row j with value in row???? let's find out
+                for (int row = j; row < this->rows;row++)
+                {
+//                    std::cout<<"assignment in progress with max: "<< max_value<<std::endl;
+//                    std::cout<<"assignment in progress with value: "<< this->values[row*this->rows+j]<<std::endl;
+                    if (abs(this->values[row*this->rows+j])>abs(max_value))
+                    {
+//                        std::cout<<"assigning: "<< j<<std::endl;
+                        index_row = row;
+                        max_value = this->values[row*this->rows+j];
+                    }
+                }
+                // now index_row takes the index of row???
+                // fill and exclude
+                if (index_row != -1){
+                    for (int kk = 0; kk < this->cols;kk++)
+                    {
+                        temp_mat->values[j*this->cols+kk]= this->values[index_row*this->cols+kk];
+                        this->values[index_row*this->cols+kk] =0;
+                    }
+                    check_list[j]=false;
+                }
+                
+                if (index_row ==-1)
+                {
+                    std::cout<<std::endl<<"index cannot be found here: "<< j<<std::endl;
+                    
+                }
+//                std::cout<<"random assignment finished: "<< j<<std::endl;
+            }
+            break;
+        }
+        
     }
-
-    delete[] this->values;
-
-    this->values = new_values_ptr;
-}
-
-template<class T>
-Matrix<T> *Matrix<T>::solveLU(Matrix<T> *b) {
-
-    auto upper_tri = new Matrix<T>(this->rows, this->cols, true);
-    auto lower_tri = new Matrix<T>(this->rows, this->cols, true);
-    auto permutation = new Matrix<T>(this->rows, this->cols, true);
-
-    auto p_inv_b = new Matrix<T>(b->rows, b->cols, true);
-
-    this->luDecompositionPivot(upper_tri, lower_tri, permutation);
-
-    permutation->transpose();
-    permutation->matMatMult(*b, *p_inv_b);
-
-    auto y_values = lower_tri->forwardSubstitution(p_inv_b);
-
-    auto *solution = upper_tri->backSubstitution(y_values);
-
-    delete upper_tri;
-    delete lower_tri;
-    delete permutation;
-    delete p_inv_b;
-    delete y_values;
-
-    return solution;
-}
-
-template<class T>
-T Matrix<T>::getValue(int row_index, int col_index)
-{
-    if (row_index >= this->rows || col_index >= this->cols)
+    
+    for (int i=0; i<this->size_of_values; i++)
     {
-        throw std::invalid_argument("wrong index values");
+        this->values[i] = temp_mat->values[i];
     }
-
-    return this->values[row_index * this->cols + col_index];
+    delete temp_mat;
+    
 }
-
-
-
-
