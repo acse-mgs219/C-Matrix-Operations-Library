@@ -471,7 +471,7 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
 
     x_var_prev->setMatrix(b->size_of_values, initial_guess); // should check that sizes are correct
 
-    auto estimated_rhs = this->matMatMult(*x_var);
+    auto estimated_rhs = this->matMatMult(*x_var_prev);
 
     // initialize residual which will be used to determine ending position
     double residual = tolerance * 2;
@@ -499,6 +499,7 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
             x_var->values[i] = 1 / this->values[i * this->rows + i] * (b->values[i] - sum[i]);
             x_var_prev->values[i] = x_var->values[i];
         }
+
         resid_sum = 0;
 
         // check residual
@@ -732,7 +733,3 @@ T Matrix<T>::innerVectorProduct(Matrix<T> &mat_right)
     // return result
     return result;
 }
-
-
-
-

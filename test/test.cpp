@@ -10,33 +10,39 @@
 
 //#define RUN_ALL_TESTS
 
-TEST_CASE("Conjugate Gradient Method")
+TEST_CASE("jacobi iteration")
 {
     bool test_result = true;
-
-    double A_values[9] = {2, -1, 0, -1, 3, -1, 0, -1, 2};
-    double b_values[3] = {1, 8, -5};
-
-    auto A = new Matrix<double>(3, 3, true);
-    auto b = new Matrix<double>(3, 1, true);
-
-    A->setMatrix(9, A_values);
-    b->setMatrix(3, b_values);
-
-//    A->printValues();
-//    b->printValues();
-
-    auto result = A->conjugateGradient(b, TOL, 1000);
-
-    result->printValues();
-
-
+    int rows = 4;
+    int cols = 4;
+    auto* A = new Matrix<double>(rows, cols, true);
+    // create rhs vector
+    auto* b = new Matrix<double>(cols, 1, true);
+    double  A_values[16] = { 92, 8, -4, 1.5, 4, 33, 1, 8, 19, 18, 70, 6, 1, 2, 3, 44 };
+    double b_values[4] = { 7, 3, 5, 2 };
+    A->setMatrix(16, A_values);
+    b->setMatrix(4, b_values);
+    double initial_guess[4] = { 1, 1, 1, 1 };
+    auto solution = A->solveJacobi(b, TOL, 1000, initial_guess);
+    //double correct_values[2] = { 5.11111, -3.22222 };
+    /*for (int i = 0; i < 2; i++)
+    {
+        if (!fEqual(solution->values[i], correct_values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
+    }*/
+    solution->printMatrix();
     delete A;
     delete b;
-    delete result;
-
+    delete solution;
     REQUIRE(test_result);
 }
+
+
+
+
 
 
 
@@ -90,11 +96,8 @@ TEST_CASE("Conjugate Gradient Method")
 //
 //    REQUIRE(test_result);
 //}
-
-
-
-
-//TEST_CASE("sparse matrix mat-vect mult, massive matrix size")
+//
+//TEST_CASE("sparse matrix mat-mat mult, massive matrix size")
 //{
 //    int rows = 400;
 //    int cols = 400;
@@ -138,12 +141,6 @@ TEST_CASE("Conjugate Gradient Method")
 //    delete output;
 //    REQUIRE(true);
 //}
-
-
-
-
-
-
 
 #if defined(RUN_ALL_TESTS)
 TEST_CASE("set all values of the matrix")
@@ -609,5 +606,34 @@ TEST_CASE("lu decomposition test - no partial pivoting")
     delete lower_tri;
     REQUIRE(test_result);
 }
+
+TEST_CASE("Conjugate Gradient Method")
+{
+    bool test_result = true;
+
+    double A_values[9] = {2, -1, 0, -1, 3, -1, 0, -1, 2};
+    double b_values[3] = {1, 8, -5};
+
+    auto A = new Matrix<double>(3, 3, true);
+    auto b = new Matrix<double>(3, 1, true);
+
+    A->setMatrix(9, A_values);
+    b->setMatrix(3, b_values);
+
+//    A->printValues();
+//    b->printValues();
+
+    auto result = A->conjugateGradient(b, TOL, 1000);
+
+    result->printValues();
+
+
+    delete A;
+    delete b;
+    delete result;
+
+    REQUIRE(test_result);
+}
+
 
 #endif
