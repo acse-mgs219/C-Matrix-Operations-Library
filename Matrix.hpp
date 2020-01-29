@@ -38,7 +38,7 @@ public:
     void LU_decomposition(T *L, T *R);
     void backward_substitution(T * rhs, T * result);
     void forward_substitution(T * rhs, T * result);
-    void sort_mat();
+    void sort_mat(double * rhs);
     void find_unique(std::vector<bool> check_list, std::vector<int> &unique_list);
 
 // We want our subclass to know about this

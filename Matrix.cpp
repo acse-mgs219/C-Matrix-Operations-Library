@@ -153,24 +153,28 @@ template <class T>
 void Matrix<T>::LU_decomposition(T *lmat, T *umat)
 {
     if (this->cols != this->rows) std::cout<<"rows != cols, cannot be decomposed with LU method";
+    
     for (int i=0; i<this->size_of_values; i++)
     {
         lmat[i]=0;
         umat[i]=this->values[i];
     }
-    
+
     for (int k =0; k<this->cols-1; k++)
     {
         for (int i =k+1; i<this->cols; i++)
         {
-            T s = (this->values[i*this->cols+k]/this->values[k*this->cols+k]);
+//            double temp_s = (this->values[i*this->cols+k]/this->values[k*this->cols+k]);
+            
+            double temp_s = (umat[i*this->cols+k]/umat[k*this->cols+k]);
+
             
             for (int j =k; j<this->cols;j++)
             {
-                umat[i*this->cols + j] = this->values[i*this->cols + j]- s * this->values[k*this->cols + j];
+                umat[i*this->cols + j] = umat[i*this->cols + j]- temp_s * umat[k*this->cols + j];
+//                umat[i*this->cols + j] = this->values[i*this->cols + j]- temp_s * this->values[k*this->cols + j];
             }
-            lmat[i*this->cols + k] = s;
-            s = 0;
+            lmat[i*this->cols + k] = temp_s;
         }
     }
     for (int i =0;i<this->rows; i++)
@@ -179,33 +183,7 @@ void Matrix<T>::LU_decomposition(T *lmat, T *umat)
     }
 }
 
-/*
- def backward_substitution(A, b):
- n = np.size(b)
- x = np.zeros(n)
- for k in range(n-1, -1, -1):
-     s = 0.
-     for j in range(k+1, n):
-         s = s + A[k, j]*x[j]
-     x[k] = (b[k] - s)/A[k, k]
- return x
- */
-template <class T>
-void Matrix<T>::backward_substitution(T * rhs, T * result)
-{
-    for (int i = 0; i<this->rows; i++){
-        result[i] = 0;
-    }
-    double s;
-    for (int k = this->rows-1; k>-1; k--){
-        s = 0.0;
-        for (int j = k+1; j<this->rows; j++)
-        {
-            s += this->values[k*this->cols +j]*result[j];
-        }
-        result[k] = (rhs[k]-s)/this->values[k*this->cols+k];
-    }
-}
+
 
 /*
  def forward_substitution(A, b):
@@ -238,6 +216,34 @@ void Matrix<T>::forward_substitution(T * rhs, T * result)
 }
 
 /*
+def backward_substitution(A, b):
+n = np.size(b)
+x = np.zeros(n)
+for k in range(n-1, -1, -1):
+    s = 0.
+    for j in range(k+1, n):
+        s = s + A[k, j]*x[j]
+    x[k] = (b[k] - s)/A[k, k]
+return x
+*/
+
+template <class T>
+void Matrix<T>::backward_substitution(T * rhs, T * result)
+{
+    for (int i = 0; i<this->rows; i++){
+        result[i] = 0;
+    }
+    for (int k = this->rows-1; k>-1; k--){
+        double s(0.);
+        for (int j = k+1; j<this->rows; j++)
+        {
+            s += this->values[k*this->cols +j]*result[j];
+        }
+        result[k] = (rhs[k]-s)/this->values[k*this->cols+k];
+    }
+}
+
+/*
  def LU_solve(A, b):
  """ An LU solve function that makes use of our
  non partial pivoting versions of LU_decomposition
@@ -261,7 +267,7 @@ void Matrix<T>::LU_solve(T* rhs, T* result)
     this->LU_decomposition(lmat, umat);
 
     auto *lmatrix = new Matrix<T>(this->rows, this->cols, lmat);
-    auto *umatrix = new Matrix<T>(this->rows, this->cols, lmat);
+    auto *umatrix = new Matrix<T>(this->rows, this->cols, umat);
     lmatrix->forward_substitution(rhs,for_result);
     umatrix->backward_substitution(for_result, result);
 
@@ -308,8 +314,9 @@ void Matrix<T>::find_unique(std::vector<bool> check_list, std::vector<int> &uniq
 
 
 template <class T>
-void Matrix<T>::sort_mat(){
+void Matrix<T>::sort_mat(double* rhs){
     auto *temp_mat = new Matrix<double>(this->rows, this->cols, true);
+    auto *temp_rhs = new double(this->rows);
     
     std::vector <bool> check_list (this->cols,true);
 //    check_list[1] = false;
@@ -336,6 +343,7 @@ void Matrix<T>::sort_mat(){
                     temp_mat->values[j*this->cols+col]= this->values[unique_list[j]*this->cols+col];
                     this->values[unique_list[j]*this->cols+col] =0;
                 }
+                temp_rhs[j] = rhs[unique_list[j]];
                 check_list[j]=false;
             }
         }
@@ -356,11 +364,8 @@ void Matrix<T>::sort_mat(){
                 //now we fill temp_mat row j with value in row???? let's find out
                 for (int row = j; row < this->rows;row++)
                 {
-//                    std::cout<<"assignment in progress with max: "<< max_value<<std::endl;
-//                    std::cout<<"assignment in progress with value: "<< this->values[row*this->rows+j]<<std::endl;
                     if (abs(this->values[row*this->rows+j])>abs(max_value))
                     {
-//                        std::cout<<"assigning: "<< j<<std::endl;
                         index_row = row;
                         max_value = this->values[row*this->rows+j];
                     }
@@ -373,6 +378,7 @@ void Matrix<T>::sort_mat(){
                         temp_mat->values[j*this->cols+kk]= this->values[index_row*this->cols+kk];
                         this->values[index_row*this->cols+kk] =0;
                     }
+                    temp_rhs[j] = rhs[index_row];
                     check_list[j]=false;
                 }
                 
@@ -382,8 +388,8 @@ void Matrix<T>::sort_mat(){
                     
                 }
 //                std::cout<<"random assignment finished: "<< j<<std::endl;
+                j=this->cols;
             }
-            break;
         }
         
     }
@@ -392,6 +398,13 @@ void Matrix<T>::sort_mat(){
     {
         this->values[i] = temp_mat->values[i];
     }
+    
+    for (int i=0; i<this->rows; i++)
+    {
+        rhs[i] = temp_rhs[i];
+    }
+    
     delete temp_mat;
+    delete temp_rhs;
     
 }
