@@ -2,6 +2,7 @@
 #include <memory>
 #include <stdexcept>
 #include <iostream>
+#include <cmath>
 
 // constructor - creates a matrix initialized to 0
 template <class T>
@@ -628,10 +629,9 @@ T Matrix<T>::getValue(int row_index, int col_index)
 
 // solve Ax = b;
 template<class T>
-Matrix<T> *Matrix<T>::conjugateGradient(Matrix<T> *b)
+Matrix<T> *Matrix<T>::conjugateGradient(Matrix<T> *b, double epsilon, int max_iterations)
 {
     int k = 0;
-    int k_max = 10;
     T beta = 1;
     double alpha = 1;
     T delta_old = 1;
@@ -654,7 +654,7 @@ Matrix<T> *Matrix<T>::conjugateGradient(Matrix<T> *b)
 
     double delta = r->innerVectorProduct(*r);
 
-    while (k < k_max)
+    while (k < max_iterations && (sqrt(delta) > epsilon*sqrt(b->innerVectorProduct(*b))))
     {
         if (k==1)
         {

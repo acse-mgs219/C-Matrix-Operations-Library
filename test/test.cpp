@@ -10,85 +10,89 @@
 
 //#define RUN_ALL_TESTS
 
-TEST_CASE("sparse matrix; mat-mat mult; small matrix")
+TEST_CASE("Conjugate Gradient Method")
 {
     bool test_result = true;
 
-    int rows = 4;
-    int cols = 4;
-    int nnzs = 4;
+    double A_values[9] = {2, -1, 0, -1, 3, -1, 0, -1, 2};
+    double b_values[3] = {1, 8, -5};
 
-    // non-zero values of our sparse matrices
-    double values[4] = {5, 8, 3, 6};
-    double right_values[5] = {3, 6, 3, 8, 5};
+    auto A = new Matrix<double>(3, 3, true);
+    auto b = new Matrix<double>(3, 1, true);
 
-    int iA[5] = {0, 0, 2, 3, 4};
-    int jA[4] = {0, 1, 2, 1};
+    A->setMatrix(9, A_values);
+    b->setMatrix(3, b_values);
 
-    int iA_right[5] = {0, 1, 3, 4, 5};
-    int jA_right[5] = {0, 0, 1, 2, 1};
+//    A->printValues();
+//    b->printValues();
 
-    int correct_values[5] = {63, 24, 24, 36, 18};
-    int correct_col_index[5] = {0, 1, 2, 0, 1};
+    auto result = A->conjugateGradient(b, TOL, 1000);
 
-    // create sparse matrices - smart pointers automatically exit after out of scope
-    std::unique_ptr< CSRMatrix<double> >  A(new CSRMatrix<double>(rows, cols, nnzs, true));
-    std::unique_ptr< CSRMatrix<double> > B(new CSRMatrix<double>(rows, cols, 5, true));
+    result->printValues();
 
-    A->setMatrix(values, iA, jA);
-    B->setMatrix(right_values, iA_right, jA_right);
 
-    // generate the output matrix
-    auto output = A->matMatMult(*B);
-
-    // check values are correct
-    for (int i=0; i<output->nnzs; i++)
-    {
-        if (!fEqual(output->values[i], correct_values[i], TOL))
-        {
-            test_result = false;
-            break;
-        }
-
-        if (output->col_index[i] != correct_col_index[i]) {
-            test_result = false;
-            break;
-        }
-    }
-
-    delete output;
+    delete A;
+    delete b;
+    delete result;
 
     REQUIRE(test_result);
 }
 
 
-//TEST_CASE("Conjugate Gradient Method")
+
+//TEST_CASE("sparse matrix; mat-mat mult; small matrix")
 //{
 //    bool test_result = true;
 //
-//    double A_values[9] = {2, -1, 0, -1, 3, -1, 0, -1, 2};
-//    double b_values[3] = {1, 8, -5};
+//    int rows = 4;
+//    int cols = 4;
+//    int nnzs = 4;
 //
-//    auto A = new Matrix<double>(3, 3, true);
-//    auto b = new Matrix<double>(3, 1, true);
+//    // non-zero values of our sparse matrices
+//    double values[4] = {5, 8, 3, 6};
+//    double right_values[5] = {3, 6, 3, 8, 5};
 //
-//    A->setMatrix(9, A_values);
-//    b->setMatrix(3, b_values);
+//    int iA[5] = {0, 0, 2, 3, 4};
+//    int jA[4] = {0, 1, 2, 1};
 //
-////    A->printValues();
-////    b->printValues();
+//    int iA_right[5] = {0, 1, 3, 4, 5};
+//    int jA_right[5] = {0, 0, 1, 2, 1};
 //
-//    auto result = A->conjugateGradient(b);
+//    int correct_values[5] = {63, 24, 24, 36, 18};
+//    int correct_col_index[5] = {0, 1, 2, 0, 1};
 //
-//    result->printValues();
+//    // create sparse matrices - smart pointers automatically exit after out of scope
+//    std::unique_ptr< CSRMatrix<double> >  A(new CSRMatrix<double>(rows, cols, nnzs, true));
+//    std::unique_ptr< CSRMatrix<double> > B(new CSRMatrix<double>(rows, cols, 5, true));
 //
+//    A->setMatrix(values, iA, jA);
+//    B->setMatrix(right_values, iA_right, jA_right);
 //
-//    delete A;
-//    delete b;
-//    delete result;
+//    // generate the output matrix
+//    auto output = A->matMatMult(*B);
+//
+//    // check values are correct
+//    for (int i=0; i<output->nnzs; i++)
+//    {
+//        if (!fEqual(output->values[i], correct_values[i], TOL))
+//        {
+//            test_result = false;
+//            break;
+//        }
+//
+//        if (output->col_index[i] != correct_col_index[i]) {
+//            test_result = false;
+//            break;
+//        }
+//    }
+//
+//    delete output;
 //
 //    REQUIRE(test_result);
 //}
+
+
+
 
 //TEST_CASE("sparse matrix mat-vect mult, massive matrix size")
 //{

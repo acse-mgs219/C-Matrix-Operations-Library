@@ -31,6 +31,8 @@ stdexcept
 -
 iostream
 -
+cmath
+-
 
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
 
