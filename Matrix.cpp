@@ -476,7 +476,7 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
     // initialize residual which will be used to determine ending position
     double residual = tolerance * 2;
     double resid_sum; // not actually necessary
-    double *sum = new double(this->cols);
+    double *sum = new double[this->cols];
     int iteration = 0;
 
     while (residual > tolerance && iteration < max_iterations)
@@ -515,6 +515,7 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
     // clean memory
     delete x_var_prev;
     delete estimated_rhs;
+    delete[] sum;
 
     return x_var;
 }
