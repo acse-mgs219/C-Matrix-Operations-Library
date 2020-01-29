@@ -190,10 +190,28 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
         col_index->push_back(itr->first.second);
     }
 
-    for (int i = result.begin()->first.first; i < this->rows; i++)
+    std::cout << result.size();
+
+    for (int j = result.begin()->first.first + 1; j < rows + 1; j++)
     {
-        std::cout << i << " ";
-       (*row_pos)[i+1] += 1;
+        (*row_pos)[j] += 1;
+        std::cout << (*row_pos)[j] << std::endl;
+    }
+
+    auto prev_i = result.begin();
+
+    for (auto i = result.begin() + 1; i != result.end(); i++)
+    {
+        if (i->first.first == prev_i->first.first && i->first.second == prev_i->first.second)
+            continue;
+        for (int j = i->first.first + 1; j < rows + 1; j++)
+        {
+            (*row_pos)[j] += 1;
+            std::cout << (*row_pos)[j] << std::endl;
+        }
+        prev_i = i;
+
+        std::cout << "\n\n";
     }
 
     // add final value

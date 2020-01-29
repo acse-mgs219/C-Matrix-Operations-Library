@@ -46,101 +46,103 @@ TEST_CASE("jacobi iteration")
 
 
 
-//TEST_CASE("sparse matrix; mat-mat mult; small matrix")
-//{
-//    bool test_result = true;
-//
-//    int rows = 4;
-//    int cols = 4;
-//    int nnzs = 4;
-//
-//    // non-zero values of our sparse matrices
-//    double values[4] = {5, 8, 3, 6};
-//    double right_values[5] = {3, 6, 3, 8, 5};
-//
-//    int iA[5] = {0, 0, 2, 3, 4};
-//    int jA[4] = {0, 1, 2, 1};
-//
-//    int iA_right[5] = {0, 1, 3, 4, 5};
-//    int jA_right[5] = {0, 0, 1, 2, 1};
-//
-//    int correct_values[5] = {63, 24, 24, 36, 18};
-//    int correct_col_index[5] = {0, 1, 2, 0, 1};
-//
-//    // create sparse matrices - smart pointers automatically exit after out of scope
-//    std::unique_ptr< CSRMatrix<double> >  A(new CSRMatrix<double>(rows, cols, nnzs, true));
-//    std::unique_ptr< CSRMatrix<double> > B(new CSRMatrix<double>(rows, cols, 5, true));
-//
-//    A->setMatrix(values, iA, jA);
-//    B->setMatrix(right_values, iA_right, jA_right);
-//
-//    // generate the output matrix
-//    auto output = A->matMatMult(*B);
-//
-//    // check values are correct
-//    for (int i=0; i<output->nnzs; i++)
-//    {
-//        if (!fEqual(output->values[i], correct_values[i], TOL))
-//        {
-//            test_result = false;
-//            break;
-//        }
-//
-//        if (output->col_index[i] != correct_col_index[i]) {
-//            test_result = false;
-//            break;
-//        }
-//    }
-//
-//    delete output;
-//
-//    REQUIRE(test_result);
-//}
-//
-//TEST_CASE("sparse matrix mat-mat mult, massive matrix size")
-//{
-//    int rows = 400;
-//    int cols = 400;
-//    int nnzs = 4;
-//
-//    double values[4] = { 5, 8, 3, 6 }; // i = 398, k = 399
-//    //    double right_values[4] = {5, 8, 3, 6}; // k = 399, j = 2
-//    double right_values[5] = { 3, 6, 3, 8, 5 }; //ij = ik + kj
-//
-//    int iA[401] = { 0 };
-//    iA[399] = 2;
-//    iA[400] = 4;
-//    int jA[4] = { 0, 399, 2, 100 }; // col 0 row 399 col 1 row 399 col 2 row 400 col 100 row 400
-//
-//    //    int iA_right[5] = {0, 0, 2, 3, 4};
-//    //    int jA_right[4] = {0, 1, 2, 1};
-//
-//    int iA_right[401] = { 0 };
-//    iA_right[398] = 1;
-//    iA_right[399] = 3;
-//    iA_right[400] = 5;
-//    int jA_right[5] = { 0, 0, 1, 2, 100 }; // col 0 row 398 col 0 row 399 col 1 row 399 col 2 row 400 col 100 row 400
-//
-//    // create sparse matrix
-//    auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
-//    auto B = new CSRMatrix<double>(rows, cols, 5, true);
-//
-//    A->setMatrix(values, iA, jA);
-//    B->setMatrix(right_values, iA_right, jA_right);
-//
-//    //A->printMatrix();
-//    //B->printMatrix();
-//
-//    //    B->printMatrix();
-//    auto output = A->matMatMult(*B);
-//
-//    output->printMatrix();
-//
-//    delete A;
-//    delete B;
-//    delete output;
-//    REQUIRE(true);
-//}
+TEST_CASE("sparse matrix; mat-mat mult; small matrix")
+{
+    bool test_result = true;
+
+    int rows = 4;
+    int cols = 4;
+    int nnzs = 4;
+
+    // non-zero values of our sparse matrices
+    double values[4] = {5, 8, 3, 6};
+    double right_values[5] = {3, 6, 3, 8, 5};
+
+    int iA[5] = {0, 0, 2, 3, 4};
+    int jA[4] = {0, 1, 2, 1};
+
+    int iA_right[5] = {0, 1, 3, 4, 5};
+    int jA_right[5] = {0, 0, 1, 2, 1};
+
+    int correct_values[5] = {63, 24, 24, 36, 18};
+    int correct_col_index[5] = {0, 1, 2, 0, 1};
+
+    // create sparse matrices - smart pointers automatically exit after out of scope
+    std::unique_ptr< CSRMatrix<double> >  A(new CSRMatrix<double>(rows, cols, nnzs, true));
+    std::unique_ptr< CSRMatrix<double> > B(new CSRMatrix<double>(rows, cols, 5, true));
+
+    A->setMatrix(values, iA, jA);
+    B->setMatrix(right_values, iA_right, jA_right);
+
+    // generate the output matrix
+    auto output = A->matMatMult(*B);
+
+    // check values are correct
+    for (int i=0; i<output->nnzs; i++)
+    {
+        if (!fEqual(output->values[i], correct_values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
+
+        if (output->col_index[i] != correct_col_index[i]) {
+            test_result = false;
+            break;
+        }
+    }
+
+    output->printMatrix();
+
+    delete output;
+
+    REQUIRE(test_result);
+}
+
+TEST_CASE("sparse matrix mat-mat mult, massive matrix size")
+{
+    int rows = 400;
+    int cols = 400;
+    int nnzs = 4;
+
+    double values[4] = { 5, 8, 3, 6 }; // i = 398, k = 399
+    //    double right_values[4] = {5, 8, 3, 6}; // k = 399, j = 2
+    double right_values[5] = { 3, 6, 3, 8, 5 }; //ij = ik + kj
+
+    int iA[401] = { 0 };
+    iA[399] = 2;
+    iA[400] = 4;
+    int jA[4] = { 0, 399, 2, 100 }; // col 0 row 399 col 1 row 399 col 2 row 400 col 100 row 400
+
+    //    int iA_right[5] = {0, 0, 2, 3, 4};
+    //    int jA_right[4] = {0, 1, 2, 1};
+
+    int iA_right[401] = { 0 };
+    iA_right[398] = 1;
+    iA_right[399] = 3;
+    iA_right[400] = 5;
+    int jA_right[5] = { 0, 0, 1, 2, 100 }; // col 0 row 398 col 0 row 399 col 1 row 399 col 2 row 400 col 100 row 400
+
+    // create sparse matrix
+    auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
+    auto B = new CSRMatrix<double>(rows, cols, 5, true);
+
+    A->setMatrix(values, iA, jA);
+    B->setMatrix(right_values, iA_right, jA_right);
+
+    //A->printMatrix();
+    //B->printMatrix();
+
+    //    B->printMatrix();
+    auto output = A->matMatMult(*B);
+
+    output->printMatrix();
+
+    delete A;
+    delete B;
+    delete output;
+    REQUIRE(true);
+}
 
 #if defined(RUN_ALL_TESTS)
 TEST_CASE("set all values of the matrix")
