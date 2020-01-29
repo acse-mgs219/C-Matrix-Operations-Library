@@ -43,7 +43,7 @@ public:
     virtual void printMatrix();
 
     /////////// Solvers /////
-    Matrix<T> *conjugateGradient(Matrix<T> *b, double TOL, int max_iterations);
+    Matrix<T> *conjugateGradient(Matrix<T> *b, double epsilon, int max_iterations);
 
     // jacobi iterative solver
     Matrix<T> *solveJacobi(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[]);

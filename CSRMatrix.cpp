@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include "CSRMatrix.h"
 #include <vector>
+#include <cmath>
 
 // Constructor - using an initialisation list here
 template <class T>
@@ -81,34 +82,34 @@ void CSRMatrix<T>::printMatrix()
 // Do a matrix-vector product
 // output = this * input
 template<class T>
-void CSRMatrix<T>::matVecMult(T *input, T *output)
+Matrix<T> *CSRMatrix<T>::matVecMult(Matrix<T>& b)
 {
-    if (input == nullptr || output == nullptr)
+
+    if (b.cols != 1)
     {
-        std::cerr << "Input or output haven't been created" << std::endl;
-        return;
+        throw std::invalid_argument("argument must be a column vector (number of columns = 1)");
+    }
+    if (this->cols != b.rows)
+    {
+        throw std::invalid_argument("A and b dimensions do not match");
     }
 
-    // Set the output to zero
-    for (int i = 0; i < this->rows; i++)
-    {
-        output[i] = 0.0;
-    }
-
-    int val_counter = 0;
+    // create output vector
+    auto output = new Matrix<T>(b.rows, b.cols, true);
 
     // Loop over each row
-    for (int i = 0; i<this->rows; i++)
+    for (int i=0; i<this->rows; i++)
     {
         // Loop over all the entries in this col
         for (int val_index = this->row_position[i]; val_index < this->row_position[i+1]; val_index++)
         {
             // This is an example of indirect addressing
             // Can make it harder for the compiler to vectorize!
-            output[i] += this->values[val_index] * input[this->col_index[val_index]];
-
+            output->values[i] += this->values[val_index] * b.values[this->col_index[val_index]];
         }
     }
+
+    return output;
 }
 
 // Do matrix matrix multiplication
@@ -128,11 +129,9 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
     // Loop over each row
     for (int i = 0; i<this->rows; i++)
     {
-        //std::cout << this->row_position[i];
         // Loop over all the entries in this row
         for (int val_index = this->row_position[i]; val_index < this->row_position[i + 1]; val_index++)
         {
-            //std::cout << "row: " << i << std::endl;
             int position = 0;
 
             // loop over rows of the right matrix
@@ -176,28 +175,13 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
             continue;
         }
 
-
-
-//        // if the value for the row exists, simply increment the count
-//        if ( (*row_pos)[itr->first.first+1] != 0 )
-//        {
-//            (*row_pos)[itr->first.first+1]++;
-//        }
-//        // if the value for the row does not exist, calculate the cumulative count
-//        else {
-//            (*row_pos)[itr->first.first+1] = (*row_pos)[itr->first.first] + 1;
-//        }
-
         non_zeros->push_back(itr->second);
         col_index->push_back(itr->first.second);
     }
 
-    std::cout << result.size();
-
-    for (int j = result.begin()->first.first + 1; j < rows + 1; j++)
+    for (int j = result.begin()->first.first + 1; j < this->rows + 1; j++)
     {
         (*row_pos)[j] += 1;
-        std::cout << (*row_pos)[j] << std::endl;
     }
 
     auto prev_i = result.begin();
@@ -206,14 +190,11 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
     {
         if (i->first.first == prev_i->first.first && i->first.second == prev_i->first.second)
             continue;
-        for (int j = i->first.first + 1; j < rows + 1; j++)
+        for (int j = i->first.first + 1; j < this->rows + 1; j++)
         {
             (*row_pos)[j] += 1;
-            std::cout << (*row_pos)[j] << std::endl;
         }
         prev_i = i;
-
-        std::cout << "\n\n";
     }
 
     // add final value
@@ -266,14 +247,100 @@ void CSRMatrix<T>::printNonZeroValues()
 template<class T>
 void CSRMatrix<T>::setMatrix(T *values_ptr, int iA[], int jA[])
 {
+    for (int i=0; i<this->nnzs; i++)
+    {
+        this->values[i] = values_ptr[i];
+        this->col_index[i] = jA[i];
+    }
+
     for (int i=0; i<this->rows+1; i++)
     {
-        if (i<this->nnzs)
+        this->row_position[i] = iA[i];
+    }
+}
+
+template<class T>
+Matrix<T> *CSRMatrix<T>::conjugateGradient(Matrix<T>& b, double epsilon, int max_iterations)
+{
+    int k = 0;
+    T beta = 1;
+    double alpha = 1;
+    T delta_old = 1;
+
+    // intialize to x to 0
+    auto x = new Matrix<T>(b.rows, b.cols, true);
+
+    // workout Ax
+    auto Ax = this->matVecMult(*x);
+
+    // r = b - Ax
+    auto r = new Matrix<T>(b.rows, b.cols, true);
+
+    for (int i=0; i<r->rows*r->cols; i++)
+    {
+        r->values[i] = b.values[i] - Ax->values[i];
+    }
+
+    auto p = new Matrix<T>(r->rows, r->cols, true);
+    auto w = new Matrix<T>(r->rows, r->cols, true);
+
+    double delta = r->innerVectorProduct(*r);
+
+    while (k < max_iterations && (sqrt(delta) > epsilon*sqrt(b.innerVectorProduct(b))))
+    {
+        if (k==1)
         {
-            this->values[i] = values_ptr[i];
-            this->col_index[i] = jA[i];
+            // p = r
+            for (int i=0; i<p->rows*p->cols; i++)
+            {
+                p->values[i] = r->values[i];
+            }
+
+        } else {
+
+            beta = delta / delta_old;
+
+            // p = r + beta * p
+            for (int i=0; i<p->rows*p->cols; i++)
+            {
+                p->values[i] = r->values[i] + beta*p->values[i];
+            }
         }
 
-        this->row_position[i] = iA[i];
-    };
+        auto Ap = this->matVecMult(*p);
+
+        // w = Ap
+        for (int i=0; i<w->rows*w->cols; i++)
+        {
+            w->values[i] = Ap->values[i];
+        }
+
+        alpha = delta / p->innerVectorProduct(*w);
+
+        // x = x + alpha * p
+        for (int i=0; i<x->rows*x->cols; i++)
+        {
+            x->values[i] = x->values[i] + alpha*p->values[i];
+        }
+
+        // r = r - alpha * w
+        for (int i=0; i<r->rows*r->cols; i++)
+        {
+            r->values[i] = r->values[i] - alpha*w->values[i];
+        }
+
+        delta_old = delta;
+
+        delta = r->innerVectorProduct(*r);
+
+        delete Ap;
+        k++;
+    }
+
+    delete Ax;
+    delete r;
+    delete p;
+    delete w;
+
+    return x;
 }

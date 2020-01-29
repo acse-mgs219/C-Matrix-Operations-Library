@@ -11,144 +11,258 @@
 //#define RUN_ALL_TESTS
 
 
-
-
-
-
-
-
-TEST_CASE("jacobi iteration")
+TEST_CASE("sparse matrix; conjugate gradient")
 {
     bool test_result = true;
-    int rows = 4;
-    int cols = 4;
-    auto* A = new Matrix<double>(rows, cols, true);
-    // create rhs vector
-    auto* b = new Matrix<double>(cols, 1, true);
-    double  A_values[16] = { 92, 8, -4, 1.5, 4, 33, 1, 8, 19, 18, 70, 6, 1, 2, 3, 44 };
-    double b_values[4] = { 7, 3, 5, 2 };
-    A->setMatrix(16, A_values);
-    b->setMatrix(4, b_values);
-    double initial_guess[4] = { 1, 1, 1, 1 };
-    auto solution = A->solveJacobi(b, TOL, 1000, initial_guess);
-    //double correct_values[2] = { 5.11111, -3.22222 };
-    /*for (int i = 0; i < 2; i++)
-    {
-        if (!fEqual(solution->values[i], correct_values[i], TOL))
-        {
-            test_result = false;
-            break;
-        }
-    }*/
-    solution->printMatrix();
-    delete A;
-    delete b;
-    delete solution;
-    REQUIRE(test_result);
-}
 
-<<<<<<< HEAD
-//TEST_CASE("sparse matrix; mat-mat mult; small matrix")
-//{
-//    bool test_result = true;
+    SECTION("solve a dense system in csr format")
+    {
+        int rows = 3;
+        int cols = 3;
+        int nnzs = 7;
+
+        auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
+
+        double A_values[7] = {2, -1, -1, 3, -1, -1, 2};
+        int row_position[6] = {0, 2, 5, 7};
+        int col_index[7] = {0, 1, 0, 1, 2, 1, 2};
+
+        A->setMatrix(A_values, row_position, col_index);
+
+        auto b = new Matrix<double>(cols, 1, true);
+        double b_values[3] = {1, 8, -5};
+        b->setMatrix(3, b_values);
+
+        auto result = A->conjugateGradient(*b, TOL, 10);
+
+        double correct_values[3] = {2, 3, -1};
+
+        for (int i=0; i<3; i++)
+        {
+            if (!fEqual(result->values[i], correct_values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+
+        delete A;
+        delete b;
+        delete result;
+
+        REQUIRE(test_result);
+
+    }
+
+    //    Construct  the following A matrix
+    //    [ 1,  5,  0,  0,  0],
+    //    [ 0,  2,  8,  0,  0],
+    //    [ 0,  0,  3,  9,  0],
+    //    [ 0,  0,  0,  4, 10],
+    //    [ 0,  0,  0,  0,  5]
+
+//    int rows = 5;
+//    int cols = 5;
+//    int nnzs = 9;
 //
-//    int rows = 4;
-//    int cols = 4;
-//    int nnzs = 4;
+//    auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
 //
-//    // non-zero values of our sparse matrices
-//    double values[4] = {5, 8, 3, 6};
-//    double right_values[5] = {3, 6, 3, 8, 5};
+//    // set the A matrix with the values we want to test
+//    double values[9] = {1, 5, 2, 8, 3, 9, 4, 10, 5};
+//    int row_position[6] = {0, 2, 4, 6, 8, 9};
+//    int col_index[9] = {0, 1, 1, 2, 2, 3, 3, 4, 4};
+//    A->setMatrix(values, row_position, col_index);
 //
-//    int iA[5] = {0, 0, 2, 3, 4};
-//    int jA[4] = {0, 1, 2, 1};
+//    // Construct the rhs array
+//    // b = [1, 2, 3, 4, 5]
+//    auto b = new Matrix<double>(cols, 1, true);
+//    double b_values[5] = {1, 2, 3, 4, 5};
+//    b->setMatrix(5, b_values);
 //
-//    int iA_right[5] = {0, 1, 3, 4, 5};
-//    int jA_right[5] = {0, 0, 1, 2, 1};
+//    auto result = A->conjugateGradient(*b, TOL, 10);
 //
-//    int correct_values[5] = {63, 24, 24, 36, 18};
-//    int correct_col_index[5] = {0, 1, 2, 0, 1};
+//    result->printMatrix();
+
+
 //
-//    // create sparse matrices - smart pointers automatically exit after out of scope
-//    std::unique_ptr< CSRMatrix<double> >  A(new CSRMatrix<double>(rows, cols, nnzs, true));
-//    std::unique_ptr< CSRMatrix<double> > B(new CSRMatrix<double>(rows, cols, 5, true));
+//    double correct_values[4] = {0, 59, 15, 18};
+//    auto result = A->matVecMult(*b);
 //
-//    A->setMatrix(values, iA, jA);
-//    B->setMatrix(right_values, iA_right, jA_right);
-//
-//    // generate the output matrix
-//    auto output = A->matMatMult(*B);
-//
-//    // check values are correct
-//    for (int i=0; i<output->nnzs; i++)
+//    for (int i = 0; i < 4; i++)
 //    {
-//        if (!fEqual(output->values[i], correct_values[i], TOL))
+//        if (!fEqual(result->values[i], correct_values[i], TOL))
 //        {
 //            test_result = false;
 //            break;
 //        }
-//
-//        if (output->col_index[i] != correct_col_index[i]) {
-//            test_result = false;
-//            break;
-//        }
 //    }
-//
-//    delete output;
-//
-//    REQUIRE(test_result);
-//}
-//
-//TEST_CASE("sparse matrix mat-mat mult, massive matrix size")
-//{
-//    int rows = 400;
-//    int cols = 400;
-//    int nnzs = 4;
-//
-//    double values[4] = { 5, 8, 3, 6 }; // i = 398, k = 399
-//    //    double right_values[4] = {5, 8, 3, 6}; // k = 399, j = 2
-//    double right_values[5] = { 3, 6, 3, 8, 5 }; //ij = ik + kj
-//
-//    int iA[401] = { 0 };
-//    iA[399] = 2;
-//    iA[400] = 4;
-//    int jA[4] = { 0, 399, 2, 100 }; // col 0 row 399 col 1 row 399 col 2 row 400 col 100 row 400
-//
-//    //    int iA_right[5] = {0, 0, 2, 3, 4};
-//    //    int jA_right[4] = {0, 1, 2, 1};
-//
-//    int iA_right[401] = { 0 };
-//    iA_right[398] = 1;
-//    iA_right[399] = 3;
-//    iA_right[400] = 5;
-//    int jA_right[5] = { 0, 0, 1, 2, 100 }; // col 0 row 398 col 0 row 399 col 1 row 399 col 2 row 400 col 100 row 400
-//
-//    // create sparse matrix
-//    auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
-//    auto B = new CSRMatrix<double>(rows, cols, 5, true);
-//
-//    A->setMatrix(values, iA, jA);
-//    B->setMatrix(right_values, iA_right, jA_right);
-//
-//    //A->printMatrix();
-//    //B->printMatrix();
-//
-//    //    B->printMatrix();
-//    auto output = A->matMatMult(*B);
-//
-//    output->printMatrix();
-//
+
 //    delete A;
-//    delete B;
-//    delete output;
-//    REQUIRE(true);
-//}
-=======
+//    delete b;
+//    delete result;
 
+}
 
+#if defined(RUN_ALL_TESTS)
+TEST_CASE("sparse matrix mat-vect mult")
+{
+    bool test_result = true;
 
+    int rows = 4;
+    int cols = 4;
+    int nnzs = 4;
 
+    auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
+    auto b = new Matrix<double>(cols, 1, true);
 
+    SECTION("simple mat vect mult")
+    {
+        // set the A matrix with the values we want to test
+        double values[4] = {5, 8, 3, 6};
+        int iA[5] = {0, 0, 2, 3, 4};
+        int jA[4] = {0, 1, 2, 1};
+        A->setMatrix(values, iA, jA);
+
+        double b_values[4] = {7, 3, 5, 2};
+        b->setMatrix(4, b_values);
+
+        double correct_values[4] = {0, 59, 15, 18};
+        auto result = A->matVecMult(*b);
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (!fEqual(result->values[i], correct_values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+
+        delete result;
+        REQUIRE(test_result);
+    }
+
+    SECTION("larger mat vect mult")
+    {
+        int rows = 5;
+        int cols = 5;
+        int nnzs = 9;
+
+        auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
+
+        // set the A matrix with the values we want to test
+        double values[9] = {1, 5, 2, 8, 3, 9, 4, 10, 5};
+        int row_position[6] = {0, 2, 4, 6, 8, 9};
+        int col_index[9] = {0, 1, 1, 2, 2, 3, 3, 4, 4};
+        A->setMatrix(values, row_position, col_index);
+
+        // Construct the rhs array
+        // b = [1, 2, 3, 4, 5]
+        auto b = new Matrix<double>(cols, 1, true);
+        double b_values[5] = {1, 2, 3, 4, 5};
+        b->setMatrix(5, b_values);
+
+        double correct_values[5] = {11, 28, 45, 66, 25};
+        auto result = A->matVecMult(*b);
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (!fEqual(result->values[i], correct_values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+
+        delete result;
+        REQUIRE(test_result);
+    }
+
+    delete A;
+    delete b;
+
+    REQUIRE(test_result);
+}
+
+TEST_CASE("jacobi iteration")
+{
+    bool test_result = true;
+
+    SECTION("jacobi iteration; diagonally dominant system")
+    {
+        int rows = 4;
+        int cols = 4;
+
+        auto* A = new Matrix<double>(rows, cols, true);
+
+        // create rhs vector
+        auto* b = new Matrix<double>(cols, 1, true);
+        double  A_values[16] = { 92, 8, -4, 1.5, 4, 33, 1, 8, 19, 18, 70, 6, 1, 2, 3, 44 };
+        double b_values[4] = { 7, 3, 5, 2 };
+
+        A->setMatrix(16, A_values);
+        b->setMatrix(4, b_values);
+
+        double initial_guess[4] = { 1, 1, 1, 1 };
+        auto solution = A->solveJacobi(b, TOL, 1000, initial_guess);
+
+        double correct_values[4] = {0.0705129565226545, 0.0721064533320883, 0.0304478159657635, 0.0384984247480881};
+
+        // loop over and check if the function values are as expected
+        for (int i = 0; i < 4; i++)
+        {
+            if (!fEqual(solution->values[i], correct_values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+
+        delete A;
+        delete b;
+        delete solution;
+
+        REQUIRE(test_result);
+    }
+
+    SECTION("jacobi iteration; small matrix")
+    {
+        int rows = 2;
+        int cols = 2;
+
+        auto *A = new Matrix<double>(rows, cols, true);
+
+        // create rhs vector
+        auto *b = new Matrix<double>(cols, 1, true);
+
+        double A_values[4] = {2, 1, 5, 7};
+        double b_values[2] {7, 3};
+
+        A->setMatrix(4, A_values);
+        b->setMatrix(2, b_values);
+
+        double initial_guess[2] = {1, 1};
+
+        auto solution = A->solveJacobi(b, TOL, 1000, initial_guess);
+
+        double correct_values[2] = {5.11111, -3.22222};
+
+        for (int i=0; i<2; i++)
+        {
+            if (!fEqual(solution->values[i], correct_values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+
+        delete A;
+        delete b;
+        delete solution;
+
+        REQUIRE(test_result);
+    }
+}
 
 TEST_CASE("sparse matrix; mat-mat mult; small matrix")
 {
@@ -169,6 +283,7 @@ TEST_CASE("sparse matrix; mat-mat mult; small matrix")
     int jA_right[5] = {0, 0, 1, 2, 1};
 
     int correct_values[5] = {63, 24, 24, 36, 18};
+    int correct_row_pos[5] = {0, 0, 2, 3, 5};
     int correct_col_index[5] = {0, 1, 2, 0, 1};
 
     // create sparse matrices - smart pointers automatically exit after out of scope
@@ -190,13 +305,15 @@ TEST_CASE("sparse matrix; mat-mat mult; small matrix")
             break;
         }
 
-        if (output->col_index[i] != correct_col_index[i]) {
-            test_result = false;
-            break;
+        if (i < 5)
+        {
+            if (output->row_position[i] != correct_row_pos[i] || output->col_index[i] != correct_col_index[i]) {
+                test_result = false;
+                break;
+            }
+
         }
     }
-
-    output->printMatrix();
 
     delete output;
 
@@ -205,51 +322,77 @@ TEST_CASE("sparse matrix; mat-mat mult; small matrix")
 
 TEST_CASE("sparse matrix mat-mat mult, massive matrix size")
 {
+    bool test_result = true;
+
     int rows = 400;
     int cols = 400;
     int nnzs = 4;
 
-    double values[4] = { 5, 8, 3, 6 }; // i = 398, k = 399
-    //    double right_values[4] = {5, 8, 3, 6}; // k = 399, j = 2
-    double right_values[5] = { 3, 6, 3, 8, 5 }; //ij = ik + kj
+    double values[4] = { 5, 8, 3, 6 };
+    double right_values[5] = { 3, 6, 3, 8, 5 };
 
     int iA[401] = { 0 };
     iA[399] = 2;
     iA[400] = 4;
-    int jA[4] = { 0, 399, 2, 100 }; // col 0 row 399 col 1 row 399 col 2 row 400 col 100 row 400
-
-    //    int iA_right[5] = {0, 0, 2, 3, 4};
-    //    int jA_right[4] = {0, 1, 2, 1};
+    int jA[4] = { 0, 399, 2, 100 };
 
     int iA_right[401] = { 0 };
     iA_right[398] = 1;
     iA_right[399] = 3;
     iA_right[400] = 5;
-    int jA_right[5] = { 0, 0, 1, 2, 100 }; // col 0 row 398 col 0 row 399 col 1 row 399 col 2 row 400 col 100 row 400
+    int jA_right[5] = { 0, 0, 1, 2, 100 };
 
     // create sparse matrix
     auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
     auto B = new CSRMatrix<double>(rows, cols, 5, true);
 
+    int correct_values[2] = {64, 40};
+
+    int correct_row_position[401] = { 0 };
+    correct_row_position[399] = 2;
+    correct_row_position[400] = 2;
+
+    int correct_col_index[2] = {2, 100};
+
     A->setMatrix(values, iA, jA);
     B->setMatrix(right_values, iA_right, jA_right);
 
-    //A->printMatrix();
-    //B->printMatrix();
-
-    //    B->printMatrix();
     auto output = A->matMatMult(*B);
 
-    output->printMatrix();
+    for (int i=0; i<401; i++)
+    {
+        // check row positions match up
+        if (!fEqual(output->row_position[i], correct_row_position[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
+
+        if (i<2)
+        {
+            // check values match up
+            if (!fEqual(output->values[i], correct_values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+
+            // check column indices match up
+            if (!fEqual(output->col_index[i], correct_col_index[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+    }
 
     delete A;
     delete B;
     delete output;
-    REQUIRE(true);
-}
->>>>>>> origin
 
-#if defined(RUN_ALL_TESTS)
+    REQUIRE(test_result);
+}
+
 TEST_CASE("set all values of the matrix")
 {
     // create new matrix
@@ -370,7 +513,6 @@ TEST_CASE("test matrix row swap without right hand side vector")
 
     REQUIRE(test_result);
 }
-
 
 TEST_CASE("testing the gaussian elimination function")
 {
@@ -557,7 +699,6 @@ TEST_CASE("lu decomposition")
        [ 5 4 1 -2] [ x3 ] = [-3 ]
        [ 4 1 6 2 ] [ x4 ] = [ 2 ]*/
 
-
     double correct_values[4] = {2.6375, -3.7750000000000004, -0.8375, 0.125};
 
     A->setMatrix(16, A_values);
@@ -577,6 +718,39 @@ TEST_CASE("lu decomposition")
     delete A;
     delete b;
     delete solution;
+
+    REQUIRE(test_result);
+}
+
+TEST_CASE("Conjugate Gradient Method")
+{
+    bool test_result = true;
+
+    double A_values[9] = {2, -1, 0, -1, 3, -1, 0, -1, 2};
+    double b_values[3] = {1, 8, -5};
+
+    auto A = new Matrix<double>(3, 3, true);
+    auto b = new Matrix<double>(3, 1, true);
+
+    A->setMatrix(9, A_values);
+    b->setMatrix(3, b_values);
+
+    auto result = A->conjugateGradient(b, TOL, 1000);
+
+    double correct_values[3] = {2, 3, -1};
+
+    for (int i=0; i<3; i++)
+    {
+        if (!fEqual(result->values[i], correct_values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
+    }
+
+    delete A;
+    delete b;
+    delete result;
 
     REQUIRE(test_result);
 }
@@ -626,47 +800,8 @@ TEST_CASE("lu decomposition test - partial pivoting")
     REQUIRE(test_result);
 }
 
-TEST_CASE("jacobi iteration")
-{
-    bool test_result = true;
-
-    int rows = 2;
-    int cols = 2;
-
-    auto *A = new Matrix<double>(rows, cols, true);
-
-    // create rhs vector
-    auto *b = new Matrix<double>(cols, 1, true);
-
-    double A_values[4] = {2, 1, 5, 7};
-    double b_values[2] {7, 3};
-
-    A->setMatrix(4, A_values);
-    b->setMatrix(2, b_values);
-
-    double initial_guess[2] = {1, 1};
-
-    auto solution = A->solveJacobi(b, TOL, 1000, initial_guess);
-
-    double correct_values[2] = {5.11111, -3.22222};
-
-    for (int i=0; i<2; i++)
-    {
-        if (!fEqual(solution->values[i], correct_values[i], TOL))
-        {
-            test_result = false;
-            break;
-        }
-    }
-
-    delete A;
-    delete b;
-    delete solution;
-
-    REQUIRE(test_result);
-}
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST_CASE("lu decomposition test - no partial pivoting")
 {
@@ -713,34 +848,5 @@ TEST_CASE("lu decomposition test - no partial pivoting")
     delete lower_tri;
     REQUIRE(test_result);
 }
-
-TEST_CASE("Conjugate Gradient Method")
-{
-    bool test_result = true;
-
-    double A_values[9] = {2, -1, 0, -1, 3, -1, 0, -1, 2};
-    double b_values[3] = {1, 8, -5};
-
-    auto A = new Matrix<double>(3, 3, true);
-    auto b = new Matrix<double>(3, 1, true);
-
-    A->setMatrix(9, A_values);
-    b->setMatrix(3, b_values);
-
-//    A->printValues();
-//    b->printValues();
-
-    auto result = A->conjugateGradient(b, TOL, 1000);
-
-    result->printValues();
-
-
-    delete A;
-    delete b;
-    delete result;
-
-    REQUIRE(test_result);
-}
-
 
 #endif

@@ -29,8 +29,11 @@ public:
     // Perform some operations with our matrix
     CSRMatrix<T>* matMatMult(CSRMatrix<T>& mat_right);
 
+    // conjugate gradient
+    Matrix<T> *conjugateGradient(Matrix<T>& b, double epsilon, int max_iterations);
+
     // Perform some operations with our matrix
-    void matVecMult(T *input, T *output);
+    Matrix<T> *matVecMult(Matrix<T>& vector);
 
     // Explicitly using the C++11 nullptr here
     int *row_position = nullptr;
@@ -42,7 +45,6 @@ public:
 // Private variables - there is no need for other classes
 // to know about these variables
 private:
-
 };
 
 
