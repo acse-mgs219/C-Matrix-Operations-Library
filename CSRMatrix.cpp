@@ -192,30 +192,29 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
         col_index->push_back(itr->first.second);
     }
 
-    for (int i = result.begin()->first.first; i < this->rows; i++)
+    std::cout << result.size();
+
+    for (int j = result.begin()->first.first + 1; j < rows + 1; j++)
     {
-        std::cout << i << " ";
-//        // count for row already exists; simply increment it by 1
-//        if ((*row_pos)[i+1])
-//        {
-//            (*row_pos)[i+1] += 1;
-//        }
-//        else {
-//            (*row_pos)[i+1] += 1;
-//            (*row_pos)[i+1] += (*row_pos)[i];
-//        }
+        (*row_pos)[j] += 1;
+        std::cout << (*row_pos)[j] << std::endl;
     }
 
+    auto prev_i = result.begin();
 
-//    // if the value for the row exists, simply increment the count
-//    if ( (*row_pos)[(result.end()-1)->first.first+1] != 0 )
-//    {
-//        (*row_pos)[(result.end()-1)->first.first+1]++;
-//    }
-//    // if the value for the row does not exist, calculate the cumulative count
-//    else {
-//        (*row_pos)[(result.end()-1)->first.first+1] = (*row_pos)[(result.end()-1)->first.first] + 1;
-//    }
+    for (auto i = result.begin() + 1; i != result.end(); i++)
+    {
+        if (i->first.first == prev_i->first.first && i->first.second == prev_i->first.second)
+            continue;
+        for (int j = i->first.first + 1; j < rows + 1; j++)
+        {
+            (*row_pos)[j] += 1;
+            std::cout << (*row_pos)[j] << std::endl;
+        }
+        prev_i = i;
+
+        std::cout << "\n\n";
+    }
 
     // add final value
     non_zeros->push_back((result.end()-1)->second);
