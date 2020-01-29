@@ -1,11 +1,3 @@
-//
-//  main.cpp
-//  Matrix_solver_assignment
-//
-//  Created by Darren Shan on 2020/1/28.
-//  Copyright © 2020 Darren Shan. All rights reserved.
-//
-
 #include <iostream>
 #include "Matrix.hpp"
 #include "Matrix.cpp"
@@ -48,36 +40,31 @@ int main()
     }
     dense_mat -> printMatrix();
 
-    double *rhs_b = new double[4];
+    auto *rhs_b = new Matrix<double>(4, 1, true);
+    
     for (int i = 0; i < rows; i++)
     {
-        rhs_b[i] = rhs_b_data[i];
+        rhs_b->values[i] = rhs_b_data[i];
     }
     
-    
-    
-    double* result = new double[4];
+//
+//    double* result = new double[4];
+//
+////    dense_mat->LU_solve(rhs_b, result);
+////    cout<<"!!!!!!!! we got solution:"<<endl;
+////    for (int i =0; i<4; i++)
+////    {
+////        cout<<result[i]<<" ";
+////    }
 
-//    dense_mat->LU_solve(rhs_b, result);
-//    cout<<"!!!!!!!! we got solution:"<<endl;
-//    for (int i =0; i<4; i++)
-//    {
-//        cout<<result[i]<<" ";
-//    }
-
-    for (int i=0; i<dense_mat->rows; i++)
-    {
-        cout<<"result vector (b4 change): "<< rhs_b[i]<<endl;
-    }
+    
+    rhs_b->printMatrix();
+    
     dense_mat->sort_mat(rhs_b);
     dense_mat->printMatrix();
-    for (int i=0; i<dense_mat->rows; i++)
-    {
-        cout<<"result vector (after change): "<< rhs_b[i]<<endl;
-    }
+    rhs_b->printMatrix();
     
 
-    delete[] rhs_b;
+    delete rhs_b;
     delete dense_mat;
-    delete[] result;
 }

@@ -1,11 +1,3 @@
-//
-//  Matrix.hpp
-//  Matrix_solver_assignment
-//
-//  Created by Darren Shan on 2020/1/28.
-//  Copyright © 2020 Darren Shan. All rights reserved.
-//
-
 #pragma once
 
 template <class T>
@@ -38,7 +30,7 @@ public:
     void LU_decomposition(T *L, T *R);
     void backward_substitution(T * rhs, T * result);
     void forward_substitution(T * rhs, T * result);
-    void sort_mat(double * rhs);
+    void sort_mat(Matrix<T> *rhs);
     void find_unique(std::vector<bool> check_list, std::vector<int> &unique_list);
 
 // We want our subclass to know about this
@@ -52,4 +44,5 @@ protected:
 private:
    int size_of_values = -1;
 };
+
 

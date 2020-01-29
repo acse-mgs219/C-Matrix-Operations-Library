@@ -1,11 +1,3 @@
-//
-//  Matrix.cpp
-//  Matrix_solver_assignment
-//
-//  Created by Darren Shan on 2020/1/28.
-//  Copyright © 2020 Darren Shan. All rights reserved.
-//
-
 #include <iostream>
 #include "Matrix.hpp"
 #include <vector>
@@ -313,8 +305,107 @@ void Matrix<T>::find_unique(std::vector<bool> check_list, std::vector<int> &uniq
 }
 
 
+//template <class T>
+//void Matrix<T>::sort_mat(double* rhs){
+//    auto *temp_mat = new Matrix<double>(this->rows, this->cols, true);
+//    auto *temp_rhs = new double(this->rows);
+//
+//    std::vector <bool> check_list (this->cols,true);
+////    check_list[1] = false;
+////    check_list[0] = false;
+////    check_list[2] = 0;
+////    check_list[3] = false;
+//    while (!(std::none_of(check_list.begin(), check_list.end(), [](bool v) { return v; })))
+//    {
+////        std::cout<<"some are still inside";
+//        std::vector <int> unique_list (this->cols,-1);
+//
+//        //update unique_list with hanchao's function
+//        this->find_unique(check_list, unique_list);
+//        //if column j has a unique entry on row i (equals to "unique_list[j]")
+//        //then in temp_mat, set row j equals to (row i in original matrix)
+//        //so that in temp_mat, the entry on [i,j] is the unique one;
+//        //set this column j as false in the while loop to be excluded
+//        for (int j=0; j<this->cols; j++)
+//        {
+//            if (unique_list[j]!=-1)
+//            {
+//                for (int col =0; col<this->cols; col++)
+//                {
+//                    temp_mat->values[j*this->cols+col]= this->values[unique_list[j]*this->cols+col];
+//                    this->values[unique_list[j]*this->cols+col] =0;
+//                }
+//                temp_rhs[j] = rhs[unique_list[j]];
+//                check_list[j]=false;
+//            }
+//        }
+//
+//        //next, fill the 1st available column with max value,
+//        //and remove it from check_list;
+//        //remember to delete
+//
+//
+//        for (int j=0; j<this->cols; j++)
+//        {
+////            std::cout<<"unique value: "<<check_list[j]<<std::endl;
+//            if (check_list[j])
+//            {
+////                std::cout<<"random assignment in progress: "<< j<<std::endl;
+//                int index_row(-1);
+//                int max_value(0);
+//                //now we fill temp_mat row j with value in row???? let's find out
+//                for (int row = j; row < this->rows;row++)
+//                {
+//                    if (abs(this->values[row*this->rows+j])>abs(max_value))
+//                    {
+//                        index_row = row;
+//                        max_value = this->values[row*this->rows+j];
+//                    }
+//                }
+//                // now index_row takes the index of row???
+//                // fill and exclude
+//                if (index_row != -1){
+//                    for (int kk = 0; kk < this->cols;kk++)
+//                    {
+//                        temp_mat->values[j*this->cols+kk]= this->values[index_row*this->cols+kk];
+//                        this->values[index_row*this->cols+kk] =0;
+//                    }
+//                    temp_rhs[j] = rhs[index_row];
+//                    check_list[j]=false;
+//                }
+//
+//                if (index_row ==-1)
+//                {
+//                    std::cout<<std::endl<<"index cannot be found here: "<< j<<std::endl;
+//
+//                }
+////                std::cout<<"random assignment finished: "<< j<<std::endl;
+//                j=this->cols;
+//            }
+//        }
+//
+//    }
+//
+//    for (int i=0; i<this->size_of_values; i++)
+//    {
+//        this->values[i] = temp_mat->values[i];
+//    }
+//
+//    for (int i=0; i<this->rows; i++)
+//    {
+//        rhs[i] = temp_rhs[i];
+//    }
+//
+//    delete temp_mat;
+//    delete temp_rhs;
+//
+//}
+
+
+
 template <class T>
-void Matrix<T>::sort_mat(double* rhs){
+void Matrix<T>::sort_mat(Matrix<T> *rhs)
+{
     auto *temp_mat = new Matrix<double>(this->rows, this->cols, true);
     auto *temp_rhs = new double(this->rows);
     
@@ -343,7 +434,7 @@ void Matrix<T>::sort_mat(double* rhs){
                     temp_mat->values[j*this->cols+col]= this->values[unique_list[j]*this->cols+col];
                     this->values[unique_list[j]*this->cols+col] =0;
                 }
-                temp_rhs[j] = rhs[unique_list[j]];
+                temp_rhs[j] = rhs->values[unique_list[j]];
                 check_list[j]=false;
             }
         }
@@ -378,7 +469,7 @@ void Matrix<T>::sort_mat(double* rhs){
                         temp_mat->values[j*this->cols+kk]= this->values[index_row*this->cols+kk];
                         this->values[index_row*this->cols+kk] =0;
                     }
-                    temp_rhs[j] = rhs[index_row];
+                    temp_rhs[j] = rhs->values[index_row];
                     check_list[j]=false;
                 }
                 
@@ -401,10 +492,15 @@ void Matrix<T>::sort_mat(double* rhs){
     
     for (int i=0; i<this->rows; i++)
     {
-        rhs[i] = temp_rhs[i];
+        rhs->values[i] = temp_rhs[i];
     }
     
     delete temp_mat;
     delete temp_rhs;
     
 }
+
+
+
+
+
