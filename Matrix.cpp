@@ -1,5 +1,8 @@
 #include "Matrix.h"
 #include <memory>
+#include <stdexcept>
+#include <iostream>
+#include <cmath>
 
 // constructor - creates a matrix initialized to 0
 template <class T>
@@ -87,36 +90,21 @@ void Matrix<T>::printMatrix()
 
 // assumes user has already created mat_right and output matrices
 template <class T>
-void Matrix<T>::matMatMult(Matrix& mat_right, Matrix& output)
+Matrix<T> *Matrix<T>::matMatMult(Matrix& mat_right)
 {
     // check dimensions make sense return without doing any multiplication
     if (this->cols != mat_right.rows)
     {
-        std::cerr << "input dimensions don't match" << std::endl;
-        return;
+        throw std::invalid_argument("input dimensions don't match");
     }
 
-    // Check if our output matrix has had space allocated to it
-    if (output.values != nullptr)
-    {
-        // Check our dimensions match
-        if (this->rows != output.rows || mat_right.cols != output.cols)
-        {
-            std::cerr << "Input dimensions for output matrix incorrect" << std::endl;
-            return;
-        }
-    }
-        // The output hasn't been preallocated, so we are going to do that
-    else
-    {
-        output.values = new T[this->rows * mat_right.cols];
-        output.preallocated = true;
-    }
+   // create an output matrix that will hold our values
+   auto output = new Matrix(this->rows, mat_right.cols, this->preallocated);
 
     // set output values to 0 beforehand
-    for (int i = 0; i < output.size_of_values; i++)
+    for (int i = 0; i < output->size_of_values; i++)
     {
-        output.values[i] = 0;
+        output->values[i] = 0;
     }
 
     // matrix multiplication is O(n^3) - need to be careful about performance - need to be contiguous for fast performance
@@ -126,10 +114,12 @@ void Matrix<T>::matMatMult(Matrix& mat_right, Matrix& output)
         {
             for (int j=0; j<mat_right.cols; j++)
             {
-                output.values[i * output.cols + j] += this->values[i * this->cols + k] * mat_right.values[k * mat_right.cols + j];
+                output->values[i * output->cols + j] += this->values[i * this->cols + k] * mat_right.values[k * mat_right.cols + j];
             }
         }
     }
+
+    return output;
 }
 
 // convert A into upper triangular form - with partial pivoting
@@ -481,7 +471,7 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
 
     x_var_prev->setMatrix(b->size_of_values, initial_guess); // should check that sizes are correct
 
-    auto estimated_rhs = new Matrix<T>(b->rows, b->cols, true);
+    auto estimated_rhs = this->matMatMult(*x_var_prev);
 
     // initialize residual which will be used to determine ending position
     double residual = tolerance * 2;
@@ -509,9 +499,8 @@ Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterat
             x_var->values[i] = 1 / this->values[i * this->rows + i] * (b->values[i] - sum[i]);
             x_var_prev->values[i] = x_var->values[i];
         }
-        resid_sum = 0;
 
-        this->matMatMult(*x_var, *estimated_rhs);
+        resid_sum = 0;
 
         // check residual
         for (int i=0; i<b->size_of_values; i++)
@@ -538,7 +527,7 @@ Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_i
 
     x_var->setMatrix(b->rows, initial_guess);
 
-    auto estimated_rhs = new Matrix<T>(b->rows, b->cols, true);
+    auto estimated_rhs = this->matMatMult(*x_var);
 
     // initialize residual which will be used to determine ending position
     double residual = tolerance * 2;
@@ -564,8 +553,6 @@ Matrix<T> *Matrix<T>::solveGaussSeidel(Matrix<T> *b, double tolerance, int max_i
         }
 
         resid_sum = 0;
-
-        this->matMatMult(*x_var, *estimated_rhs);
 
         // check residual
         for (int i=0; i<b->size_of_values; i++)
@@ -610,14 +597,14 @@ Matrix<T> *Matrix<T>::solveLU(Matrix<T> *b) {
     auto lower_tri = new Matrix<T>(this->rows, this->cols, true);
     auto permutation = new Matrix<T>(this->rows, this->cols, true);
 
-    auto p_inv_b = new Matrix<T>(b->rows, b->cols, true);
-
     this->luDecompositionPivot(upper_tri, lower_tri, permutation);
 
     permutation->transpose();
-    permutation->matMatMult(*b, *p_inv_b);
+
+    auto p_inv_b = permutation->matMatMult(*b);
 
     auto y_values = lower_tri->forwardSubstitution(p_inv_b);
+
 
     auto *solution = upper_tri->backSubstitution(y_values);
 
@@ -641,6 +628,108 @@ T Matrix<T>::getValue(int row_index, int col_index)
     return this->values[row_index * this->cols + col_index];
 }
 
+// solve Ax = b;
+template<class T>
+Matrix<T> *Matrix<T>::conjugateGradient(Matrix<T> *b, double epsilon, int max_iterations)
+{
+    int k = 0;
+    T beta = 1;
+    double alpha = 1;
+    T delta_old = 1;
 
+    // intialize to x to 0
+    auto x = new Matrix<T>(b->rows, b->cols, true);
 
+    // workout Ax
+    auto Ax = this->matMatMult(*x);
 
+    // r = b - Ax
+    auto r = new Matrix<T>(b->rows, b->cols, true);
+    for (int i=0; i<r->size_of_values; i++)
+    {
+        r->values[i] = b->values[i] - Ax->values[i];
+    }
+
+    auto p = new Matrix<T>(r->rows, r->cols, true);
+    auto w = new Matrix<T>(r->rows, r->cols, true);
+
+    double delta = r->innerVectorProduct(*r);
+
+    while (k < max_iterations && (sqrt(delta) > epsilon*sqrt(b->innerVectorProduct(*b))))
+    {
+        if (k==1)
+        {
+            for (int i=0; i<p->size_of_values; i++)
+            {
+                p->values[i] = r->values[i];
+            }
+
+        } else {
+            beta = delta / delta_old;
+
+            // p = r + beta * p
+            for (int i=0; i<p->size_of_values; i++)
+            {
+                p->values[i] = r->values[i] + beta*p->values[i];
+            }
+        }
+
+        auto Ap = this->matMatMult(*p);
+
+        for (int i=0; i<w->size_of_values; i++)
+        {
+            w->values[i] = Ap->values[i];
+        }
+
+        alpha = delta / p->innerVectorProduct(*w);
+
+        for (int i=0; i<x->size_of_values; i++)
+        {
+            x->values[i] = x->values[i] + alpha*p->values[i];
+        }
+
+        for (int i=0; i<r->size_of_values; i++)
+        {
+            r->values[i] = r->values[i] - alpha*w->values[i];
+        }
+
+        delta_old = delta;
+        delta = r->innerVectorProduct(*r);
+
+        delete Ap;
+        k++;
+    }
+
+    delete Ax;
+    delete r;
+    delete p;
+
+    return x;
+}
+
+template<class T>
+T Matrix<T>::innerVectorProduct(Matrix<T> &mat_right)
+{
+    // ensure function is called on a vector
+    if (this->cols != 1 || mat_right.cols != 1)
+    {
+        throw std::invalid_argument("both inputs should be vectors");
+    }
+
+    // check dimensions make sense
+    if (this->size_of_values != mat_right.size_of_values)
+    {
+        throw std::invalid_argument("The number of values must match");
+    }
+
+    T result = 0;
+
+    // calculate inner product
+    for (int i=0; i<this->size_of_values; i++)
+    {
+        result += this->values[i] * mat_right.values[i];
+    }
+
+    // return result
+    return result;
+}

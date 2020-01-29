@@ -125,15 +125,6 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
         throw std::invalid_argument("A should be a square matrix!");
     }
 
-        // The output hasn't been preallocated, so we are going to do that
-    else
-    {
-        std::cerr << "OUTPUT HASN'T BEEN ALLOCATED" << std::endl;
-    }
-
-    std::cout << 1 << std::endl;
-    std::cout << 2 << std::endl;
-
     // Loop over each row
     for (int i = 0; i<this->rows; i++)
     {
@@ -152,21 +143,12 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
                 {
                     continue;
                 }
-                //std::cout << "R: " << r;
-
-                //std::cout << "row " << r-1 << std::endl;
-                //std::cout << " number of elements in row: " << mat_right.row_position[r] - mat_right.row_position[r-1] << std::endl;
-                //std::cout << "what elements are in this row: "  << std::endl;
-                //std::cout << "position " <<  mat_right.row_position[r] << std::endl;
 
                 // loop over columns
                 for (int s=0; s<(mat_right.row_position[r] - mat_right.row_position[r-1]); s++)
                 {
-                    std::cout << "\nentering for loop\n r-1: " << (r - 1) << "\n this->col_index[val_index] " << this->col_index[val_index];
                     if (r-1 == this->col_index[val_index])
                     {
-                        //std::cout << "row " << i << " col " << mat_right.col_index[position] << " val " <<  mat_right.values[position] * this->values[val_index] << std::endl;
-
                         auto indices = std::make_pair(i, mat_right.col_index[position]);
                         result.push_back(std::make_pair(indices, mat_right.values[position] * this->values[val_index]));
                     }
@@ -180,73 +162,68 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
 
     auto non_zeros = new std::vector<T>;
     auto row_pos = new std::vector<int>(this->rows+1);
+
     //row_pos->push_back(0);
     auto col_index = new std::vector<int>;
-
-    std::cout << "\nresult size: " << result.size() << std::endl << std::endl << std::endl;
 
     // construct result arrays
     for (auto itr = result.begin(); itr!=result.end()-1; itr++)
     {
-        std::cout << itr->first.first << " " << itr->first.second << " " << itr->second << std::endl;
         // compare with next element
         if (itr->first.first == (itr+1)->first.first && itr->first.second == (itr+1)->first.second)
         {
             (*(itr+1)).second += itr->second;
             continue;
         }
-        // we this is a new row, so insert a new row position variablenon_zeros
-        /*if ( itr->first.first != row_pos->size()-1 )
-        {
-            row_pos->push_back(*(row_pos->end()-1) + 1);
-        }
-        // this is not a new variable, so increment the existing count for the row
-        else {
-            *(row_pos->end()-1) += 1;
-        }*/
 
-        for (int i = result.begin()->first.first; i < rows + 1; i++)
-        {
-            std::cout << *(row_pos->begin() + i);
-            *(row_pos->begin() + i) += 1;
-        }
+//        // if the value for the row exists, simply increment the count
+//        if ( (*row_pos)[itr->first.first+1] != 0 )
+//        {
+//            (*row_pos)[itr->first.first+1]++;
+//        }
+//        // if the value for the row does not exist, calculate the cumulative count
+//        else {
+//            (*row_pos)[itr->first.first+1] = (*row_pos)[itr->first.first] + 1;
+//        }
 
         non_zeros->push_back(itr->second);
         col_index->push_back(itr->first.second);
     }
 
-    // do the same for the final element
+    for (int i = result.begin()->first.first; i < this->rows; i++)
+    {
+        std::cout << i << " ";
+//        // count for row already exists; simply increment it by 1
+//        if ((*row_pos)[i+1])
+//        {
+//            (*row_pos)[i+1] += 1;
+//        }
+//        else {
+//            (*row_pos)[i+1] += 1;
+//            (*row_pos)[i+1] += (*row_pos)[i];
+//        }
+    }
 
-    for (int i = result.begin()->first.first; i < rows + 1; i++)
-    {
-        std::cout << *(row_pos->begin() + i);
-        *(row_pos->begin() + i) += 1;
-    }
-    /*if ( (result.end()-1)->first.first != row_pos->size()-1 )
-    {
-        row_pos->push_back(*(row_pos->end()-1) + 1);
-    }
-    else {
-        *(row_pos->end()-1) += 1;
-    }*/
+
+//    // if the value for the row exists, simply increment the count
+//    if ( (*row_pos)[(result.end()-1)->first.first+1] != 0 )
+//    {
+//        (*row_pos)[(result.end()-1)->first.first+1]++;
+//    }
+//    // if the value for the row does not exist, calculate the cumulative count
+//    else {
+//        (*row_pos)[(result.end()-1)->first.first+1] = (*row_pos)[(result.end()-1)->first.first] + 1;
+//    }
 
     // add final value
     non_zeros->push_back((result.end()-1)->second);
     col_index->push_back((result.end()-1)->first.second);
 
-    for (auto itr = non_zeros->begin(); itr != non_zeros->end(); itr++)
-    {
-        std::cout << *itr << " ";
-    }
-
-    std::cout << "interlude" << std::endl;
-
+    // create an output matrix and set its values properly
     auto output = new CSRMatrix(this->rows, this->cols, non_zeros->size(), true);
     output->values = non_zeros->data();
     output->row_position = row_pos->data();
     output->col_index = col_index->data();
-
-    output->printMatrix();
 
     return output;
 }

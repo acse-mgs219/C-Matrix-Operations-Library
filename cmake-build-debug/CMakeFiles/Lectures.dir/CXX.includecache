@@ -11,6 +11,8 @@ CSRMatrix.h
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.h
 iostream
 -
+stdexcept
+-
 CSRMatrix.h
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.h
 vector
@@ -25,12 +27,14 @@ Matrix.h
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
 memory
 -
-
-/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
 stdexcept
 -
 iostream
 -
+cmath
+-
+
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
 
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/catch.hpp
 TargetConditionals.h
