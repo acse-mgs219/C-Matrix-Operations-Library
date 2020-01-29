@@ -2,6 +2,7 @@
 
 #ifndef MATRIX_H
 #define MATRIX_H
+#include <vector>
 
 template<class T>
 class Matrix {
@@ -75,6 +76,9 @@ public:
     // swap rows
     void swapRows(Matrix<T> *b, int i, int j);
     void swapRowsMatrix(int i, int j);
+
+    void sort_mat(Matrix<T>* rhs);
+    void find_unique(std::vector<bool> check_list, std::vector<int>& unique_list);
 
 protected:
     bool preallocated = false;

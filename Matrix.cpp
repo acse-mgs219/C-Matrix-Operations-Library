@@ -1,5 +1,6 @@
 #include "Matrix.h"
 #include <memory>
+#include <vector>
 #include <stdexcept>
 #include <iostream>
 #include <cmath>
@@ -465,6 +466,9 @@ void Matrix<T>::luDecompositionPivot(Matrix<T> *upper_tri, Matrix<T> *lower_tri,
 template<class T>
 Matrix<T> *Matrix<T>::solveJacobi(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[])
 {
+    std::cerr << "Started sort mat";
+    this->sort_mat(b);
+    std::cerr << "Passed sort mat";
     // create some space to hold the solution to the iteration
     auto x_var = new Matrix<T>(b->rows, b->cols, true);
     auto x_var_prev = new Matrix<T>(b->rows, b->cols, true); // is b->cols always 1?
@@ -733,4 +737,134 @@ T Matrix<T>::innerVectorProduct(Matrix<T> &mat_right)
 
     // return result
     return result;
+}
+
+template <class T>
+void Matrix<T>::find_unique(std::vector<bool> check_list, std::vector<int>& unique_list)
+{
+    int row_index = 0;
+    int count = 0;
+    for (int i = 0; i < this->cols; i++)
+    {
+        if (check_list[i] == false) continue;
+
+        for (int j = 0; j < this->rows; j++)
+        {
+            if (this->values[i + j * this->cols] != 0)
+            {
+                row_index = j;
+                count++;
+            }
+        }
+        if (count >= 2)
+        {
+            unique_list[i] = -1;
+        }
+        else
+        {
+            unique_list[i] = row_index;
+        }
+        count = 0;
+    }
+    //    for (int i = 0; i < this->cols; i++)
+    //    {
+    //        std::cout << unique_list[i] << " ";
+    //    }
+}
+
+template <class T>
+void Matrix<T>::sort_mat(Matrix<T>* rhs)
+{
+    auto* temp_mat = new Matrix<double>(this->rows, this->cols, true);
+    auto* temp_rhs = new double[this->rows];
+
+    std::vector <bool> check_list(this->cols, true);
+    //    check_list[1] = false;
+    //    check_list[0] = false;
+    //    check_list[2] = 0;
+    //    check_list[3] = false;
+    while (!(std::none_of(check_list.begin(), check_list.end(), [](bool v) { return v; })))
+    {
+        //        std::cout<<"some are still inside";
+        std::vector <int> unique_list(this->cols, -1);
+
+        //update unique_list with hanchao's function
+        this->find_unique(check_list, unique_list);
+        //if column j has a unique entry on row i (equals to "unique_list[j]")
+        //then in temp_mat, set row j equals to (row i in original matrix)
+        //so that in temp_mat, the entry on [i,j] is the unique one;
+        //set this column j as false in the while loop to be excluded
+        for (int j = 0; j < this->cols; j++)
+        {
+            if (unique_list[j] != -1)
+            {
+                for (int col = 0; col < this->cols; col++)
+                {
+                    temp_mat->values[j * this->cols + col] = this->values[unique_list[j] * this->cols + col];
+                    this->values[unique_list[j] * this->cols + col] = 0;
+                }
+                temp_rhs[j] = rhs->values[unique_list[j]];
+                check_list[j] = false;
+            }
+        }
+
+        //next, fill the 1st available column with max value,
+        //and remove it from check_list;
+        //remember to delete
+
+
+        for (int j = 0; j < this->cols; j++)
+        {
+            //            std::cout<<"unique value: "<<check_list[j]<<std::endl;
+            if (check_list[j])
+            {
+                //                std::cout<<"random assignment in progress: "<< j<<std::endl;
+                int index_row(-1);
+                int max_value(0);
+                //now we fill temp_mat row j with value in row???? let's find out
+                for (int row = j; row < this->rows;row++)
+                {
+                    if (abs(this->values[row * this->rows + j]) > abs(max_value))
+                    {
+                        index_row = row;
+                        max_value = this->values[row * this->rows + j];
+                    }
+                }
+                // now index_row takes the index of row???
+                // fill and exclude
+                if (index_row != -1) {
+                    for (int kk = 0; kk < this->cols;kk++)
+                    {
+                        temp_mat->values[j * this->cols + kk] = this->values[index_row * this->cols + kk];
+                        this->values[index_row * this->cols + kk] = 0;
+                    }
+                    temp_rhs[j] = rhs->values[index_row];
+                    check_list[j] = false;
+                }
+
+                if (index_row == -1)
+                {
+                    std::cout << std::endl << "index cannot be found here: " << j << std::endl;
+
+                }
+                //                std::cout<<"random assignment finished: "<< j<<std::endl;
+                j = this->cols;
+            }
+        }
+
+    }
+
+    for (int i = 0; i < this->size_of_values; i++)
+    {
+        this->values[i] = temp_mat->values[i];
+    }
+
+    for (int i = 0; i < this->rows; i++)
+    {
+        rhs->values[i] = temp_rhs[i];
+    }
+
+    delete temp_mat;
+    delete temp_rhs;
+
 }
