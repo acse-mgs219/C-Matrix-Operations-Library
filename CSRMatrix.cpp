@@ -176,6 +176,8 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
             continue;
         }
 
+
+
 //        // if the value for the row exists, simply increment the count
 //        if ( (*row_pos)[itr->first.first+1] != 0 )
 //        {

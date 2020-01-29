@@ -10,6 +10,13 @@
 
 //#define RUN_ALL_TESTS
 
+
+
+
+
+
+
+
 TEST_CASE("jacobi iteration")
 {
     bool test_result = true;
@@ -39,12 +46,6 @@ TEST_CASE("jacobi iteration")
     delete solution;
     REQUIRE(test_result);
 }
-
-
-
-
-
-
 
 //TEST_CASE("sparse matrix; mat-mat mult; small matrix")
 //{
