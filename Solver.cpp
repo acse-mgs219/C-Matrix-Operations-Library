@@ -110,6 +110,19 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
     return x_var;
 }
 
+// function that implements gaussian elimination
+template<class T>
+Matrix<T>* Solver<T>::solveGaussian(Matrix<T>* LHS, Matrix<T>* b)
+{
+    // transform matrices to upper triangular
+    Solver<T>::upperTriangular(LHS, b);
+
+    // generate solution
+    auto* solution = Solver<T>::backSubstitution(LHS, b);
+
+    return solution;
+}
+
 template<class T>
 Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
 

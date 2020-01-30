@@ -40,24 +40,6 @@ public:
     void printValues();
     virtual void printMatrix();
 
-    // function that implements gaussian elimination
-    Matrix<T> *solveGaussian(Matrix<T> *b);
-
-    /// HELPER FUNCTIONS - SHOULD EVENTUALLY BE MADE PRIVATE
-    // lu decomposition function
-    void luDecomposition(Matrix<T> *upper_tri, Matrix<T> *lower_tri);
-
-    void luDecompositionPivot(Matrix<T> *upper_tri, Matrix<T> *lower_tri, Matrix<T> *permutation);
-
-    // changes the matrix to upper triangular
-    void upperTriangular(Matrix<T> *b);
-
-    // helper function that back substitutes solution
-    Matrix<T> *backSubstitution(Matrix<T> *b);
-
-    // helper function that forward substitutes solution
-    Matrix<T> *forwardSubstitution(Matrix<T> *b);
-
     // swap rows
     void swapRows(Matrix<T> *b, int i, int j);
     void swapRowsMatrix(int i, int j);
