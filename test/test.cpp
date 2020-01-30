@@ -5,10 +5,12 @@
 #include "../utilities.h"
 #include "../CSRMatrix.h"
 #include "../CSRMatrix.cpp"
+#include "../Solver.h"
+#include "../Solver.cpp"
 
 #define TOL 0.0001
 
-//#define RUN_ALL_TESTS
+#define RUN_ALL_TESTS
 
 TEST_CASE("jacobi iteration")
 {
@@ -23,7 +25,7 @@ TEST_CASE("jacobi iteration")
     A->setMatrix(16, A_values);
     b->setMatrix(4, b_values);
     double initial_guess[4] = { 1, 1, 1, 1 };
-    auto solution = A->solveJacobi(b, TOL, 1000, initial_guess);
+    auto solution = Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess);
     //double correct_values[2] = { 5.11111, -3.22222 };
     /*for (int i = 0; i < 2; i++)
     {
@@ -404,7 +406,7 @@ TEST_CASE("gauss-seidel solver")
 
     double initial_guess[2] = { 1, 1 };
 
-    auto solution = A->solveGaussSeidel(b, TOL, 1000, initial_guess);
+    auto solution = Solver <double>::solveGaussSeidel(A, b, TOL, 1000, initial_guess);
 
     double correct_values[2] = { 5.11111, -3.22222 };
 
@@ -452,7 +454,7 @@ TEST_CASE("lu decomposition")
     A->setMatrix(16, A_values);
     b->setMatrix(4, b_values);
 
-    auto solution = A->solveLU(b);
+    auto solution = Solver<double>::solveLU(A, b);
 
     for (int i=0; i<4; i++)
     {
@@ -515,7 +517,7 @@ TEST_CASE("lu decomposition test - partial pivoting")
     REQUIRE(test_result);
 }
 
-TEST_CASE("jacobi iteration")
+TEST_CASE("jacobi iteration small")
 {
     bool test_result = true;
 
@@ -535,7 +537,9 @@ TEST_CASE("jacobi iteration")
 
     double initial_guess[2] = {1, 1};
 
-    auto solution = A->solveJacobi(b, TOL, 1000, initial_guess);
+    auto solution = Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess);
+
+    solution->printMatrix();
 
     double correct_values[2] = {5.11111, -3.22222};
 
@@ -619,7 +623,7 @@ TEST_CASE("Conjugate Gradient Method")
 //    A->printValues();
 //    b->printValues();
 
-    auto result = A->conjugateGradient(b, TOL, 1000);
+    auto result = Solver<double>::conjugateGradient(A, b, TOL, 1000);
 
     result->printValues();
 
