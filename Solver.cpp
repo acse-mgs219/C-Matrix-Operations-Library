@@ -117,16 +117,16 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
     auto lower_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
     auto permutation = new Matrix<T>(LHS->rows, LHS->cols, true);
 
-    LHS->luDecompositionPivot(upper_tri, lower_tri, permutation);
+    Solver<T>::luDecompositionPivot(LHS, upper_tri, lower_tri, permutation);
 
     permutation->transpose();
 
     auto p_inv_b = permutation->matMatMult(*b);
 
-    auto y_values = lower_tri->forwardSubstitution(p_inv_b);
+    auto y_values = Solver<T>::forwardSubstitution(lower_tri, p_inv_b);
 
 
-    auto* solution = upper_tri->backSubstitution(y_values);
+    auto* solution = Solver<T>::backSubstitution(upper_tri, y_values);
 
     delete upper_tri;
     delete lower_tri;
@@ -215,4 +215,246 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     delete p;
 
     return x;
+}
+
+template<class T>
+void Solver<T>::luDecomposition(Matrix<T>* LHS, Matrix<T>* upper_tri, Matrix<T>* lower_tri)
+{
+    // make sure the matrix is square
+    if (LHS->cols != LHS->rows)
+    {
+        throw std::invalid_argument("input has wrong number dimensions");
+    }
+
+    double s = -1;
+
+    // copy the values of A into upper triangular matrix
+    for (int i = 0; i < LHS->size(); i++)
+    {
+        upper_tri->values[i] = LHS->values[i];
+    }
+
+    // loop over each pivot row
+    for (int k = 0; k < LHS->rows - 1; k++)
+    {
+        // loop over each equation below the pivot
+        for (int i = k + 1; i < LHS->rows; i++)
+        {
+            // assumes row major order
+            s = upper_tri->values[i * LHS->rows + k] / upper_tri->values[k * upper_tri->rows + k];
+
+            for (int j = k; j < LHS->rows; j++)
+            {
+                upper_tri->values[i * LHS->rows + j] -= s * upper_tri->values[k * upper_tri->rows + j];
+            }
+
+            lower_tri->values[i * LHS->rows + k] = s;
+        }
+    }
+
+    // add zeroes to the diagonal
+    for (int i = 0; i < LHS->rows; i++)
+    {
+        lower_tri->values[i * lower_tri->rows + i] = 1;
+    }
+}
+
+
+template<class T>
+void Solver<T>::luDecompositionPivot(Matrix<T>* LHS, Matrix<T>* upper_tri, Matrix<T>* lower_tri, Matrix<T>* permutation)
+{
+    // make sure the matrix is square
+    if (LHS->cols != LHS->rows)
+    {
+        throw std::invalid_argument("input has wrong number dimensions");
+    }
+
+    int max_index = -1;
+    int max_val = -1;
+    double s = -1;
+
+    // copy the values of A into upper triangular matrix
+    for (int i = 0; i < upper_tri->size(); i++)
+    {
+        upper_tri->values[i] = LHS->values[i];
+    }
+
+    // make permuation matrix an idenity matrix
+    for (int i = 0; i < permutation->rows; i++)
+    {
+        permutation->values[i * permutation->cols + i] = 1;
+    }
+
+    // loop over each pivot row
+    for (int k = 0; k < upper_tri->rows - 1; k++)
+    {
+        max_val = -1;
+        max_index = k;
+
+        // find the index of the largest value in the column
+        for (int z = k; z < upper_tri->rows; z++)
+        {
+            if (fabs(upper_tri->values[z * upper_tri->cols + k]) > max_val)
+            {
+                max_val = fabs(upper_tri->values[z * upper_tri->cols + k]);
+                max_index = z;
+            }
+        }
+
+        max_index;
+
+        upper_tri->swapRowsMatrix(k, max_index);
+        lower_tri->swapRowsMatrix(k, max_index);
+        permutation->swapRowsMatrix(k, max_index);
+
+        // loop over each equation below the pivot
+        for (int i = k + 1; i < upper_tri->rows; i++)
+        {
+            // assumes row major order
+            s = upper_tri->values[i * upper_tri->cols + k] / upper_tri->values[k * upper_tri->cols + k];
+
+            for (int j = k; j < upper_tri->cols; j++)
+            {
+                upper_tri->values[i * upper_tri->cols + j] -= s * upper_tri->values[k * upper_tri->cols + j];
+            }
+
+            lower_tri->values[i * lower_tri->rows + k] = s;
+        }
+    }
+
+    // add zeroes to the diagonal
+    for (int i = 0; i < upper_tri->rows; i++)
+    {
+        lower_tri->values[i * lower_tri->rows + i] = 1;
+    }
+
+    permutation->transpose();
+}
+
+template <class T>
+void Solver<T>::upperTriangular(Matrix<T>* LHS, Matrix<T>* b)
+{
+    // check if A is square
+    if (LHS->rows != LHS->cols)
+    {
+        throw std::invalid_argument("A should be a square matrix!");
+    }
+
+    // check that the dimensions of A and b are compatible
+    if (LHS->rows != b->size())
+    {
+        throw std::invalid_argument("A and b dimensions dont match");
+    }
+
+    // scaling factor
+    double s = -1;
+    int kmax = -1;
+
+    // loop over each pivot row except the last one
+    for (int k = 0; k < LHS->rows - 1; k++)
+    {
+        // initialize with current pivot row
+        kmax = k;
+
+        // find pivot column to avoid zeros on diagonal
+        for (int i = k + 1; i < LHS->rows; i++)
+        {
+            if (fabs(LHS->values[kmax * LHS->cols + k]) < fabs(LHS->values[i * LHS->cols + k]))
+            {
+                kmax = i;
+            }
+        }
+
+        LHS->swapRows(b, kmax, k);
+
+        // loop over each row below the pivot
+        for (int i = k + 1; i < LHS->rows; i++)
+        {
+            // calculate scaling value for LHS row
+            s = LHS->values[i * LHS->cols + k] / LHS->values[k * LHS->cols + k];
+
+            // start looping from k and update the row
+            for (int j = k; j < LHS->rows; j++)
+            {
+                LHS->values[i * LHS->cols + j] -= s * LHS->values[k * LHS->cols + j];
+            }
+
+            // update corresponding entry of b
+            b->values[i] -= s * b->values[k];
+        }
+    }
+}
+
+template <class T>
+Matrix<T>* Solver<T>::backSubstitution(Matrix<T>* LHS, Matrix<T>* b)
+{
+    // check if A is square
+    if (LHS->rows != LHS->cols)
+    {
+        throw std::invalid_argument("A should be a square matrix!");
+    }
+
+    // check that the dimensions of A and b are compatible
+    if (LHS->rows != b->size())
+    {
+        throw std::invalid_argument("A and b dimensions don't match");
+    }
+
+    // create an empty vector
+    Matrix<T>* solution = new Matrix<T>(b->rows, b->cols, true);
+
+    double s;
+
+    // iterate over system backwards
+    for (int k = b->size() - 1; k >= 0; k--)
+    {
+        s = 0;
+
+        for (int j = k + 1; j < b->size(); j++)
+        {
+            // assumes row major order
+            s += LHS->values[k * LHS->cols + j] * solution->values[j];
+        }
+
+        solution->values[k] = (b->values[k] - s) / LHS->values[k * LHS->cols + k];
+    }
+
+    return solution;
+}
+
+template<class T>
+Matrix<T>* Solver<T>::forwardSubstitution(Matrix<T>* LHS, Matrix<T>* b)
+{
+    // check if A is square
+    if (LHS->rows != LHS->cols)
+    {
+        throw std::invalid_argument("A should be a square matrix!");
+    }
+
+    // check that the dimensions of A and b are compatible
+    if (LHS->rows != b->size())
+    {
+        throw std::invalid_argument("A and b dimensions don't match");
+    }
+
+    // create an empty vector
+    Matrix<T>* solution = new Matrix<T>(b->rows, b->cols, true);
+
+    double s;
+
+    // iterate over system
+    for (int k = 0; k < b->size(); k++)
+    {
+        s = 0;
+
+        for (int j = 0; j < k; j++)
+        {
+            // assumes row major order
+            s += LHS->values[k * LHS->cols + j] * solution->values[j];
+        }
+
+        solution->values[k] = (b->values[k] - s) / LHS->values[k * LHS->cols + k];
+    }
+
+    return solution;
 }
