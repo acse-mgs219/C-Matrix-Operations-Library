@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <vector>
 
 template<class T>
@@ -13,6 +14,7 @@ public:
 
     // constructor
     Matrix(int rows, int cols, bool preallocate);
+    Matrix(int rows, int cols, std::string fileName);
     Matrix(int rows, int cols, T *values_ptr);
 
     // destructor

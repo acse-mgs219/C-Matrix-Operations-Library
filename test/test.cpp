@@ -10,9 +10,218 @@
 
 #define TOL 0.0001
 
-#define RUN_ALL_TESTS
+// #define RUN_ALL_TESTS
 
+// Gauss-Seidel Tests: 
+// Jacobi Tests: 
+// LU Decomp Tests:
+// Gaussian Tests:
+// Conjugate Gradient Dense Tests:
+// Conjugate Gradient Sparse Tests:
 
+TEST_CASE("Stable solvers; medium 400x400 matrix")
+{
+    bool test_result = true;
+
+    //std::string fileName = "smallMatrix.txt";
+
+    auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
+    auto b = new Matrix<double>(10, 1, (std::string) "smallMatrixB.txt");
+    double initial_guess[10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+    auto expectedSol = new Matrix<double>(10, 1, (std::string) "smallMatrixSol.txt");
+
+    SECTION("Jacobi Solver Test Small")
+    {
+        auto realSol = Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+
+    SECTION("Gauss-Seidel Solver Test Small")
+    {
+        auto realSol = Solver<double>::solveGaussSeidel(A, b, TOL, 1000, initial_guess);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+
+    SECTION("LU Decomp Solver Test Small")
+    {
+        auto realSol = Solver<double>::solveLU(A, b);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+
+    SECTION("Gaussian Test Small")
+    {
+        auto realSol = Solver<double>::solveGaussian(A, b);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+
+    SECTION("Conjugate Gradient Test Small")
+    {
+        auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 1000);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+
+    delete A;
+    delete b;
+    delete expectedSol;
+}
+
+TEST_CASE("All solvers; small 10x10 matrix")
+{
+    bool test_result = true;
+
+    //std::string fileName = "smallMatrix.txt";
+
+    auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
+    auto b = new Matrix<double>(10, 1, (std::string) "smallMatrixB.txt");
+    double initial_guess[10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+    auto expectedSol = new Matrix<double>(10, 1, (std::string) "smallMatrixSol.txt");
+
+    SECTION("Jacobi Solver Test Small")
+    {
+        auto realSol = Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+
+    SECTION("Gauss-Seidel Solver Test Small")
+    {
+        auto realSol = Solver<double>::solveGaussSeidel(A, b, TOL, 1000, initial_guess);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+    
+    SECTION("LU Decomp Solver Test Small")
+    {
+        auto realSol = Solver<double>::solveLU(A, b);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+    
+    SECTION("Gaussian Test Small")
+    {
+        auto realSol = Solver<double>::solveGaussian(A, b);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+
+    SECTION("Conjugate Gradient Test Small")
+    {
+        auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 1000);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+
+    delete A;
+    delete b;
+    delete expectedSol;
+}
+
+#if defined(RUN_ALL_TESTS)
 TEST_CASE("sparse matrix; conjugate gradient")
 {
     bool test_result = true;
@@ -105,7 +314,6 @@ TEST_CASE("sparse matrix; conjugate gradient")
 
 }
 
-#if defined(RUN_ALL_TESTS)
 TEST_CASE("sparse matrix mat-vect mult")
 {
     bool test_result = true;

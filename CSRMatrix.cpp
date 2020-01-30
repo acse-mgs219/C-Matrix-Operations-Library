@@ -118,6 +118,14 @@ template <class T>
 CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
 {
     std::vector< std::pair< std::pair<int, int>, T> > result;
+    auto output = this->matMatMultSymbolic(mat_right, result);
+    this->matMatMultNumeric(output, result);
+    return output;
+}
+
+template <class T>
+CSRMatrix<T>* CSRMatrix<T>::matMatMultSymbolic(CSRMatrix<T>& mat_right, std::vector< std::pair< std::pair<int, int>, T> >& result)
+{
 
     // Check our dimensions match
     if (this->cols != mat_right.rows)
@@ -159,7 +167,7 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
 
     // HOW DO WE SET THE SPARSITY OF OUR OUTPUT MATRIX HERE??
 
-    auto non_zeros = new std::vector<T>;
+    //auto non_zeros = new std::vector<T>;
     auto row_pos = new std::vector<int>(this->rows + 1);
 
     //row_pos->push_back(0);
@@ -171,11 +179,10 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
         // compare with next element
         if (itr->first.first == (itr + 1)->first.first && itr->first.second == (itr + 1)->first.second)
         {
-            (*(itr + 1)).second += itr->second;
             continue;
         }
 
-        non_zeros->push_back(itr->second);
+        //non_zeros->push_back(itr->second);
         col_index->push_back(itr->first.second);
     }
 
@@ -198,16 +205,39 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
     }
 
     // add final value
-    non_zeros->push_back((result.end() - 1)->second);
+    //non_zeros->push_back((result.end() - 1)->second);
     col_index->push_back((result.end() - 1)->first.second);
 
     // create an output matrix and set its values properly
-    auto output = new CSRMatrix(this->rows, this->cols, non_zeros->size(), true);
-    output->values = non_zeros->data();
+    auto output = new CSRMatrix(this->rows, this->cols, col_index->size(), true);
+    //output->values = non_zeros->data();
     output->row_position = row_pos->data();
     output->col_index = col_index->data();
 
     return output;
+}
+
+template <class T>
+void CSRMatrix<T>::matMatMultNumeric(CSRMatrix<T>* symbolic_res, std::vector< std::pair< std::pair<int, int>, T> >& result)
+{
+    T* non_zeros = new T[symbolic_res->size()];
+    int i = 0;
+
+    for (auto itr = result.begin(); itr != result.end() - 1; itr++)
+    {
+        // compare with next element
+        if (itr->first.first == (itr + 1)->first.first && itr->first.second == (itr + 1)->first.second)
+        {
+            (*(itr + 1)).second += itr->second;
+            continue;
+        }
+
+        non_zeros[i++] = (itr->second);
+    }
+
+    non_zeros[i] = (result.end() - 1)->second;
+
+    symbolic_res->values = non_zeros;
 }
 
 template<class T>

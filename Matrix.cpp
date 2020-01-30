@@ -1,8 +1,10 @@
 #include "Matrix.h"
 #include <memory>
 #include <vector>
+#include <string>
 #include <stdexcept>
 #include <iostream>
+#include <fstream>
 #include <cmath>
 
 // constructor - creates a matrix initialized to 0
@@ -20,6 +22,24 @@ rows(nrows), cols(ncols), size_of_values(nrows * ncols), preallocated(preallocat
         }
     }
 }
+
+template <class T>
+Matrix<T>::Matrix(int nrows, int ncols, std::string fileName) :
+rows(nrows), cols(ncols), size_of_values(nrows* ncols), preallocated(true)
+{
+    std::ifstream myfile;
+    myfile.open(fileName);
+    this->values = new T[this->size_of_values];
+    // initialize values to 0
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            myfile >> this->values[i * cols + j];
+        }
+    } 
+}
+
 
 // constructor for not preallocated
 template <class T>
