@@ -19,18 +19,19 @@
 // Conjugate Gradient Dense Tests:
 // Conjugate Gradient Sparse Tests:
 
-TEST_CASE("Stable solvers; medium 400x400 matrix")
+TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
 {
     bool test_result = true;
 
     //std::string fileName = "smallMatrix.txt";
 
-    auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
-    auto b = new Matrix<double>(10, 1, (std::string) "smallMatrixB.txt");
-    double initial_guess[10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-    auto expectedSol = new Matrix<double>(10, 1, (std::string) "smallMatrixSol.txt");
+    auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrixSparse.txt");
+    auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixBSparse.txt");
+    double initial_guess[1000];
+    std::fill_n(initial_guess, 1000, 1);
+    auto expectedSol = new Matrix<double>(1000, 1, (std::string) "massMatrixSolSparse.txt");
 
-    SECTION("Jacobi Solver Test Small")
+    SECTION("Jacobi Solver Test Gigantic")
     {
         auto realSol = Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess);
 
@@ -47,7 +48,7 @@ TEST_CASE("Stable solvers; medium 400x400 matrix")
         REQUIRE(test_result);
     }
 
-    SECTION("Gauss-Seidel Solver Test Small")
+    SECTION("Gauss-Seidel Solver Test Gigantic")
     {
         auto realSol = Solver<double>::solveGaussSeidel(A, b, TOL, 1000, initial_guess);
 
@@ -64,7 +65,7 @@ TEST_CASE("Stable solvers; medium 400x400 matrix")
         REQUIRE(test_result);
     }
 
-    SECTION("LU Decomp Solver Test Small")
+    SECTION("LU Decomp Solver Test Gigantic")
     {
         auto realSol = Solver<double>::solveLU(A, b);
 
@@ -81,7 +82,7 @@ TEST_CASE("Stable solvers; medium 400x400 matrix")
         REQUIRE(test_result);
     }
 
-    SECTION("Gaussian Test Small")
+    SECTION("Gaussian Test Gigantic")
     {
         auto realSol = Solver<double>::solveGaussian(A, b);
 
@@ -98,7 +99,7 @@ TEST_CASE("Stable solvers; medium 400x400 matrix")
         REQUIRE(test_result);
     }
 
-    SECTION("Conjugate Gradient Test Small")
+    SECTION("Conjugate Gradient Test Gigantic")
     {
         auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 1000);
 
@@ -114,6 +115,209 @@ TEST_CASE("Stable solvers; medium 400x400 matrix")
 
         REQUIRE(test_result);
     }
+
+    delete A;
+    delete b;
+    delete expectedSol;
+}
+
+TEST_CASE("Stable solvers; massive 1000x1000 matrix")
+{
+    bool test_result = true;
+
+    auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrix.txt");
+    auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixB.txt");
+    double initial_guess[1000];
+    std::fill_n(initial_guess, 1000, 1);
+    auto expectedSol = new Matrix<double>(1000, 1, (std::string) "massMatrixSol.txt");
+
+    SECTION("LU Decomp Solver Test Massive")
+    {
+        auto realSol = Solver<double>::solveLU(A, b);
+        realSol->printMatrix();
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+
+    SECTION("Gaussian Test Massive")
+    {
+        auto realSol = Solver<double>::solveGaussian(A, b);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+
+    /*SECTION("Conjugate Gradient Test Large")
+    {
+        auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 10000);
+        realSol->printMatrix();
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }*/
+
+    delete A;
+    delete b;
+    delete expectedSol;
+}
+
+TEST_CASE("Stable solvers; large 400x400 matrix")
+{
+    bool test_result = true;
+
+    //std::string fileName = "smallMatrix.txt";
+
+    auto A = new Matrix<double>(400, 400, (std::string) "largeMatrix.txt");
+    auto b = new Matrix<double>(400, 1, (std::string) "largeMatrixB.txt");
+    double initial_guess[400];
+    std::fill_n(initial_guess, 400, 1);
+    auto expectedSol = new Matrix<double>(400, 1, (std::string) "largeMatrixSol.txt");
+
+    SECTION("LU Decomp Solver Test Large")
+    {
+        auto realSol = Solver<double>::solveLU(A, b);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+
+    SECTION("Gaussian Test Large")
+    {
+        auto realSol = Solver<double>::solveGaussian(A, b);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+
+    /*SECTION("Conjugate Gradient Test Large")
+    {
+        auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 10000);
+        realSol->printMatrix();
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }*/
+
+    delete A;
+    delete b;
+    delete expectedSol;
+}
+
+TEST_CASE("Stable solvers; medium 100x100 matrix")
+{
+    bool test_result = true;
+
+    //std::string fileName = "smallMatrix.txt";
+
+    auto A = new Matrix<double>(100, 100, (std::string) "mediumMatrix.txt");
+    auto b = new Matrix<double>(100, 1, (std::string) "mediumMatrixB.txt");
+    double initial_guess[100];
+    std::fill_n(initial_guess, 100, 1);
+    auto expectedSol = new Matrix<double>(100, 1, (std::string) "mediumMatrixSol.txt");
+
+    SECTION("LU Decomp Solver Test Medium")
+    {
+        auto realSol = Solver<double>::solveLU(A, b);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+    
+    SECTION("Gaussian Test Medium")
+    {
+        auto realSol = Solver<double>::solveGaussian(A, b);
+
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }
+    
+    /*SECTION("Conjugate Gradient Test Medium")
+    {
+        auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 1000);
+        realSol->printMatrix();
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+        delete realSol;
+
+        REQUIRE(test_result);
+    }*/
 
     delete A;
     delete b;
