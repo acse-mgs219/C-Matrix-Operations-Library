@@ -1,7 +1,4 @@
 #pragma once
-
-#ifndef MATRIX_H
-#define MATRIX_H
 #include <vector>
 
 template<class T>
@@ -43,36 +40,6 @@ public:
     void printValues();
     virtual void printMatrix();
 
-    /////////// Solvers /////
-    Matrix<T> *conjugateGradient(Matrix<T> *b, double TOL, int max_iterations);
-
-    // jacobi iterative solver
-    Matrix<T> *solveJacobi(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[]);
-
-    // gauss seidel iterative solver
-    Matrix<T> *solveGaussSeidel(Matrix<T> *b, double tolerance, int max_iterations, T initial_guess[]);
-
-    // function that implements gaussian elimination
-    Matrix<T> *solveGaussian(Matrix<T> *b);
-
-    // uses direct LU decomposition to solve the matrix system
-    Matrix<T> *solveLU(Matrix<T> *b);
-
-    /// HELPER FUNCTIONS - SHOULD EVENTUALLY BE MADE PRIVATE
-    // lu decomposition function
-    void luDecomposition(Matrix<T> *upper_tri, Matrix<T> *lower_tri);
-
-    void luDecompositionPivot(Matrix<T> *upper_tri, Matrix<T> *lower_tri, Matrix<T> *permutation);
-
-    // changes the matrix to upper triangular
-    void upperTriangular(Matrix<T> *b);
-
-    // helper function that back substitutes solution
-    Matrix<T> *backSubstitution(Matrix<T> *b);
-
-    // helper function that forward substitutes solution
-    Matrix<T> *forwardSubstitution(Matrix<T> *b);
-
     // swap rows
     void swapRows(Matrix<T> *b, int i, int j);
     void swapRowsMatrix(int i, int j);
@@ -80,11 +47,9 @@ public:
     void sort_mat(Matrix<T>* rhs);
     void find_unique(std::vector<bool> check_list, std::vector<int>& unique_list);
 
+    int size();
+
 protected:
     bool preallocated = false;
-
-private:
     int size_of_values = -1;
 };
-
-#endif //LECTURES_MATRIX_H
