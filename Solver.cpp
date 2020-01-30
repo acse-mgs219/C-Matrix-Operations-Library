@@ -4,35 +4,28 @@
 template <class T>
 Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T initial_guess[])
 {
+    //LHS->sort_mat(b);
     // create some space to hold the solution to the iteration
     auto x_var = new Matrix<T>(b->rows, b->cols, true);
+    auto x_var_prev = new Matrix<T>(b->rows, b->cols, true); // is b->cols always 1?
 
-    // create a vector to hold the previous values of the x values we iterate over
-    std::unique_ptr< Matrix<T> > x_var_prev(new Matrix<T>(b->rows, b->cols, true));
+    x_var_prev->setMatrix(b->size(), initial_guess); // should check that sizes are correct
 
-    // set the initial x values to our initial guess
-    x_var_prev->setMatrix(b->size(), initial_guess);
-
-    // create a vector to hold the estimated right hand side - smart pointer as only used inside this scope
-    std::unique_ptr< Matrix<T> > estimated_rhs(LHS->matMatMult(*x_var_prev));
+    auto estimated_rhs = LHS->matMatMult(*x_var_prev);
 
     // initialize residual which will be used to determine ending position
     double residual = tolerance * 2;
-
-    // create a variable to hold the sum of row into columns
-    std::unique_ptr<double[]> sum(new double[LHS->cols]);
-
-    // iteration counter to count how many iterations we have completed. Used to keep iterations below max_iterations
+    double resid_sum; // not actually necessary
+    double* sum = new double[LHS->cols];
     int iteration = 0;
 
-    // iterate until we hit the convergence criteria or max iterations
     while (residual > tolerance&& iteration < max_iterations)
     {
-        // loop over each row of the left hand side, each column of b, and calculate the sum
-        for (int i = 0; i < LHS->rows; i++)
+        for (int i = 0; i < LHS->rows; i++) // should be LHS->rows?
         {
             sum[i] = 0;
-            for (int j = 0; j < LHS->cols; j++)
+
+            for (int j = 0; j < LHS->cols; j++) // should be LHS->cols?
             {
                if (i != j)
                {
@@ -41,81 +34,78 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
             }
         }
 
-        // update the values of the current x and the previous x
-       for (int i = 0; i < LHS->rows; i++)
+       for (int i = 0; i < LHS->rows; i++) // should be LHS->rows?
        {
             x_var->values[i] = 1 / LHS->values[i * LHS->rows + i] * (b->values[i] - sum[i]);
             x_var_prev->values[i] = x_var->values[i];
        }
 
-       // reset the residual so we can calculate for the current iterative step only
-        residual = 0;
+        resid_sum = 0;
 
-        // check residual against the tolerance
+        // check residual
         for (int i = 0; i < b->size(); i++)
         {
-            residual += pow(fabs(estimated_rhs->values[i] - b->values[i]), 2);
+            resid_sum += fabs(estimated_rhs->values[i] - b->values[i]);
         }
-
-        // calculate the RMSE norm of the residuals
-        residual = sqrt(residual / b->size());
+        residual = resid_sum / b->size();
         ++iteration;
     }
+    
+    // clean memory
+    delete x_var_prev;
+    delete estimated_rhs;
+    delete[] sum;
 
     return x_var;
 }
 
 template<class T>
-Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T* initial_guess)
-{
+Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T* initial_guess) {
+
     // create some space to hold the solution to the iteration
     auto x_var = new Matrix<T>(b->rows, b->cols, true);
 
-    // set the first x value to the initial guess
     x_var->setMatrix(b->rows, initial_guess);
 
-    // create a vector to hold the estimated RHS for each iteration
-    std::unique_ptr< Matrix<T> > estimated_rhs(LHS->matMatMult(*x_var));
+    auto estimated_rhs = LHS->matMatMult(*x_var);
 
     // initialize residual which will be used to determine ending position
     double residual = tolerance * 2;
+    double resid_sum;
     double sum;
     int iteration = 0;
 
-    // iterate until we hit the convergence criteria or max_iterations
     while (residual > tolerance&& iteration < max_iterations)
     {
-        // loop over each row in the LHS matrix and multiply into the column of b
-        for (int i = 0; i < LHS->rows; i++)
+        for (int i = 0; i < b->size(); i++)
         {
             sum = 0;
 
             for (int j = 0; j < b->size(); j++)
             {
-                // because we are essentially rearranging the equation, only calculate the sum if not the same variable
                 if (i != j)
                 {
                     sum += LHS->values[i * LHS->cols + j] * x_var->values[j];
                 }
             }
 
-            // update the x variable values
             x_var->values[i] = 1 / LHS->values[i * LHS->cols + i] * (b->values[i] - sum);
         }
 
-        // reset the residual to 0
-        residual = 0;
+        resid_sum = 0;
 
-        // check residual to see if we have hit the convergence criteria
+        // check residual
         for (int i = 0; i < b->size(); i++)
         {
-            residual += pow(fabs(estimated_rhs->values[i] - b->values[i]), 2);
+            resid_sum += fabs(estimated_rhs->values[i] - b->values[i]);
         }
 
-        // calculate RMSE to check for convergence condition
-        residual = sqrt(residual / b->size());
+        residual = resid_sum / b->size();
         ++iteration;
     }
+
+    // clean memory
+    delete estimated_rhs;
 
     return x_var;
 }
@@ -128,35 +118,29 @@ Matrix<T>* Solver<T>::solveGaussian(Matrix<T>* LHS, Matrix<T>* b)
     Solver<T>::upperTriangular(LHS, b);
 
     // generate solution
-    auto *solution = Solver<T>::backSubstitution(LHS, b);
+    auto* solution = Solver<T>::backSubstitution(LHS, b);
 
     return solution;
 }
 
 template<class T>
-Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b)
-{
-    // create space to hold the upper triangular, lower triangular and permutation
+Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
+
     auto upper_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
     auto lower_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
     auto permutation = new Matrix<T>(LHS->rows, LHS->cols, true);
 
-    // construct LU decomposition of the LHS matrix - this gives us the permutation
     Solver<T>::luDecompositionPivot(LHS, upper_tri, lower_tri, permutation);
 
-    // transpose the permutation matrix
     permutation->transpose();
 
-    // multiply the transpose of the permutation matrix by b
     auto p_inv_b = permutation->matMatMult(*b);
 
-    // calculate the y values using forward substitution
     auto y_values = Solver<T>::forwardSubstitution(lower_tri, p_inv_b);
 
-    // calculate the solution using back substitution and the y values we calculated earlier
-    auto *solution = Solver<T>::backSubstitution(upper_tri, y_values);
 
-    // clean memory
+    auto* solution = Solver<T>::backSubstitution(upper_tri, y_values);
+
     delete upper_tri;
     delete lower_tri;
     delete permutation;
@@ -166,44 +150,36 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b)
     return solution;
 }
 
+// solve Ax = b;
 template<class T>
 Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations)
 {
-    // variable to keep track of the iterations
-    int iteration = 0;
-
-    // algorithm specific variables - initialize all of them to 1
-    double beta = 1;
+    int k = 0;
+    T beta = 1;
     double alpha = 1;
-    double delta_old = 1;
+    T delta_old = 1;
 
-    // intialize x values to 0
+    // intialize to x to 0
     auto x = new Matrix<T>(b->rows, b->cols, true);
 
-    // workout Ax initially
-    std::unique_ptr< Matrix<T> > Ax(LHS->matMatMult(*x));
+    // workout Ax
+    auto Ax = LHS->matMatMult(*x);
 
-    // set the residual to  r = b - Ax initially
-    std::unique_ptr< Matrix<T> > r(new Matrix<T>(b->rows, b->cols, true));
-
-    // set r = b - Ax for this iteration
+    // r = b - Ax
+    auto r = new Matrix<T>(b->rows, b->cols, true);
     for (int i = 0; i < r->size(); i++)
     {
         r->values[i] = b->values[i] - Ax->values[i];
     }
 
-    // create some space for p and w matrices used in the iterations
-    std::unique_ptr< Matrix<T> > p(new Matrix<T>(r->rows, r->cols, true));
-    std::unique_ptr< Matrix<T> > w(new Matrix<T>(r->rows, r->cols, true));
+    auto p = new Matrix<T>(r->rows, r->cols, true);
+    auto w = new Matrix<T>(r->rows, r->cols, true);
 
-    // calculate delta parameter which is the result of the inner product of r with itself
     double delta = r->innerVectorProduct(*r);
 
-    // iterate until the convergence criteria is reached or we hit the max iterations
-    while (iteration < max_iterations && (sqrt(delta) > epsilon* sqrt(b->innerVectorProduct(*b))))
+    while (k < max_iterations && (sqrt(delta) > epsilon* sqrt(b->innerVectorProduct(*b))))
     {
-        // for the first iterations set p = r
-        if (iteration == 0)
+        if (k == 1)
         {
             for (int i = 0; i < p->size(); i++)
             {
@@ -211,47 +187,45 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
             }
 
         }
-        // for all the other iterations
         else {
-            // update beta based on the delta values
             beta = delta / delta_old;
 
-            // set p = r + beta * p for this iteration
+            // p = r + beta * p
             for (int i = 0; i < p->size(); i++)
             {
                 p->values[i] = r->values[i] + beta * p->values[i];
             }
         }
 
-        std::unique_ptr< Matrix<T> > Ap(LHS->matMatMult(*p));
+        auto Ap = LHS->matMatMult(*p);
 
-        // set w = Ap for this iteration
         for (int i = 0; i < w->size(); i++)
         {
             w->values[i] = Ap->values[i];
         }
 
-        // update the alpha value based on delta and the inner product of p and w
         alpha = delta / p->innerVectorProduct(*w);
 
-        // set x = x + alpha * p for this iteration
         for (int i = 0; i < x->size(); i++)
         {
             x->values[i] = x->values[i] + alpha * p->values[i];
         }
 
-        // set r = r - alpha * w for this iteration
         for (int i = 0; i < r->size(); i++)
         {
             r->values[i] = r->values[i] - alpha * w->values[i];
         }
 
-        // update both delta and delta_old for this iteration
         delta_old = delta;
         delta = r->innerVectorProduct(*r);
 
-        ++iteration;
+        delete Ap;
+        k++;
     }
+
+    delete Ax;
+    delete r;
+    delete p;
 
     return x;
 }
@@ -265,10 +239,9 @@ void Solver<T>::luDecomposition(Matrix<T>* LHS, Matrix<T>* upper_tri, Matrix<T>*
         throw std::invalid_argument("input has wrong number dimensions");
     }
 
-    // intialize the scaling factor s to -1
     double s = -1;
 
-    // copy the values of A into the upper triangular matrix
+    // copy the values of A into upper triangular matrix
     for (int i = 0; i < LHS->size(); i++)
     {
         upper_tri->values[i] = LHS->values[i];
@@ -309,11 +282,8 @@ void Solver<T>::luDecompositionPivot(Matrix<T>* LHS, Matrix<T>* upper_tri, Matri
         throw std::invalid_argument("input has wrong number dimensions");
     }
 
-    // variables to keep track of the index of the maximum value and the maximum value itself
     int max_index = -1;
     int max_val = -1;
-
-    // initialize the scaling factor to -1
     double s = -1;
 
     // copy the values of A into upper triangular matrix
@@ -344,7 +314,8 @@ void Solver<T>::luDecompositionPivot(Matrix<T>* LHS, Matrix<T>* upper_tri, Matri
             }
         }
 
-        // generate the upper triangular, lower triangular and permutation matrix decomposition
+        max_index;
+
         upper_tri->swapRowsMatrix(k, max_index);
         lower_tri->swapRowsMatrix(k, max_index);
         permutation->swapRowsMatrix(k, max_index);
@@ -355,13 +326,11 @@ void Solver<T>::luDecompositionPivot(Matrix<T>* LHS, Matrix<T>* upper_tri, Matri
             // assumes row major order
             s = upper_tri->values[i * upper_tri->cols + k] / upper_tri->values[k * upper_tri->cols + k];
 
-            // update the upper tri values using the scaling factor
             for (int j = k; j < upper_tri->cols; j++)
             {
                 upper_tri->values[i * upper_tri->cols + j] -= s * upper_tri->values[k * upper_tri->cols + j];
             }
 
-            // update the lower tri values
             lower_tri->values[i * lower_tri->rows + k] = s;
         }
     }
@@ -372,7 +341,6 @@ void Solver<T>::luDecompositionPivot(Matrix<T>* LHS, Matrix<T>* upper_tri, Matri
         lower_tri->values[i * lower_tri->rows + i] = 1;
     }
 
-    // return the transpose of the permutation matrix
     permutation->transpose();
 }
 
@@ -391,7 +359,7 @@ void Solver<T>::upperTriangular(Matrix<T>* LHS, Matrix<T>* b)
         throw std::invalid_argument("A and b dimensions dont match");
     }
 
-    // s is the scaling factor to adjust a row. kmax keeeps track of the index of the maximum value; need for pivoting
+    // scaling factor
     double s = -1;
     int kmax = -1;
 
@@ -410,7 +378,6 @@ void Solver<T>::upperTriangular(Matrix<T>* LHS, Matrix<T>* b)
             }
         }
 
-        // swap the rows if we have found a bigger value in the column below the pivot
         LHS->swapRows(b, kmax, k);
 
         // loop over each row below the pivot
@@ -462,7 +429,6 @@ Matrix<T>* Solver<T>::backSubstitution(Matrix<T>* LHS, Matrix<T>* b)
             s += LHS->values[k * LHS->cols + j] * solution->values[j];
         }
 
-        // adjust the values in the solution vector
         solution->values[k] = (b->values[k] - s) / LHS->values[k * LHS->cols + k];
     }
 
@@ -500,7 +466,6 @@ Matrix<T>* Solver<T>::forwardSubstitution(Matrix<T>* LHS, Matrix<T>* b)
             s += LHS->values[k * LHS->cols + j] * solution->values[j];
         }
 
-        // adjust the values in the solution vector
         solution->values[k] = (b->values[k] - s) / LHS->values[k * LHS->cols + k];
     }
 
