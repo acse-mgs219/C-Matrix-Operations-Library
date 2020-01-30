@@ -13,11 +13,82 @@
   <component name="ChangeListManager">
     <list default="true" id="7564b55b-8e43-42dd-a5d7-f1c6814df806" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vs/CMake Overview" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vs/Matrices/v16/.suo" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vs/Matrices/v16/Browse.VC.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vs/Matrices/v16/Browse.VC.opendb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vs/Matrices/v16/ipch/AutoPCH/110168075098d9e1/MATRIX.ipch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vs/Matrices/v16/ipch/AutoPCH/c6dcc7cd70c45856/TEST.ipch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vs/ProjectSettings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vs/VSWorkspaceState.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vs/acse-5-assignment-unique-pointers/v16/.suo" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vs/acse-5-assignment-unique-pointers/v16/Browse.VC.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vs/slnx.sqlite" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/CSRMatrix.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/CSRMatrix.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CSRMatrix.h" beforeDir="false" afterPath="$PROJECT_DIR$/CSRMatrix.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Matrix.h" beforeDir="false" afterPath="$PROJECT_DIR$/Matrix.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Solver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Solver.h" beforeDir="false" afterPath="$PROJECT_DIR$/Solver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/CXX.includecache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/depend.internal" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/depend.internal" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/depend.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/depend.make" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/test/test.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/test/test.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Lectures" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Lectures" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/.cmake/api/v1/query/client-MicrosoftVS/query.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/.cmake/api/v1/reply/cache-v2-20a426d807295a281e7b.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/.cmake/api/v1/reply/cmakeFiles-v1-7dc917935fd637a9ffae.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/.cmake/api/v1/reply/codemodel-v2-e973666de3fdc08e6234.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/.cmake/api/v1/reply/index-2020-01-24T19-55-32-0272.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/.cmake/api/v1/reply/target-Lectures-Debug-4644861da7b9670c05ee.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/.ninja_deps" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/.ninja_log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeCache.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/3.15.19101501-MSVC_2/CMakeCCompiler.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/3.15.19101501-MSVC_2/CMakeCXXCompiler.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/3.15.19101501-MSVC_2/CMakeDetermineCompilerABI_C.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/3.15.19101501-MSVC_2/CMakeDetermineCompilerABI_CXX.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/3.15.19101501-MSVC_2/CMakeRCCompiler.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/3.15.19101501-MSVC_2/CMakeSystem.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/3.15.19101501-MSVC_2/CompilerIdC/CMakeCCompilerId.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/3.15.19101501-MSVC_2/CompilerIdC/CMakeCCompilerId.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/3.15.19101501-MSVC_2/CompilerIdC/CMakeCCompilerId.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/3.15.19101501-MSVC_2/CompilerIdCXX/CMakeCXXCompilerId.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/3.15.19101501-MSVC_2/CompilerIdCXX/CMakeCXXCompilerId.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/3.15.19101501-MSVC_2/CompilerIdCXX/CMakeCXXCompilerId.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/CMakeOutput.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/Lectures.dir/CSRMatrix.cpp.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/Lectures.dir/Matrix.cpp.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/Lectures.dir/embed.manifest" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/Lectures.dir/intermediate.manifest" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/Lectures.dir/manifest.rc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/Lectures.dir/manifest.res" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/Lectures.dir/test/test-main.cpp.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/Lectures.dir/test/test.cpp.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/ShowIncludes/foo.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/ShowIncludes/main.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/ShowIncludes/main.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/TargetDirectories.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/CMakeFiles/cmake.check_cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/Lectures.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/Lectures.ilk" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/Lectures.pdb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/Testing/Temporary/LastTest.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/VSInheritEnvironments.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/build.ninja" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/cmake_install.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/largeMatrix.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/largeMatrix.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/largeMatrixB.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/largeMatrixB.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/largeMatrixSol.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/largeMatrixSol.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrix.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/massMatrix.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixB.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/massMatrixB.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixBSparse.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/massMatrixBSparse.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixSol.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/massMatrixSol.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixSolSparse.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/massMatrixSolSparse.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixSparse.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/massMatrixSparse.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/mediumMatrix.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/mediumMatrix.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/mediumMatrixSol.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/mediumMatrixSol.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/rules.ninja" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/smallMatrix.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/smallMatrix.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/smallMatrixB.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/smallMatrixB.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/smallMatrixSol.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/smallMatrixSol.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/test.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -52,6 +123,11 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cmake-build-debug" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="Lectures" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Lectures" TARGET_NAME="Lectures" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Lectures" RUN_TARGET_NAME="Lectures">
       <method v="2">
@@ -79,26 +155,27 @@
       <workItem from="1580256420744" duration="47000" />
       <workItem from="1580256770876" duration="2000" />
       <workItem from="1580289390638" duration="6414000" />
+      <workItem from="1580417281784" duration="5317000" />
     </task>
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state width="1238" height="123" key="GridCell.Tab.0.bottom" timestamp="1580341833404">
+    <state width="694" height="545" key="GridCell.Tab.0.bottom" timestamp="1580422803760">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="1238" height="123" key="GridCell.Tab.0.bottom/0.23.1280.709@0.23.1280.709" timestamp="1580341833404" />
-    <state width="1238" height="123" key="GridCell.Tab.0.center" timestamp="1580341833403">
+    <state width="694" height="545" key="GridCell.Tab.0.bottom/0.23.1280.709@0.23.1280.709" timestamp="1580422803760" />
+    <state width="694" height="545" key="GridCell.Tab.0.center" timestamp="1580422803759">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="1238" height="123" key="GridCell.Tab.0.center/0.23.1280.709@0.23.1280.709" timestamp="1580341833403" />
-    <state width="1238" height="123" key="GridCell.Tab.0.left" timestamp="1580341833402">
+    <state width="694" height="545" key="GridCell.Tab.0.center/0.23.1280.709@0.23.1280.709" timestamp="1580422803759" />
+    <state width="694" height="545" key="GridCell.Tab.0.left" timestamp="1580422803758">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="1238" height="123" key="GridCell.Tab.0.left/0.23.1280.709@0.23.1280.709" timestamp="1580341833402" />
-    <state width="1238" height="123" key="GridCell.Tab.0.right" timestamp="1580341833403">
+    <state width="694" height="545" key="GridCell.Tab.0.left/0.23.1280.709@0.23.1280.709" timestamp="1580422803758" />
+    <state width="694" height="545" key="GridCell.Tab.0.right" timestamp="1580422803759">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="1238" height="123" key="GridCell.Tab.0.right/0.23.1280.709@0.23.1280.709" timestamp="1580341833403" />
+    <state width="694" height="545" key="GridCell.Tab.0.right/0.23.1280.709@0.23.1280.709" timestamp="1580422803759" />
     <state width="1238" height="250" key="GridCell.Tab.1.bottom" timestamp="1580330572618">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
@@ -123,9 +200,9 @@
       <screen x="0" y="23" width="1280" height="709" />
     </state>
     <state width="600" height="424" key="javadoc.popup/0.23.1280.709@0.23.1280.709" timestamp="1580165930247" />
-    <state x="303" y="53" width="672" height="678" key="search.everywhere.popup" timestamp="1580330257128">
+    <state x="303" y="53" width="672" height="678" key="search.everywhere.popup" timestamp="1580422499503">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state x="303" y="53" width="672" height="678" key="search.everywhere.popup/0.23.1280.709@0.23.1280.709" timestamp="1580330257128" />
+    <state x="303" y="53" width="672" height="678" key="search.everywhere.popup/0.23.1280.709@0.23.1280.709" timestamp="1580422499503" />
   </component>
 </project>

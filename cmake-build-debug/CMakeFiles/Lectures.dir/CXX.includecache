@@ -17,6 +17,8 @@ CSRMatrix.h
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.h
 vector
 -
+cmath
+-
 
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.h
 Matrix.h
@@ -34,6 +36,16 @@ iostream
 cmath
 -
 
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
+
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Solver.cpp
+Matrix.h
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
+Solver.h
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Solver.h
+
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Solver.h
+Matrix.h
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
 
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/catch.hpp
@@ -625,6 +637,10 @@ stdexcept
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.h
 ../CSRMatrix.cpp
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.cpp
+../Solver.h
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Solver.h
+../Solver.cpp
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Solver.cpp
 
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/utilities.h
 cmath

@@ -1,3 +1,0 @@
-C:/Users/abc/Documents/GitHub/acse-5-assignment-unique-pointers/out/build/x64-Debug/CMakeFiles/Lectures.dir
-C:/Users/abc/Documents/GitHub/acse-5-assignment-unique-pointers/out/build/x64-Debug/CMakeFiles/edit_cache.dir
-C:/Users/abc/Documents/GitHub/acse-5-assignment-unique-pointers/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
