@@ -10,7 +10,7 @@
 
 #define TOL 0.0001
 
-// #define RUN_ALL_TESTS
+ #define RUN_ALL_TESTS
 
 // Jacobi Tests:
 const bool run_jacobi = false;
@@ -26,6 +26,7 @@ const bool run_gaussian = false;
 
 // Conjugate Gradient Dense Tests:
 const bool run_conjugate_gradient = true;
+
 
 TEST_CASE("CG test on a small 3 by 3 system")
 {
@@ -69,6 +70,7 @@ TEST_CASE("CG test on a small 3 by 3 system")
     REQUIRE(test_result);
 }
 
+
 TEST_CASE("CG test on large SPD Matrix")
 {
     bool test_result = true;
@@ -108,8 +110,8 @@ TEST_CASE("Dense To Sparse Conversion")
     auto B = new CSRMatrix(A);
 
 //    B->printMatrix();
-}
 
+}
 
 TEST_CASE("incomplete cholesky factorization")
 {
