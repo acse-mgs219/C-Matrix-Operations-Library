@@ -33,6 +33,8 @@ public:
     // matrix multiplication
     Matrix<T> *matMatMult(Matrix<T>& mat_right);
 
+    Matrix<T> *matVectMult(Matrix<T>& vector);
+
     void transpose();
 
     // calculate inner product

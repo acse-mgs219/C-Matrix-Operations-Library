@@ -25,25 +25,107 @@ const bool run_lu_decomp = false;
 const bool run_gaussian = false;
 
 // Conjugate Gradient Dense Tests:
-const bool run_conjugate_gradient = false;
+const bool run_conjugate_gradient = true;
 
+TEST_CASE("CG test on a small 3 by 3 system")
+{
+    bool test_result = true;
+
+    int rows = 3;
+    int cols = 3;
+
+    auto A = new Matrix<double>(rows, cols, true);
+
+    double A_values[9] = { 2, -1, 0, -1, 3, -1, 0, -1, 2 };
+
+    A->setMatrix(9 ,A_values);
+
+    auto b = new Matrix<double>(cols, 1, true);
+    double b_values[3] = { 1, 8, -5 };
+    double initial_guess[3] = {0, 0, 0};
+    b->setMatrix(3, b_values);
+
+    auto result = Solver<double>::conjugateGradient(A, b, TOL, 5000, initial_guess);
+
+    double correct_values[3] = { 2, 3, -1 };
+
+    for (int i = 0; i < 3; i++)
+    {
+        if (!fEqual(result->values[i], correct_values[i], 0.001))
+        {
+            std::cout << result->values[i] - correct_values[i] << std::endl;
+
+            test_result = false;
+            break;
+        }
+    }
+
+    result->printMatrix();
+
+    delete A;
+    delete b;
+    delete result;
+
+    REQUIRE(test_result);
+}
+
+TEST_CASE("CG test on large SPD Matrix")
+{
+    bool test_result = true;
+
+    auto A = new Matrix<double>(20, 20, (std::string) "massMatrixSPD.txt");
+    auto b = new Matrix<double>(20, 1, (std::string) "massMatrixBSPD.txt");
+    double initial_guess[20];
+    std::fill_n(initial_guess, 20, 1);
+    auto expectedSol = new Matrix<double>(20, 1, (std::string) "massMatrixSolSPD.txt");
+
+    auto realSol = Solver <double>::conjugateGradient(A, b, TOL, 3500, initial_guess);
+
+    for (int i = 0; i < expectedSol->rows; i++)
+    {
+        if (!fEqual(realSol->values[i], expectedSol->values[i], TOL*10))
+        {
+            std::cout << realSol->values[i] << " " <<  expectedSol->values[i] << std::endl;
+
+            test_result = false;
+            break;
+        }
+    }
+
+    delete realSol;
+    delete A;
+
+    REQUIRE(test_result);
+}
+
+#if defined(RUN_ALL_TESTS)
+TEST_CASE("Dense To Sparse Conversion")
+{
+    auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
+
+//    A->printMatrix();
+
+    auto B = new CSRMatrix(A);
+
+//    B->printMatrix();
+}
 
 
 TEST_CASE("incomplete cholesky factorization")
 {
     auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
 
-    A->printMatrix();
+//    A->printMatrix();
 
     std::cout << "====\n";
 
     Solver<double>::incompleteCholesky(A);
 
-    A->printMatrix();
+//    A->printMatrix();
 
     delete A;
 
-    REQUIRE(false);
+    REQUIRE(true);
 }
 // Conjugate Gradient Sparse Tests:
 TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
@@ -494,7 +576,6 @@ TEST_CASE("All solvers; small 10x10 matrix")
     delete expectedSol;
 }
 
-#if defined(RUN_ALL_TESTS)
 TEST_CASE("sparse matrix; conjugate gradient")
 {
     bool test_result = true;
@@ -517,7 +598,7 @@ TEST_CASE("sparse matrix; conjugate gradient")
         double b_values[3] = { 1, 8, -5 };
         b->setMatrix(3, b_values);
 
-        auto result = A->conjugateGradient(*b, TOL, 10);
+        auto result = Solver<double>::conjugateGradient(A, *b, TOL, 10);
 
         double correct_values[3] = { 2, 3, -1 };
 
@@ -1214,11 +1295,12 @@ TEST_CASE("Conjugate Gradient Method")
 
     auto A = new Matrix<double>(3, 3, true);
     auto b = new Matrix<double>(3, 1, true);
+    double initial_guess[3] = {0, 0, 0};
 
     A->setMatrix(9, A_values);
     b->setMatrix(3, b_values);
 
-    auto result = Solver<double>::conjugateGradient(A, b, TOL, 1000);
+    auto result = Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess);
 
     double correct_values[3] = { 2, 3, -1 };
 

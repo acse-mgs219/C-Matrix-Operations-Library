@@ -16,6 +16,9 @@ public:
     // constructor where we already have allocated memory outside
     CSRMatrix(int rows, int cols, int nnzs, T* values_ptr, int* row_position, int* col_index);
 
+    // constructor where we already have allocated memory outside
+    CSRMatrix(Matrix<T>* dense);
+
     // destructor
     ~CSRMatrix();
 
@@ -30,9 +33,6 @@ public:
     CSRMatrix<T>* matMatMult(CSRMatrix<T>& mat_right);
     CSRMatrix<T>* matMatMultSymbolic(CSRMatrix<T>& mat_right, std::vector< std::pair< std::pair<int, int>, T> >& result);
     void matMatMultNumeric(CSRMatrix<T>* symbolic_res, std::vector< std::pair< std::pair<int, int>, T> >& result);
-
-    // conjugate gradient
-    Matrix<T>* conjugateGradient(Matrix<T>& b, double epsilon, int max_iterations);
 
     // Perform some operations with our matrix
     Matrix<T>* matVecMult(Matrix<T>& vector);

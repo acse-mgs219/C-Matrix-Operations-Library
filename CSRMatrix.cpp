@@ -37,6 +37,34 @@ CSRMatrix<T>::CSRMatrix(int rows, int cols, int nnzs, T* values_ptr, int* row_po
     Matrix<T>(rows, cols, values_ptr), nnzs(nnzs), row_position(row_position), col_index(col_index)
 {}
 
+template <class T>
+CSRMatrix<T>::CSRMatrix(Matrix<T>* dense): Matrix<T>(dense->rows, dense->cols, false)
+{
+    int nnzs = 0;
+    std::vector<T>* values = new std::vector<T>;
+    int* row_pos = new int[dense->rows + 1];
+    std::vector<int>* col_index = new std::vector<int>;
+
+    row_pos[0] = 0;
+
+    for (int i = 0; i < dense->rows; i++)
+    {
+        row_pos[i+1] = row_pos[i];
+        for (int j = 0; j < dense->cols; j++)
+        {
+            if (dense->values[i * dense->cols + j] == 0) continue;
+            values->push_back(dense->values[i * dense->cols + j]);
+            col_index->push_back(j);
+            row_pos[i+1]++;
+            nnzs++;
+        }
+    } 
+    this->nnzs = nnzs; 
+    this->values = values->data();
+    this->row_position = &row_pos[0]; 
+    this->col_index = col_index->data();
+}
+
 // destructor
 template <class T>
 CSRMatrix<T>::~CSRMatrix()
@@ -283,91 +311,4 @@ void CSRMatrix<T>::setMatrix(T* values_ptr, int iA[], int jA[])
     {
         this->row_position[i] = iA[i];
     }
-}
-
-template<class T>
-Matrix<T>* CSRMatrix<T>::conjugateGradient(Matrix<T>& b, double epsilon, int max_iterations)
-{
-    int k = 0;
-    T beta = 1;
-    double alpha = 1;
-    T delta_old = 1;
-
-    // intialize to x to 0
-    auto x = new Matrix<T>(b.rows, b.cols, true);
-
-    // workout Ax
-    auto Ax = this->matVecMult(*x);
-
-    // r = b - Ax
-    auto r = new Matrix<T>(b.rows, b.cols, true);
-
-    for (int i = 0; i < r->rows * r->cols; i++)
-    {
-        r->values[i] = b.values[i] - Ax->values[i];
-    }
-
-    auto p = new Matrix<T>(r->rows, r->cols, true);
-    auto w = new Matrix<T>(r->rows, r->cols, true);
-
-    double delta = r->innerVectorProduct(*r);
-
-    while (k < max_iterations && (sqrt(delta) > epsilon* sqrt(b.innerVectorProduct(b))))
-    {
-        if (k == 1)
-        {
-            // p = r
-            for (int i = 0; i < p->rows * p->cols; i++)
-            {
-                p->values[i] = r->values[i];
-            }
-
-        }
-        else {
-
-            beta = delta / delta_old;
-
-            // p = r + beta * p
-            for (int i = 0; i < p->rows * p->cols; i++)
-            {
-                p->values[i] = r->values[i] + beta * p->values[i];
-            }
-        }
-
-        auto Ap = this->matVecMult(*p);
-
-        // w = Ap
-        for (int i = 0; i < w->rows * w->cols; i++)
-        {
-            w->values[i] = Ap->values[i];
-        }
-
-        alpha = delta / p->innerVectorProduct(*w);
-
-        // x = x + alpha * p
-        for (int i = 0; i < x->rows * x->cols; i++)
-        {
-            x->values[i] = x->values[i] + alpha * p->values[i];
-        }
-
-        // r = r - alpha * w
-        for (int i = 0; i < r->rows * r->cols; i++)
-        {
-            r->values[i] = r->values[i] - alpha * w->values[i];
-        }
-
-        delta_old = delta;
-
-        delta = r->innerVectorProduct(*r);
-
-        delete Ap;
-        k++;
-    }
-
-    delete Ax;
-    delete r;
-    delete p;
-    delete w;
-
-    return x;
 }

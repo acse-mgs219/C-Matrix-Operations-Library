@@ -61,6 +61,7 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
         residual = sqrt(residual / b->size());
         ++iteration;
     }
+
     return x_var;
 }
 
@@ -69,7 +70,7 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
 
     // create some space to hold the solution to the iteration
     auto x_var = new Matrix<T>(b->rows, b->cols, true);
-  
+
     // set the first x value to the initial guess
     x_var->setMatrix(b->rows, initial_guess);
 
@@ -97,6 +98,7 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
                     sum += LHS->values[i * LHS->cols + j] * x_var->values[j];
                 }
             }
+
             // update the x variable values
             x_var->values[i] = 1 / LHS->values[i * LHS->cols + i] * (b->values[i] - sum);
         }
@@ -133,7 +135,7 @@ Matrix<T>* Solver<T>::solveGaussian(Matrix<T>* LHS, Matrix<T>* b)
 
 template<class T>
 Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
-  
+
     // create space to hold the upper triangular, lower triangular and permutation
     auto upper_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
     auto lower_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
@@ -168,7 +170,8 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
 template<class T>
 Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
-// variable to keep track of the iterations
+
+    // variable to keep track of the iterations
     int iteration = 0;
 
     // algorithm specific variables - initialize all of them to 1
@@ -178,7 +181,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
 
     // intialize x values to 0
     auto x = new Matrix<T>(b->rows, b->cols, true);
-    x->setMatrix(b->rows, initial_guess);
+//    x->setMatrix(b->rows, initial_guess);
 
     // workout Ax initially
     std::unique_ptr< Matrix<T> > Ax(LHS->matMatMult(*x));
@@ -191,7 +194,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     {
         r->values[i] = b->values[i] - Ax->values[i];
     }
-  
+
     // create some space for p and w matrices used in the iterations
     std::unique_ptr< Matrix<T> > p(new Matrix<T>(r->rows, r->cols, true));
     std::unique_ptr< Matrix<T> > w(new Matrix<T>(r->rows, r->cols, true));
@@ -204,9 +207,8 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     {
         // for the first iterations set p = r
         if (iteration == 0)
-
         {
-            for (int i = 0; i < p->size(); i++)
+            for (int i = 1; i < p->size(); i++)
             {
                 p->values[i] = r->values[i];
             }
@@ -231,6 +233,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
         {
             w->values[i] = Ap->values[i];
         }
+
         // update the alpha value based on delta and the inner product of p and w
         alpha = delta / p->innerVectorProduct(*w);
 
@@ -252,6 +255,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
 
         ++iteration;
     }
+
     return x;
 }
 
@@ -359,6 +363,7 @@ void Solver<T>::luDecompositionPivot(Matrix<T>* LHS, Matrix<T>* upper_tri, Matri
             {
                 upper_tri->values[i * upper_tri->cols + j] -= s * upper_tri->values[k * upper_tri->cols + j];
             }
+
             // update the lower tri values
             lower_tri->values[i * lower_tri->rows + k] = s;
         }
@@ -495,7 +500,7 @@ Matrix<T>* Solver<T>::forwardSubstitution(Matrix<T>* LHS, Matrix<T>* b)
         for (int j = 0; j < k; j++)
         {
             // assumes row major order
-            s += LHS->values[k * LHS->cols + j] * solution->values[j];
+            s = s + LHS->values[k * LHS->cols + j] * solution->values[j];
         }
 
         // adjust the values in the solution vector
@@ -503,7 +508,6 @@ Matrix<T>* Solver<T>::forwardSubstitution(Matrix<T>* LHS, Matrix<T>* b)
     }
 
     return solution;
-
 }
 
 template<class T>
@@ -511,8 +515,27 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
 {
     for (int k=0; k<matrix->rows; k++)
     {
-        // a_kk = sqrt(a_kk)
-        matrix->values[k * matrix->cols + k] = sqrt(matrix->values[k * matrix->cols + k]);
+        // if first column in row is negative, simply take its absolute value
+        if (matrix->values[k * matrix->cols + k] < 0 && k == 0)
+        {
+            matrix->values[k * matrix->cols + k] = fabs(matrix->values[k * matrix->cols + k]);
+        }
+        // otherwise sum up all the other values in the row
+        else if (matrix->values[k * matrix->cols + k] < 0)
+        {
+            double sum = 0;
+            for(int c=k; c>=0; c--)
+            {
+                sum += fabs(matrix->values[k * matrix->cols + c]);
+            }
+
+            matrix->values[k * matrix->cols + k] = sum;
+        }
+        else {
+
+            matrix->values[k * matrix->cols + k] = sqrt(matrix->values[k * matrix->cols + k]);
+        }
+
 
         for (int i=k+1; i<matrix->rows; i++)
         {
@@ -520,7 +543,6 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
             {
                 matrix->values[i * matrix->cols + k] =  matrix->values[i * matrix->cols + k] / matrix->values[k * matrix->cols + k];
             }
-
         }
 
         for (int j=k+1; j<matrix->rows; j++)
@@ -528,7 +550,8 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
             for (int i=j; i<matrix->cols; i++)
             {
                 if (matrix->values[i * matrix->cols + j] != 0)
-                    matrix->values[i * matrix->cols + j] -= matrix->values[i * matrix->cols + k]*matrix->values[j * matrix->cols + k];
+                    matrix->values[i * matrix->cols + j] = matrix->values[i * matrix->cols + j]
+                            - matrix->values[i * matrix->cols + k]*matrix->values[j * matrix->cols + k];
             }
         }
     }
@@ -540,4 +563,92 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
             matrix->values[i * matrix->cols + j] = 0;
         }
     }
+}
+
+
+template<class T>
+Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>& b, double epsilon, int max_iterations)
+{
+    int k = 0;
+    T beta = 1;
+    double alpha = 1;
+    T delta_old = 1;
+
+    // intialize to x to 0
+    auto x = new Matrix<T>(b.rows, b.cols, true);
+
+    // workout Ax
+    auto Ax = LHS->matVecMult(*x);
+
+    // r = b - Ax
+    auto r = new Matrix<T>(b.rows, b.cols, true);
+
+    for (int i = 0; i < r->rows * r->cols; i++)
+    {
+        r->values[i] = b.values[i] - Ax->values[i];
+    }
+
+    auto p = new Matrix<T>(r->rows, r->cols, true);
+    auto w = new Matrix<T>(r->rows, r->cols, true);
+
+    double delta = r->innerVectorProduct(*r);
+
+    while (k < max_iterations && (sqrt(delta) > epsilon* sqrt(b.innerVectorProduct(b))))
+    {
+        if (k == 1)
+        {
+            // p = r
+            for (int i = 0; i < p->rows * p->cols; i++)
+            {
+                p->values[i] = r->values[i];
+            }
+
+        }
+        else {
+
+            beta = delta / delta_old;
+
+            // p = r + beta * p
+            for (int i = 0; i < p->rows * p->cols; i++)
+            {
+                p->values[i] = r->values[i] + beta * p->values[i];
+            }
+        }
+
+        auto Ap = LHS->matVecMult(*p);
+
+        // w = Ap
+        for (int i = 0; i < w->rows * w->cols; i++)
+        {
+            w->values[i] = Ap->values[i];
+        }
+
+        alpha = delta / p->innerVectorProduct(*w);
+
+        // x = x + alpha * p
+        for (int i = 0; i < x->rows * x->cols; i++)
+        {
+            x->values[i] = x->values[i] + alpha * p->values[i];
+        }
+
+        // r = r - alpha * w
+        for (int i = 0; i < r->rows * r->cols; i++)
+        {
+            r->values[i] = r->values[i] - alpha * w->values[i];
+        }
+
+        delta_old = delta;
+
+        delta = r->innerVectorProduct(*r);
+
+        delete Ap;
+        k++;
+    }
+
+    delete Ax;
+    delete r;
+    delete p;
+    delete w;
+
+    return x;
 }

@@ -12,7 +12,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7564b55b-8e43-42dd-a5d7-f1c6814df806" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/cmake-build-debug/massMatrixBSPD.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cmake-build-debug/massMatrixSPD.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cmake-build-debug/massMatrixSolSPD.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CSRMatrix.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/CSRMatrix.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CSRMatrix.h" beforeDir="false" afterPath="$PROJECT_DIR$/CSRMatrix.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Matrix.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Matrix.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Matrix.h" beforeDir="false" afterPath="$PROJECT_DIR$/Matrix.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Solver.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Solver.h" beforeDir="false" afterPath="$PROJECT_DIR$/Solver.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/test/test.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/test/test.cpp.o" afterDir="false" />
@@ -39,12 +46,16 @@
     </option>
   </component>
   <component name="ProjectId" id="1WobkVrS0VABpSsBhYC3PIxHTwv" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
@@ -85,26 +96,30 @@
       <workItem from="1580256770876" duration="2000" />
       <workItem from="1580289390638" duration="6414000" />
       <workItem from="1580417281784" duration="7975000" />
+      <workItem from="1580499097846" duration="5998000" />
     </task>
     <servers />
   </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
   <component name="WindowStateProjectService">
-    <state width="379" height="440" key="GridCell.Tab.0.bottom" timestamp="1580428744844">
+    <state width="442" height="480" key="GridCell.Tab.0.bottom" timestamp="1580505602938">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="379" height="440" key="GridCell.Tab.0.bottom/0.23.1280.709@0.23.1280.709" timestamp="1580428744844" />
-    <state width="379" height="440" key="GridCell.Tab.0.center" timestamp="1580428744840">
+    <state width="442" height="480" key="GridCell.Tab.0.bottom/0.23.1280.709@0.23.1280.709" timestamp="1580505602938" />
+    <state width="442" height="480" key="GridCell.Tab.0.center" timestamp="1580505602937">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="379" height="440" key="GridCell.Tab.0.center/0.23.1280.709@0.23.1280.709" timestamp="1580428744840" />
-    <state width="379" height="440" key="GridCell.Tab.0.left" timestamp="1580428744840">
+    <state width="442" height="480" key="GridCell.Tab.0.center/0.23.1280.709@0.23.1280.709" timestamp="1580505602937" />
+    <state width="442" height="480" key="GridCell.Tab.0.left" timestamp="1580505602937">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="379" height="440" key="GridCell.Tab.0.left/0.23.1280.709@0.23.1280.709" timestamp="1580428744840" />
-    <state width="379" height="440" key="GridCell.Tab.0.right" timestamp="1580428744842">
+    <state width="442" height="480" key="GridCell.Tab.0.left/0.23.1280.709@0.23.1280.709" timestamp="1580505602937" />
+    <state width="442" height="480" key="GridCell.Tab.0.right" timestamp="1580505602938">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="379" height="440" key="GridCell.Tab.0.right/0.23.1280.709@0.23.1280.709" timestamp="1580428744842" />
+    <state width="442" height="480" key="GridCell.Tab.0.right/0.23.1280.709@0.23.1280.709" timestamp="1580505602938" />
     <state width="1238" height="250" key="GridCell.Tab.1.bottom" timestamp="1580330572618">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
