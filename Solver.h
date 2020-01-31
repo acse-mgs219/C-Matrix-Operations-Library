@@ -13,6 +13,9 @@ public:
 	static Matrix<T>* conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[]);
     static Matrix<T>* solveGaussian(Matrix<T>* LHS, Matrix<T>* b);
 
+    static void incompleteCholesky(Matrix<T>* matrix);
+
+
 private:
     // Helper functions
     static void luDecomposition(Matrix<T>* LHS, Matrix<T>* upper_tri, Matrix<T>* lower_tri);
@@ -20,4 +23,7 @@ private:
     static void upperTriangular(Matrix<T>* LHS, Matrix<T>* b);
     static Matrix<T>* backSubstitution(Matrix<T>* LHS, Matrix<T>* b);
     static Matrix<T>* forwardSubstitution(Matrix<T>* LHS, Matrix<T>* b);
+
+
+
 };

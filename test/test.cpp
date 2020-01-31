@@ -13,22 +13,50 @@
 // #define RUN_ALL_TESTS
 
 // Jacobi Tests:
-const bool run_jacobi = true;
+const bool run_jacobi = false;
 
 // Gauss-Seidel Tests:
-const bool run_gauss_seidel = true;
+const bool run_gauss_seidel = false;
 
 // LU Decomp Tests:
-const bool run_lu_decomp = true;
+const bool run_lu_decomp = false;
 
 // Gaussian Tests:
-const bool run_gaussian = true;
+const bool run_gaussian = false;
 
 // Conjugate Gradient Dense Tests:
-const bool run_conjugate_gradient = true;
+const bool run_conjugate_gradient = false;
+
+
+
+TEST_CASE("incomplete cholesky factorization")
+{
+    auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
+
+    A->printMatrix();
+
+    std::cout << "====\n";
+
+    Solver<double>::incompleteCholesky(A);
+
+    A->printMatrix();
+
+    delete A;
+
+    REQUIRE(false);
+}
+
+
+
+
+
+
+
+
+
+
 
 // Conjugate Gradient Sparse Tests:
-
 TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
 {
     bool test_result = true;

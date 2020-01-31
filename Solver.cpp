@@ -508,3 +508,39 @@ Matrix<T>* Solver<T>::forwardSubstitution(Matrix<T>* LHS, Matrix<T>* b)
 
     return solution;
 }
+
+template<class T>
+void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
+{
+    for (int k=0; k<matrix->rows; k++)
+    {
+        // a_kk = sqrt(a_kk)
+        matrix->values[k * matrix->cols + k] = sqrt(matrix->values[k * matrix->cols + k]);
+
+        for (int i=k+1; i<matrix->rows; i++)
+        {
+            if (matrix->values[i * matrix->cols + k] != 0)
+            {
+                matrix->values[i * matrix->cols + k] =  matrix->values[i * matrix->cols + k] / matrix->values[k * matrix->cols + k];
+            }
+
+        }
+
+        for (int j=k+1; j<matrix->rows; j++)
+        {
+            for (int i=j; i<matrix->cols; i++)
+            {
+                if (matrix->values[i * matrix->cols + j] != 0)
+                    matrix->values[i * matrix->cols + j] -= matrix->values[i * matrix->cols + k]*matrix->values[j * matrix->cols + k];
+            }
+        }
+    }
+
+    for (int i=0; i<matrix->rows; i++)
+    {
+        for (int j=i+1; j<matrix->cols; j++)
+        {
+            matrix->values[i * matrix->cols + j] = 0;
+        }
+    }
+}
