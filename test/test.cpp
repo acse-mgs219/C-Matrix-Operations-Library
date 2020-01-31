@@ -45,28 +45,15 @@ TEST_CASE("incomplete cholesky factorization")
 
     REQUIRE(false);
 }
-
-
-
-
-
-
-
-
-
-
-
 // Conjugate Gradient Sparse Tests:
 TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
 {
     bool test_result = true;
-
     auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrixSparse.txt");
     auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixBSparse.txt");
     double initial_guess[1000];
     std::fill_n(initial_guess, 1000, 1);
     auto expectedSol = new Matrix<double>(1000, 1, (std::string) "massMatrixSolSparse.txt");
-
     if (run_jacobi)
     {
         SECTION("Jacobi Solver Test Gigantic")
@@ -183,7 +170,6 @@ TEST_CASE("Stable solvers; massive 1000x1000 matrix")
     std::fill_n(initial_guess, 1000, 1);
     auto expectedSol = new Matrix<double>(1000, 1, (std::string) "massMatrixSol.txt");
 
-
     if (run_lu_decomp)
     {
         SECTION("LU Decomp Solver Test Massive")
@@ -244,7 +230,6 @@ TEST_CASE("Stable solvers; massive 1000x1000 matrix")
             REQUIRE(test_result);
         }
     }
-
     delete A;
     delete b;
     delete expectedSol;
@@ -253,13 +238,11 @@ TEST_CASE("Stable solvers; massive 1000x1000 matrix")
 TEST_CASE("Stable solvers; large 400x400 matrix")
 {
     bool test_result = true;
-
     auto A = new Matrix<double>(400, 400, (std::string) "largeMatrix.txt");
     auto b = new Matrix<double>(400, 1, (std::string) "largeMatrixB.txt");
     double initial_guess[400];
     std::fill_n(initial_guess, 400, 1);
     auto expectedSol = new Matrix<double>(400, 1, (std::string) "largeMatrixSol.txt");
-
 
     if (run_lu_decomp)
     {
@@ -320,7 +303,6 @@ TEST_CASE("Stable solvers; large 400x400 matrix")
             REQUIRE(test_result);
         }
     }
-
     delete A;
     delete b;
     delete expectedSol;
@@ -329,14 +311,11 @@ TEST_CASE("Stable solvers; large 400x400 matrix")
 TEST_CASE("Stable solvers; medium 100x100 matrix")
 {
     bool test_result = true;
-
     auto A = new Matrix<double>(100, 100, (std::string) "mediumMatrix.txt");
     auto b = new Matrix<double>(100, 1, (std::string) "mediumMatrixB.txt");
     double initial_guess[100];
     std::fill_n(initial_guess, 100, 1);
     auto expectedSol = new Matrix<double>(100, 1, (std::string) "mediumMatrixSol.txt");
-
-
     if (run_lu_decomp)
     {
         SECTION("LU Decomp Solver Test Medium")
@@ -396,7 +375,6 @@ TEST_CASE("Stable solvers; medium 100x100 matrix")
             REQUIRE(test_result);
         }
     }
-
     delete A;
     delete b;
     delete expectedSol;
@@ -405,12 +383,10 @@ TEST_CASE("Stable solvers; medium 100x100 matrix")
 TEST_CASE("All solvers; small 10x10 matrix")
 {
     bool test_result = true;
-
     auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
     auto b = new Matrix<double>(10, 1, (std::string) "smallMatrixB.txt");
     double initial_guess[10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
     auto expectedSol = new Matrix<double>(10, 1, (std::string) "smallMatrixSol.txt");
-
     if (run_jacobi)
     {
         SECTION("Jacobi Solver Test Small")
@@ -614,7 +590,6 @@ TEST_CASE("sparse matrix; conjugate gradient")
 TEST_CASE("sparse matrix mat-vect mult")
 {
     bool test_result = true;
-
     int rows = 4;
     int cols = 4;
     int nnzs = 4;
@@ -709,7 +684,6 @@ TEST_CASE("jacobi iteration")
 
         A->setMatrix(16, A_values);
         b->setMatrix(4, b_values);
-
         double initial_guess[4] = { 1, 1, 1, 1 };
         auto solution = Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess);
 
@@ -766,7 +740,6 @@ TEST_CASE("jacobi iteration")
         delete A;
         delete b;
         delete solution;
-
         REQUIRE(test_result);
     }
 }

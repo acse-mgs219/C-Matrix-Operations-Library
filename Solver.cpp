@@ -61,7 +61,6 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
         residual = sqrt(residual / b->size());
         ++iteration;
     }
-
     return x_var;
 }
 
@@ -70,7 +69,7 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
 
     // create some space to hold the solution to the iteration
     auto x_var = new Matrix<T>(b->rows, b->cols, true);
-
+  
     // set the first x value to the initial guess
     x_var->setMatrix(b->rows, initial_guess);
 
@@ -98,7 +97,6 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
                     sum += LHS->values[i * LHS->cols + j] * x_var->values[j];
                 }
             }
-
             // update the x variable values
             x_var->values[i] = 1 / LHS->values[i * LHS->cols + i] * (b->values[i] - sum);
         }
@@ -135,7 +133,7 @@ Matrix<T>* Solver<T>::solveGaussian(Matrix<T>* LHS, Matrix<T>* b)
 
 template<class T>
 Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
-
+  
     // create space to hold the upper triangular, lower triangular and permutation
     auto upper_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
     auto lower_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
@@ -193,7 +191,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     {
         r->values[i] = b->values[i] - Ax->values[i];
     }
-
+  
     // create some space for p and w matrices used in the iterations
     std::unique_ptr< Matrix<T> > p(new Matrix<T>(r->rows, r->cols, true));
     std::unique_ptr< Matrix<T> > w(new Matrix<T>(r->rows, r->cols, true));
@@ -206,6 +204,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     {
         // for the first iterations set p = r
         if (iteration == 0)
+
         {
             for (int i = 0; i < p->size(); i++)
             {
@@ -232,7 +231,6 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
         {
             w->values[i] = Ap->values[i];
         }
-
         // update the alpha value based on delta and the inner product of p and w
         alpha = delta / p->innerVectorProduct(*w);
 
@@ -254,7 +252,6 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
 
         ++iteration;
     }
-
     return x;
 }
 
@@ -362,7 +359,6 @@ void Solver<T>::luDecompositionPivot(Matrix<T>* LHS, Matrix<T>* upper_tri, Matri
             {
                 upper_tri->values[i * upper_tri->cols + j] -= s * upper_tri->values[k * upper_tri->cols + j];
             }
-
             // update the lower tri values
             lower_tri->values[i * lower_tri->rows + k] = s;
         }
@@ -507,6 +503,7 @@ Matrix<T>* Solver<T>::forwardSubstitution(Matrix<T>* LHS, Matrix<T>* b)
     }
 
     return solution;
+
 }
 
 template<class T>
