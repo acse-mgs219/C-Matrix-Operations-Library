@@ -30,32 +30,35 @@ const bool run_conjugate_gradient = false;
 TEST_CASE("CG test on large SPD Matrix")
 {
     bool test_result = true;
-    auto A = new Matrix<double>(20, 20, (std::string) "massMatrixSPD.txt");
-    auto b = new Matrix<double>(20, 1, (std::string) "massMatrixBSPD.txt");
-    double initial_guess[20];
-    std::fill_n(initial_guess, 20, 1);
-    auto expectedSol = new Matrix<double>(20, 1, (std::string) "massMatrixSolSPD.txt");
+    auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrixSPD.txt");
+    auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixBSPD.txt");
+    double initial_guess[1000];
+    std::fill_n(initial_guess, 1000, 1);
+    auto expectedSol = new Matrix<double>(1000, 1, (std::string) "massMatrixSolSPD.txt");
     auto A2 = new CSRMatrix<double>(A);
 
-    auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 3500, initial_guess);
-    realSol->printMatrix();
-    //auto realSol2 = Solver <double>::conjugateGradient(A2, b, TOL, 3500, initial_guess);
+    //auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 10, initial_guess);
+    //realSol->printMatrix();
+    auto realSol2 = Solver <double>::solveGaussSeidel(A2, b);
+    realSol2->printMatrix();
+    auto realSol3 = Solver <double>::solveJacobi(A2, b);
+    realSol3->printMatrix();
 
     for (int i = 0; i < expectedSol->rows; i++)
     {
-        if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
-        {
-            test_result = false;
-            break;
-        }
-
-        /*if (!fEqual(realSol2->values[i], expectedSol->values[i], TOL))
+        /*if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
         {
             test_result = false;
             break;
         }*/
+
+        if (!fEqual(realSol2->values[i], expectedSol->values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
     }
-    delete realSol;
+    delete realSol2;
 
     REQUIRE(test_result);
 }
