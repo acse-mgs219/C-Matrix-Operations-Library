@@ -84,7 +84,6 @@ void CSRMatrix<T>::printMatrix()
 template<class T>
 Matrix<T>* CSRMatrix<T>::matVecMult(Matrix<T>& b)
 {
-
     if (b.cols != 1)
     {
         throw std::invalid_argument("argument must be a column vector (number of columns = 1)");
@@ -126,7 +125,6 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMult(CSRMatrix<T>& mat_right)
 template <class T>
 CSRMatrix<T>* CSRMatrix<T>::matMatMultSymbolic(CSRMatrix<T>& mat_right, std::vector< std::pair< std::pair<int, int>, T> >& result)
 {
-
     // Check our dimensions match
     if (this->cols != mat_right.rows)
     {
@@ -164,8 +162,6 @@ CSRMatrix<T>* CSRMatrix<T>::matMatMultSymbolic(CSRMatrix<T>& mat_right, std::vec
             }
         }
     }
-
-    // HOW DO WE SET THE SPARSITY OF OUR OUTPUT MATRIX HERE??
 
     //auto non_zeros = new std::vector<T>;
     auto row_pos = new std::vector<int>(this->rows + 1);
