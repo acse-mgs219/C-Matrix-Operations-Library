@@ -1,6 +1,5 @@
 #pragma once
 #include "Matrix.h"
-#include "CSRMatrix.h"
 
 template <class T>
 class Solver
@@ -13,8 +12,11 @@ public:
 	static Matrix<T>* solveLU(Matrix<T>* LHS, Matrix<T>* b);
 	static Matrix<T>* conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[]);
     static Matrix<T>* solveGaussian(Matrix<T>* LHS, Matrix<T>* b);
-    static void incompleteCholesky(Matrix<T>* matrix);
+
     static Matrix<T>* conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>& b, double epsilon, int max_iterations);
+
+    // helper method
+    static void incompleteCholesky(Matrix<T>* matrix);
 
 private:
     // Helper functions

@@ -13,7 +13,7 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
     // set the initial x values to our initial guess
     x_var_prev->setMatrix(b->size(), initial_guess);
 
-    // create a vector to hold the estimated right hand side - smart pointer as only used inside LHS scope
+    // create a vector to hold the estimated right hand side - smart pointer as only used inside this scope
     std::unique_ptr< Matrix<T> > estimated_rhs(LHS->matMatMult(*x_var_prev));
 
     // initialize residual which will be used to determine ending position
@@ -61,6 +61,7 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
         residual = sqrt(residual / b->size());
         ++iteration;
     }
+
     return x_var;
 }
 
@@ -69,7 +70,7 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
 
     // create some space to hold the solution to the iteration
     auto x_var = new Matrix<T>(b->rows, b->cols, true);
-  
+
     // set the first x value to the initial guess
     x_var->setMatrix(b->rows, initial_guess);
 
@@ -97,6 +98,7 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
                     sum += LHS->values[i * LHS->cols + j] * x_var->values[j];
                 }
             }
+
             // update the x variable values
             x_var->values[i] = 1 / LHS->values[i * LHS->cols + i] * (b->values[i] - sum);
         }
@@ -133,13 +135,13 @@ Matrix<T>* Solver<T>::solveGaussian(Matrix<T>* LHS, Matrix<T>* b)
 
 template<class T>
 Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
-  
+
     // create space to hold the upper triangular, lower triangular and permutation
     auto upper_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
     auto lower_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
     auto permutation = new Matrix<T>(LHS->rows, LHS->cols, true);
 
-    // construct LU decomposition of the LHS matrix - LHS gives us the permutation
+    // construct LU decomposition of the LHS matrix - this gives us the permutation
     Solver<T>::luDecompositionPivot(LHS, upper_tri, lower_tri, permutation);
 
     // transpose the permutation matrix
@@ -168,90 +170,105 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
 template<class T>
 Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
-// variable to keep track of the iterations
-    int iteration = 0;
+    double residual = 2 * epsilon;
 
-    // algorithm specific variables - initialize all of them to 1
-    double beta = 1;
-    double alpha = 1;
-    double delta_old = 1;
+    // intialize x values to initial guess
+    auto x_prev = new Matrix<T>(b->rows, b->cols, true); // memory cleared
+    x_prev->setMatrix(b->rows, initial_guess);
 
-    // intialize x values to 0
-    auto x = new Matrix<T>(b->rows, b->cols, true);
-    x->setMatrix(b->rows, initial_guess);
-
-    // workout Ax initially
-    std::unique_ptr< Matrix<T> > Ax(LHS->matMatMult(*x));
-
-    // set the residual to  r = b - Ax initially
-    std::unique_ptr< Matrix<T> > r(new Matrix<T>(b->rows, b->cols, true));
-
-    // set r = b - Ax for LHS iteration
-    for (int i = 0; i < r->size(); i++)
+    // 1. set the residual to  r_0 = b - Ax_0 initially
+    std::unique_ptr< Matrix<T> > Ax(LHS->matVectMult(*x_prev));
+    auto r_prev = new Matrix<T>(b->rows, b->cols, true); // memory cleared
+    for (int i = 0; i < r_prev->size(); i++)
     {
-        r->values[i] = b->values[i] - Ax->values[i];
+        r_prev->values[i] = b->values[i] - Ax->values[i];
     }
-  
-    // create some space for p and w matrices used in the iterations
-    std::unique_ptr< Matrix<T> > p(new Matrix<T>(r->rows, r->cols, true));
-    std::unique_ptr< Matrix<T> > w(new Matrix<T>(r->rows, r->cols, true));
 
-    // calculate delta parameter which is the result of the inner product of r with itself
-    double delta = r->innerVectorProduct(*r);
-
-    // iterate until the convergence criteria is reached or we hit the max iterations
-    while (iteration < max_iterations && (sqrt(delta) > epsilon* sqrt(b->innerVectorProduct(*b))))
+    // create the preconditioner - copy the values of LHS in and then do an incomplete Cholesky factorization
+    auto M = new Matrix<T>(LHS->rows, LHS->cols, true); // memory cleared
+    for(int i=0; i<M->size(); i++)
     {
-        // for the first iterations set p = r
-        if (iteration == 0)
+        M->values[i] = LHS->values[i];
+    };
 
+    // use an incomplete Cholesky factorization
+    Solver<T>::incompleteCholesky(M);
+    M->printMatrix();
+
+    // 2. Solve M z_0 = r_0
+    auto z_prev = Solver<T>::forwardSubstitution(M, r_prev); // memory cleared
+    z_prev->printMatrix();
+
+    // 3. set p_0 = z_0
+    auto p = new Matrix<T>(z_prev->rows, z_prev->cols, true); // memory cleared
+    for (int i = 0; i < z_prev->size(); i++)
+    {
+        p->values[i] = z_prev->values[i];
+    }
+
+    // 4. w =  A p_1
+    auto w = LHS->matVectMult(*p); // memory cleared
+
+    // 5. alpha = r_0.T z_0 /  (p_0.T w)
+    double alpha = r_prev->innerVectorProduct(*z_prev) /  p->innerVectorProduct(*w);
+
+    // 6. x_1 = x_0 + alpha * p_1
+    auto x = new Matrix<T>(b->rows, b->cols, true);
+
+    // 7. r_1 = r_0 - alpha * w
+    auto r = new Matrix<T>(b->rows, b->cols, true); //  memory cleared
+
+    for (int i=0; i<x->size(); i++)
+    {
+        x->values[i] = x_prev->values[i] + alpha  * p->values[i];
+        r->values[i] = r_prev->values[i] - alpha * w->values[i];
+    }
+
+    // set iteration to 1
+    int iteration = 1;
+    double beta;
+
+    while (residual > epsilon && iteration < max_iterations)
+    {
+        // 8. solve M z_k = r_k
+        auto z = Solver<T>::forwardSubstitution(M, r); // memory cleared inside loop
+        //z_prev->printMatrix();
+
+        beta = r->innerVectorProduct(*z) / r_prev->innerVectorProduct(*z_prev);
+        //std::cout << r->innerVectorProduct(*z) << " ";
+
+        for (int i=0; i<p->size(); i++)
         {
-            for (int i = 0; i < p->size(); i++)
-            {
-                p->values[i] = r->values[i];
-            }
-
-        }
-            // for all the other iterations
-        else {
-            // update beta based on the delta values
-            beta = delta / delta_old;
-
-            // set p = r + beta * p for LHS iteration
-            for (int i = 0; i < p->size(); i++)
-            {
-                p->values[i] = r->values[i] + beta * p->values[i];
-            }
+            p->values[i] = z->values[i] + beta * p->values[i];
         }
 
-        std::unique_ptr< Matrix<T> > Ap(LHS->matMatMult(*p));
+        delete w;
 
-        // set w = Ap for LHS iteration
-        for (int i = 0; i < w->size(); i++)
+        w = LHS->matVectMult(*p);
+
+        alpha = r->innerVectorProduct(*z) / p->innerVectorProduct(*w);
+        //std::cout << r->innerVectorProduct(*z) << " ";
+
+        for (int i=0; i<x->size(); i++)
         {
-            w->values[i] = Ap->values[i];
+            x_prev->values[i] = x->values[i];
+            x->values[i] = x_prev->values[i] + alpha  * p->values[i];
+            r_prev->values[i] = r->values[i];
+            r->values[i] = r_prev->values[i] - alpha * w->values[i];
+            z_prev->values[i] = z->values[i];
         }
-        // update the alpha value based on delta and the inner product of p and w
-        alpha = delta / p->innerVectorProduct(*w);
-
-        // set x = x + alpha * p for LHS iteration
-        for (int i = 0; i < x->size(); i++)
-        {
-            x->values[i] = x->values[i] + alpha * p->values[i];
-        }
-
-        // set r = r - alpha * w for LHS iteration
-        for (int i = 0; i < r->size(); i++)
-        {
-            r->values[i] = r->values[i] - alpha * w->values[i];
-        }
-
-        // update both delta and delta_old for LHS iteration
-        delta_old = delta;
-        delta = r->innerVectorProduct(*r);
-
+        delete z;
         ++iteration;
     }
+
+    delete x_prev;
+    delete r_prev;
+    delete M;
+    delete z_prev;
+    delete p;
+    delete w;
+    delete r;
+
     return x;
 }
 
@@ -359,6 +376,7 @@ void Solver<T>::luDecompositionPivot(Matrix<T>* LHS, Matrix<T>* upper_tri, Matri
             {
                 upper_tri->values[i * upper_tri->cols + j] -= s * upper_tri->values[k * upper_tri->cols + j];
             }
+
             // update the lower tri values
             lower_tri->values[i * lower_tri->rows + k] = s;
         }
@@ -495,7 +513,7 @@ Matrix<T>* Solver<T>::forwardSubstitution(Matrix<T>* LHS, Matrix<T>* b)
         for (int j = 0; j < k; j++)
         {
             // assumes row major order
-            s += LHS->values[k * LHS->cols + j] * solution->values[j];
+            s = s + LHS->values[k * LHS->cols + j] * solution->values[j];
         }
 
         // adjust the values in the solution vector
@@ -503,24 +521,23 @@ Matrix<T>* Solver<T>::forwardSubstitution(Matrix<T>* LHS, Matrix<T>* b)
     }
 
     return solution;
-
 }
 
 template<class T>
 void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
 {
+    T* matrixCop = new T[matrix->size()];
     for (int k=0; k<matrix->rows; k++)
     {
         // a_kk = sqrt(a_kk)
-        matrix->values[k * matrix->cols + k] = sqrt(matrix->values[k * matrix->cols + k]);
+        matrixCop[k * matrix->cols + k] = sqrt(matrix->values[k * matrix->cols + k]);
 
         for (int i=k+1; i<matrix->rows; i++)
         {
             if (matrix->values[i * matrix->cols + k] != 0)
             {
-                matrix->values[i * matrix->cols + k] =  matrix->values[i * matrix->cols + k] / matrix->values[k * matrix->cols + k];
+                matrixCop[i * matrix->cols + k] =  matrix->values[i * matrix->cols + k] / matrix->values[k * matrix->cols + k];
             }
-
         }
 
         for (int j=k+1; j<matrix->rows; j++)
@@ -528,7 +545,7 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
             for (int i=j; i<matrix->cols; i++)
             {
                 if (matrix->values[i * matrix->cols + j] != 0)
-                    matrix->values[i * matrix->cols + j] -= matrix->values[i * matrix->cols + k]*matrix->values[j * matrix->cols + k];
+                    matrixCop[i * matrix->cols + j] = matrix->values[i * matrix->cols + j] - matrix->values[i * matrix->cols + k]*matrix->values[j * matrix->cols + k];
             }
         }
     }
@@ -537,10 +554,13 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
     {
         for (int j=i+1; j<matrix->cols; j++)
         {
-            matrix->values[i * matrix->cols + j] = 0;
+            matrixCop[i * matrix->cols + j] = 0;
         }
     }
+
+    matrix->values = matrixCop;
 }
+
 
 template<class T>
 Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>& b, double epsilon, int max_iterations)

@@ -58,29 +58,6 @@ Matrix<T>::~Matrix()
     }
 }
 
-/*template <class T>
-CSRMatrix<T>* Matrix<T>::Dense2Sparse()
-{
-    int nnzs = 0;
-    std::vector<T> values;
-    int row_pos[rows + 1];
-    std::vector<int> col_index;
-
-    for (int i = 0; i < rows; i++)
-    {
-        for (int j = 0; j < cols; j++)
-        {
-            if (this->values[i * cols + j] == 0) continue;
-            values.push_back(this->values[i * cols + j]);
-            col_index.push_back(j);
-            row_pos[i]++;
-            nnzs++;
-        }
-    }
-
-    return CSRMatrix(rows, cols, nnzs, &values[0], row_pos, &col_index[0]);
-}*/
-
 // sets an element of the matrix to a designated value
 template <class T>
 void Matrix<T>::setValue(int row_index, int col_index, T value)
@@ -260,6 +237,9 @@ void Matrix<T>::transpose()
 
     delete[] this->values;
 
+    int temp = this->rows;
+    this->rows = this->cols;
+    this->cols = temp;
     this->values = new_values_ptr;
 }
 
@@ -294,6 +274,7 @@ T Matrix<T>::innerVectorProduct(Matrix<T> &mat_right)
     // calculate inner product
     for (int i=0; i<this->size_of_values; i++)
     {
+        //std::cout << this->values[i] << " " << mat_right.values[i] << std::endl;
         result += this->values[i] * mat_right.values[i];
     }
 
@@ -434,4 +415,33 @@ template <class T>
 int Matrix<T>::size()
 {
     return this->size_of_values;
+}
+
+template<class T>
+Matrix<T> *Matrix<T>::matVectMult(Matrix<T> &b)
+{
+    if (b.cols != 1)
+    {
+        throw std::invalid_argument("argument must be a column vector (number of columns = 1)");
+    }
+    if (this->cols != b.rows)
+    {
+        throw std::invalid_argument("A and b dimensions do not match");
+    }
+
+    // create output vector
+    auto output = new Matrix<T>(b.rows, b.cols, true);
+
+    // Loop over each row of A
+    for (int i = 0; i < this->rows; i++)
+    {
+        // go over the column and
+        for (int j=0; j < this->cols; j++)
+        {
+            output->values[i] += this->values[i * this->cols + j] * b.values[j];
+        }
+    }
+
+    return output;
+
 }

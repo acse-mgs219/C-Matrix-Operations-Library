@@ -37,6 +37,34 @@ CSRMatrix<T>::CSRMatrix(int rows, int cols, int nnzs, T* values_ptr, int* row_po
     Matrix<T>(rows, cols, values_ptr), nnzs(nnzs), row_position(row_position), col_index(col_index)
 {}
 
+template <class T>
+CSRMatrix<T>::CSRMatrix(Matrix<T>* dense): Matrix<T>(dense->rows, dense->cols, false)
+{
+    int nnzs = 0;
+    std::vector<T>* values = new std::vector<T>;
+    int* row_pos = new int[dense->rows + 1];
+    std::vector<int>* col_index = new std::vector<int>;
+
+    row_pos[0] = 0;
+
+    for (int i = 0; i < dense->rows; i++)
+    {
+        row_pos[i+1] = row_pos[i];
+        for (int j = 0; j < dense->cols; j++)
+        {
+            if (dense->values[i * dense->cols + j] == 0) continue;
+            values->push_back(dense->values[i * dense->cols + j]);
+            col_index->push_back(j);
+            row_pos[i+1]++;
+            nnzs++;
+        }
+    } 
+    this->nnzs = nnzs; 
+    this->values = values->data();
+    this->row_position = &row_pos[0]; 
+    this->col_index = col_index->data();
+}
+
 // destructor
 template <class T>
 CSRMatrix<T>::~CSRMatrix()

@@ -20,8 +20,6 @@ public:
     // destructor
     virtual ~Matrix();
 
-    //CSRMatrix<T>* Dense2Sparse();
-
     // set value of element at a certain position to the value
     void setValue(int row_index, int col_index, T value);
 
@@ -34,6 +32,8 @@ public:
     /////////// Matrix Operations Methods /////
     // matrix multiplication
     Matrix<T> *matMatMult(Matrix<T>& mat_right);
+
+    Matrix<T> *matVectMult(Matrix<T>& vector);
 
     void transpose();
 

@@ -27,15 +27,49 @@ const bool run_gaussian = false;
 // Conjugate Gradient Dense Tests:
 const bool run_conjugate_gradient = false;
 
+TEST_CASE("CG test on large SPD Matrix")
+{
+    bool test_result = true;
+    auto A = new Matrix<double>(20, 20, (std::string) "massMatrixSPD.txt");
+    auto b = new Matrix<double>(20, 1, (std::string) "massMatrixBSPD.txt");
+    double initial_guess[20];
+    std::fill_n(initial_guess, 20, 1);
+    auto expectedSol = new Matrix<double>(20, 1, (std::string) "massMatrixSolSPD.txt");
+    auto A2 = new CSRMatrix<double>(A);
+
+    auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 3500, initial_guess);
+    realSol->printMatrix();
+    //auto realSol2 = Solver <double>::conjugateGradient(A2, b, TOL, 3500, initial_guess);
+
+    for (int i = 0; i < expectedSol->rows; i++)
+    {
+        if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
+
+        /*if (!fEqual(realSol2->values[i], expectedSol->values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }*/
+    }
+    delete realSol;
+
+    REQUIRE(test_result);
+}
+
+#if defined(RUN_ALL_TESTS)
 TEST_CASE("Dense To Sparse Conversion")
 {
     auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
 
     A->printMatrix();
 
-    //auto B = A->Dense2Sparse();
+    auto B = new CSRMatrix(A);
 
-    //B->printMatrix();
+    B->printMatrix();
 }
 
 
@@ -596,7 +630,6 @@ TEST_CASE("sparse matrix; conjugate gradient")
 
 }
 
-#if defined(RUN_ALL_TESTS)
 TEST_CASE("sparse matrix mat-vect mult")
 {
     bool test_result = true;

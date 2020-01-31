@@ -16,6 +16,9 @@ public:
     // constructor where we already have allocated memory outside
     CSRMatrix(int rows, int cols, int nnzs, T* values_ptr, int* row_position, int* col_index);
 
+    // constructor where we already have allocated memory outside
+    CSRMatrix(Matrix<T>* dense);
+
     // destructor
     ~CSRMatrix();
 
