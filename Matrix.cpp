@@ -58,6 +58,29 @@ Matrix<T>::~Matrix()
     }
 }
 
+/*template <class T>
+CSRMatrix<T>* Matrix<T>::Dense2Sparse()
+{
+    int nnzs = 0;
+    std::vector<T> values;
+    int row_pos[rows + 1];
+    std::vector<int> col_index;
+
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            if (this->values[i * cols + j] == 0) continue;
+            values.push_back(this->values[i * cols + j]);
+            col_index.push_back(j);
+            row_pos[i]++;
+            nnzs++;
+        }
+    }
+
+    return CSRMatrix(rows, cols, nnzs, &values[0], row_pos, &col_index[0]);
+}*/
+
 // sets an element of the matrix to a designated value
 template <class T>
 void Matrix<T>::setValue(int row_index, int col_index, T value)

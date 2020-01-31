@@ -20,6 +20,8 @@ public:
     // destructor
     virtual ~Matrix();
 
+    //CSRMatrix<T>* Dense2Sparse();
+
     // set value of element at a certain position to the value
     void setValue(int row_index, int col_index, T value);
 

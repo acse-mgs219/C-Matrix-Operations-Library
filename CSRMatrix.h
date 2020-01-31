@@ -31,9 +31,6 @@ public:
     CSRMatrix<T>* matMatMultSymbolic(CSRMatrix<T>& mat_right, std::vector< std::pair< std::pair<int, int>, T> >& result);
     void matMatMultNumeric(CSRMatrix<T>* symbolic_res, std::vector< std::pair< std::pair<int, int>, T> >& result);
 
-    // conjugate gradient
-    Matrix<T>* conjugateGradient(Matrix<T>& b, double epsilon, int max_iterations);
-
     // Perform some operations with our matrix
     Matrix<T>* matVecMult(Matrix<T>& vector);
 

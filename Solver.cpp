@@ -13,7 +13,7 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
     // set the initial x values to our initial guess
     x_var_prev->setMatrix(b->size(), initial_guess);
 
-    // create a vector to hold the estimated right hand side - smart pointer as only used inside this scope
+    // create a vector to hold the estimated right hand side - smart pointer as only used inside LHS scope
     std::unique_ptr< Matrix<T> > estimated_rhs(LHS->matMatMult(*x_var_prev));
 
     // initialize residual which will be used to determine ending position
@@ -139,7 +139,7 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
     auto lower_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
     auto permutation = new Matrix<T>(LHS->rows, LHS->cols, true);
 
-    // construct LU decomposition of the LHS matrix - this gives us the permutation
+    // construct LU decomposition of the LHS matrix - LHS gives us the permutation
     Solver<T>::luDecompositionPivot(LHS, upper_tri, lower_tri, permutation);
 
     // transpose the permutation matrix
@@ -186,7 +186,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     // set the residual to  r = b - Ax initially
     std::unique_ptr< Matrix<T> > r(new Matrix<T>(b->rows, b->cols, true));
 
-    // set r = b - Ax for this iteration
+    // set r = b - Ax for LHS iteration
     for (int i = 0; i < r->size(); i++)
     {
         r->values[i] = b->values[i] - Ax->values[i];
@@ -217,7 +217,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
             // update beta based on the delta values
             beta = delta / delta_old;
 
-            // set p = r + beta * p for this iteration
+            // set p = r + beta * p for LHS iteration
             for (int i = 0; i < p->size(); i++)
             {
                 p->values[i] = r->values[i] + beta * p->values[i];
@@ -226,7 +226,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
 
         std::unique_ptr< Matrix<T> > Ap(LHS->matMatMult(*p));
 
-        // set w = Ap for this iteration
+        // set w = Ap for LHS iteration
         for (int i = 0; i < w->size(); i++)
         {
             w->values[i] = Ap->values[i];
@@ -234,19 +234,19 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
         // update the alpha value based on delta and the inner product of p and w
         alpha = delta / p->innerVectorProduct(*w);
 
-        // set x = x + alpha * p for this iteration
+        // set x = x + alpha * p for LHS iteration
         for (int i = 0; i < x->size(); i++)
         {
             x->values[i] = x->values[i] + alpha * p->values[i];
         }
 
-        // set r = r - alpha * w for this iteration
+        // set r = r - alpha * w for LHS iteration
         for (int i = 0; i < r->size(); i++)
         {
             r->values[i] = r->values[i] - alpha * w->values[i];
         }
 
-        // update both delta and delta_old for this iteration
+        // update both delta and delta_old for LHS iteration
         delta_old = delta;
         delta = r->innerVectorProduct(*r);
 
@@ -540,4 +540,91 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
             matrix->values[i * matrix->cols + j] = 0;
         }
     }
+}
+
+template<class T>
+Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>& b, double epsilon, int max_iterations)
+{
+    int k = 0;
+    T beta = 1;
+    double alpha = 1;
+    T delta_old = 1;
+
+    // intialize to x to 0
+    auto x = new Matrix<T>(b.rows, b.cols, true);
+
+    // workout Ax
+    auto Ax = LHS->matVecMult(*x);
+
+    // r = b - Ax
+    auto r = new Matrix<T>(b.rows, b.cols, true);
+
+    for (int i = 0; i < r->rows * r->cols; i++)
+    {
+        r->values[i] = b.values[i] - Ax->values[i];
+    }
+
+    auto p = new Matrix<T>(r->rows, r->cols, true);
+    auto w = new Matrix<T>(r->rows, r->cols, true);
+
+    double delta = r->innerVectorProduct(*r);
+
+    while (k < max_iterations && (sqrt(delta) > epsilon* sqrt(b.innerVectorProduct(b))))
+    {
+        if (k == 1)
+        {
+            // p = r
+            for (int i = 0; i < p->rows * p->cols; i++)
+            {
+                p->values[i] = r->values[i];
+            }
+
+        }
+        else {
+
+            beta = delta / delta_old;
+
+            // p = r + beta * p
+            for (int i = 0; i < p->rows * p->cols; i++)
+            {
+                p->values[i] = r->values[i] + beta * p->values[i];
+            }
+        }
+
+        auto Ap = LHS->matVecMult(*p);
+
+        // w = Ap
+        for (int i = 0; i < w->rows * w->cols; i++)
+        {
+            w->values[i] = Ap->values[i];
+        }
+
+        alpha = delta / p->innerVectorProduct(*w);
+
+        // x = x + alpha * p
+        for (int i = 0; i < x->rows * x->cols; i++)
+        {
+            x->values[i] = x->values[i] + alpha * p->values[i];
+        }
+
+        // r = r - alpha * w
+        for (int i = 0; i < r->rows * r->cols; i++)
+        {
+            r->values[i] = r->values[i] - alpha * w->values[i];
+        }
+
+        delta_old = delta;
+
+        delta = r->innerVectorProduct(*r);
+
+        delete Ap;
+        k++;
+    }
+
+    delete Ax;
+    delete r;
+    delete p;
+    delete w;
+
+    return x;
 }
