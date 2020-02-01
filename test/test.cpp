@@ -8,41 +8,47 @@
 #include "../Solver.h"
 #include "../Solver.cpp"
 
+// desired epsilon for iterative algorithms
 #define TOL 0.0001
 
-// #define RUN_ALL_TESTS
+ #define RUN_ALL_TESTS
 
 // Jacobi Tests:
-const bool run_jacobi = false;
+const bool run_jacobi = true;
 
 // Gauss-Seidel Tests:
-const bool run_gauss_seidel = false;
+const bool run_gauss_seidel = true;
 
 // LU Decomp Tests:
-const bool run_lu_decomp = false;
+const bool run_lu_decomp = true;
 
 // Gaussian Tests:
-const bool run_gaussian = false;
+const bool run_gaussian = true;
 
 // Conjugate Gradient Dense Tests:
 const bool run_conjugate_gradient = false;
 
-TEST_CASE("CG test on large SPD Matrix")
+/*
+ * NOTE BEFORE
+ * THIS TEST SEEMs TO BE FAILING ON MAC
+*/
+TEST_CASE("jacobi and gauss seidel test on large SPD Matrix")
 {
     bool test_result = true;
-    auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrixSPD.txt");
-    auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixBSPD.txt");
+
+    auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrixSparse.txt");
+    auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixBSparse.txt");
+
     double initial_guess[1000];
+
     std::fill_n(initial_guess, 1000, 1);
-    auto expectedSol = new Matrix<double>(1000, 1, (std::string) "massMatrixSolSPD.txt");
+
+    auto expectedSol = new Matrix<double>(1000, 1, (std::string) "massMatrixSolSparse.txt");
     auto A2 = new CSRMatrix<double>(A);
 
-    //auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 10, initial_guess);
-    //realSol->printMatrix();
     auto realSol2 = Solver <double>::solveGaussSeidel(A2, b);
-    realSol2->printMatrix();
+
     auto realSol3 = Solver <double>::solveJacobi(A2, b);
-    realSol3->printMatrix();
 
     for (int i = 0; i < expectedSol->rows; i++)
     {
@@ -63,50 +69,141 @@ TEST_CASE("CG test on large SPD Matrix")
     REQUIRE(test_result);
 }
 
-#if defined(RUN_ALL_TESTS)
-TEST_CASE("Dense To Sparse Conversion")
-{
-    auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
 
-    A->printMatrix();
-
-    auto B = new CSRMatrix(A);
-
-    B->printMatrix();
-}
-
-
-TEST_CASE("incomplete cholesky factorization")
-{
-    auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
-
-    A->printMatrix();
-
-    std::cout << "====\n";
-
-    Solver<double>::incompleteCholesky(A);
-
-    A->printMatrix();
-
-    delete A;
-
-    REQUIRE(true);
-}
-// Conjugate Gradient Sparse Tests:
-TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
+TEST_CASE("sparse solver tests")
 {
     bool test_result = true;
+
+    SECTION("CG on small dense SPD system")
+    {
+        // create a simple matrix system to solve (dense)
+        double A_values[9] = { 2, -1, 0, -1, 3, -1, 0, -1, 2 };
+        double b_values[3] = { 1, 8, -5 };
+
+        auto A = new Matrix<double>(3, 3, true);
+        auto b = new Matrix<double>(3, 1, true);
+
+        A->setMatrix(9, A_values);
+        b->setMatrix(3, b_values);
+
+        // set the initial guess to 0s
+        double initial_guess[3] = {0, 0, 0};
+
+        // calculate result of the iterative method
+        std::unique_ptr< Matrix<double> > result(Solver<double>::solveGaussSeidel(A, b, TOL, 3000, initial_guess));
+
+        // compare with the correct values
+        double correct_values[3] = { 2, 3, -1 };
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (!fEqual(result->values[i], correct_values[i], TOL*10))
+            {
+                test_result = false;
+                break;
+            }
+        }
+
+        delete A;
+        delete b;
+
+        REQUIRE(test_result);
+    }
+
+    SECTION("CG sparse test on SPD matrix")
+    {
+        // read in a small SPD matrix
+        auto A = new Matrix<double>(20, 20, (std::string) "massMatrixSPD.txt");
+        auto b = new Matrix<double>(20, 1, (std::string) "massMatrixBSPD.txt");
+
+        // set the initial guess to all 1s
+        double initial_guess[20];
+        std::fill_n(initial_guess, 20, 1);
+
+        // read in the expected solution
+        std::unique_ptr< Matrix<double> > expectedSol(new Matrix<double>(20, 1, (std::string) "massMatrixSolSPD.txt"));
+
+        // convert the SPD matrix to sparse format
+        auto A2 = new CSRMatrix<double>(A);
+
+        // construct solution using conjugate gradient method
+        std::unique_ptr< Matrix<double> > realSol2(Solver<double>::conjugateGradient(A2, b, TOL, 3000, initial_guess));
+
+        // check values are within a reasonable level of tolerance to true solution
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol2->values[i], expectedSol->values[i], TOL*10))
+            {
+                test_result = false;
+                break;
+            }
+        }
+
+        // clean memory
+        delete A;
+        delete b;
+        delete A2;
+
+        REQUIRE(test_result);
+    }
+}
+
+#if defined(RUN_ALL_TESTS)
+
+//TEST_CASE("Dense To Sparse Conversion")
+//{
+//    auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
+//
+//    A->printMatrix();
+//
+//    auto B = new CSRMatrix(A);
+//
+//    B->printMatrix();
+//}
+
+
+//TEST_CASE("incomplete cholesky factorization")
+//{
+//    auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
+//
+//    A->printMatrix();
+//
+//    std::cout << "====\n";
+//
+//    Solver<double>::incompleteCholesky(A);
+//
+//    A->printMatrix();
+//
+//    delete A;
+//
+//    REQUIRE(true);
+//}
+
+
+// Sparse Matrix Dense format Tests:
+TEST_CASE("All solvers; diagonally dominant 1000x1000 sparse matrix")
+{
+    bool test_result = true;
+
+    // construct the test matrices
     auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrixSparse.txt");
     auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixBSparse.txt");
+
+    // initial guess for iterative methods - set all values to 1
     double initial_guess[1000];
     std::fill_n(initial_guess, 1000, 1);
-    auto expectedSol = new Matrix<double>(1000, 1, (std::string) "massMatrixSolSparse.txt");
+
+    // read in the expected result
+    std::unique_ptr< Matrix<double> > expectedSol(new Matrix<double>(1000, 1, (std::string) "massMatrixSolSparse.txt"));
+
     if (run_jacobi)
     {
         SECTION("Jacobi Solver Test Gigantic")
         {
-            auto realSol = Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess);
+            // construct solution using jacobi (dense) method
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess));
 
+            // check values are reasonably accurate
             for (int i = 0; i < expectedSol->rows; i++)
             {
                 if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
@@ -115,7 +212,6 @@ TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -125,8 +221,10 @@ TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
     {
         SECTION("Gauss-Seidel Solver Test Gigantic")
         {
-            auto realSol = Solver<double>::solveGaussSeidel(A, b, TOL, 1000, initial_guess);
+            // construct solution using gauss seidel (dense) method
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussSeidel(A, b, TOL, 1000, initial_guess));
 
+            // check values are reasonably accurate
             for (int i = 0; i < expectedSol->rows; i++)
             {
                 if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
@@ -135,7 +233,6 @@ TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -145,8 +242,10 @@ TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
     {
         SECTION("LU Decomp Solver Test Gigantic")
         {
-            auto realSol = Solver<double>::solveLU(A, b);
+            // construct solution using LU (dense) method
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveLU(A, b));
 
+            // check values are within reasonable tolerance of true solution
             for (int i = 0; i < expectedSol->rows; i++)
             {
                 if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
@@ -155,7 +254,6 @@ TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -166,8 +264,10 @@ TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
     {
         SECTION("Gaussian Test Gigantic")
         {
-            auto realSol = Solver<double>::solveGaussian(A, b);
+            // construct solution using gaussian elimination (dense) method
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussian(A, b));
 
+            // check values are within a reasonable level of accuracy of true solution
             for (int i = 0; i < expectedSol->rows; i++)
             {
                 if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
@@ -176,27 +276,6 @@ TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
                     break;
                 }
             }
-            delete realSol;
-
-            REQUIRE(test_result);
-        }
-    }
-
-    if (run_conjugate_gradient)
-    {
-        SECTION("Conjugate Gradient Test Gigantic")
-        {
-            auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess);
-
-            for (int i = 0; i < expectedSol->rows; i++)
-            {
-                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
-                {
-                    test_result = false;
-                    break;
-                }
-            }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -204,24 +283,28 @@ TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
 
     delete A;
     delete b;
-    delete expectedSol;
 }
 
 TEST_CASE("Stable solvers; massive 1000x1000 matrix")
 {
     bool test_result = true;
 
+    // read in massive matrix
     auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrix.txt");
     auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixB.txt");
+
+    // set initial guess for iterative methods to 1
     double initial_guess[1000];
     std::fill_n(initial_guess, 1000, 1);
-    auto expectedSol = new Matrix<double>(1000, 1, (std::string) "massMatrixSol.txt");
+
+    // read in the expected solution
+    std::unique_ptr< Matrix<double> > expectedSol(new Matrix<double>(1000, 1, (std::string) "massMatrixSol.txt"));
 
     if (run_lu_decomp)
     {
         SECTION("LU Decomp Solver Test Massive")
         {
-            auto realSol = Solver<double>::solveLU(A, b);
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveLU(A, b));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -231,7 +314,6 @@ TEST_CASE("Stable solvers; massive 1000x1000 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -241,7 +323,7 @@ TEST_CASE("Stable solvers; massive 1000x1000 matrix")
     {
         SECTION("Gaussian Test Massive")
         {
-            auto realSol = Solver<double>::solveGaussian(A, b);
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussian(A, b));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -251,7 +333,6 @@ TEST_CASE("Stable solvers; massive 1000x1000 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -262,8 +343,8 @@ TEST_CASE("Stable solvers; massive 1000x1000 matrix")
     {
         SECTION("Conjugate Gradient Test Large")
         {
-            auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 10000, initial_guess);
-//            realSol->printMatrix();
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::conjugateGradient(A, b, TOL, 10000, initial_guess));
+
             for (int i = 0; i < expectedSol->rows; i++)
             {
                 if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
@@ -272,30 +353,32 @@ TEST_CASE("Stable solvers; massive 1000x1000 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
     }
+
     delete A;
     delete b;
-    delete expectedSol;
 }
 
 TEST_CASE("Stable solvers; large 400x400 matrix")
 {
     bool test_result = true;
+
     auto A = new Matrix<double>(400, 400, (std::string) "largeMatrix.txt");
     auto b = new Matrix<double>(400, 1, (std::string) "largeMatrixB.txt");
+
     double initial_guess[400];
     std::fill_n(initial_guess, 400, 1);
-    auto expectedSol = new Matrix<double>(400, 1, (std::string) "largeMatrixSol.txt");
+
+    std::unique_ptr< Matrix<double> > expectedSol(new Matrix<double>(400, 1, (std::string) "largeMatrixSol.txt"));
 
     if (run_lu_decomp)
     {
         SECTION("LU Decomp Solver Test Large")
         {
-            auto realSol = Solver<double>::solveLU(A, b);
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveLU(A, b));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -305,7 +388,6 @@ TEST_CASE("Stable solvers; large 400x400 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -315,7 +397,7 @@ TEST_CASE("Stable solvers; large 400x400 matrix")
     {
         SECTION("Gaussian Test Large")
         {
-            auto realSol = Solver<double>::solveGaussian(A, b);
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussian(A, b));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -325,7 +407,6 @@ TEST_CASE("Stable solvers; large 400x400 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -335,8 +416,8 @@ TEST_CASE("Stable solvers; large 400x400 matrix")
     {
         SECTION("Conjugate Gradient Test Large")
         {
-            auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 10000, initial_guess);
-//            realSol->printMatrix();
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::conjugateGradient(A, b, TOL, 10000, initial_guess));
+
             for (int i = 0; i < expectedSol->rows; i++)
             {
                 if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
@@ -345,29 +426,31 @@ TEST_CASE("Stable solvers; large 400x400 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
     }
     delete A;
     delete b;
-    delete expectedSol;
 }
 
 TEST_CASE("Stable solvers; medium 100x100 matrix")
 {
     bool test_result = true;
+
     auto A = new Matrix<double>(100, 100, (std::string) "mediumMatrix.txt");
     auto b = new Matrix<double>(100, 1, (std::string) "mediumMatrixB.txt");
+
     double initial_guess[100];
     std::fill_n(initial_guess, 100, 1);
-    auto expectedSol = new Matrix<double>(100, 1, (std::string) "mediumMatrixSol.txt");
+
+    std::unique_ptr< Matrix<double> > expectedSol(new Matrix<double>(100, 1, (std::string) "mediumMatrixSol.txt"));
+
     if (run_lu_decomp)
     {
         SECTION("LU Decomp Solver Test Medium")
         {
-            auto realSol = Solver<double>::solveLU(A, b);
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveLU(A, b));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -377,7 +460,6 @@ TEST_CASE("Stable solvers; medium 100x100 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -387,7 +469,7 @@ TEST_CASE("Stable solvers; medium 100x100 matrix")
     {
         SECTION("Gaussian Test Medium")
         {
-            auto realSol = Solver<double>::solveGaussian(A, b);
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussian(A, b));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -397,7 +479,6 @@ TEST_CASE("Stable solvers; medium 100x100 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -407,8 +488,8 @@ TEST_CASE("Stable solvers; medium 100x100 matrix")
     {
         SECTION("Conjugate Gradient Test Medium")
         {
-            auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess);
-//            realSol->printMatrix();
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess));
+
             for (int i = 0; i < expectedSol->rows; i++)
             {
                 if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
@@ -417,28 +498,30 @@ TEST_CASE("Stable solvers; medium 100x100 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
     }
     delete A;
     delete b;
-    delete expectedSol;
 }
 
 TEST_CASE("All solvers; small 10x10 matrix")
 {
     bool test_result = true;
+
     auto A = new Matrix<double>(10, 10, (std::string) "smallMatrix.txt");
     auto b = new Matrix<double>(10, 1, (std::string) "smallMatrixB.txt");
+
     double initial_guess[10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-    auto expectedSol = new Matrix<double>(10, 1, (std::string) "smallMatrixSol.txt");
+
+    std::unique_ptr< Matrix<double> > expectedSol(new Matrix<double>(10, 1, (std::string) "smallMatrixSol.txt"));
+
     if (run_jacobi)
     {
         SECTION("Jacobi Solver Test Small")
         {
-            auto realSol = Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess);
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -448,7 +531,6 @@ TEST_CASE("All solvers; small 10x10 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -458,7 +540,7 @@ TEST_CASE("All solvers; small 10x10 matrix")
     {
         SECTION("Gauss-Seidel Solver Test Small")
         {
-            auto realSol = Solver<double>::solveGaussSeidel(A, b, TOL, 1000, initial_guess);
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussSeidel(A, b, TOL, 1000, initial_guess));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -468,7 +550,6 @@ TEST_CASE("All solvers; small 10x10 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -479,7 +560,7 @@ TEST_CASE("All solvers; small 10x10 matrix")
     {
         SECTION("LU Decomp Solver Test Small")
         {
-            auto realSol = Solver<double>::solveLU(A, b);
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveLU(A, b));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -489,7 +570,6 @@ TEST_CASE("All solvers; small 10x10 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -499,7 +579,7 @@ TEST_CASE("All solvers; small 10x10 matrix")
     {
         SECTION("Gaussian Test Small")
         {
-            auto realSol = Solver<double>::solveGaussian(A, b);
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussian(A, b));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -509,7 +589,6 @@ TEST_CASE("All solvers; small 10x10 matrix")
                     break;
                 }
             }
-            delete realSol;
 
             REQUIRE(test_result);
         }
@@ -519,7 +598,7 @@ TEST_CASE("All solvers; small 10x10 matrix")
     {
         SECTION("Conjugate Gradient Test Small")
         {
-            auto realSol = Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess);
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -530,15 +609,12 @@ TEST_CASE("All solvers; small 10x10 matrix")
                 }
             }
 
-            delete realSol;
-
             REQUIRE(test_result);
         }
     }
 
     delete A;
     delete b;
-    delete expectedSol;
 }
 
 TEST_CASE("sparse matrix; conjugate gradient")
@@ -561,9 +637,11 @@ TEST_CASE("sparse matrix; conjugate gradient")
 
         auto b = new Matrix<double>(cols, 1, true);
         double b_values[3] = { 1, 8, -5 };
+        double initial_guess[3] = {0, 0, 0};
+
         b->setMatrix(3, b_values);
 
-        auto result = Solver<double>::conjugateGradient(A, *b, TOL, 10);
+        std::unique_ptr< Matrix<double> > result(Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess));
 
         double correct_values[3] = { 2, 3, -1 };
 
@@ -578,59 +656,9 @@ TEST_CASE("sparse matrix; conjugate gradient")
 
         delete A;
         delete b;
-        delete result;
-
         REQUIRE(test_result);
 
     }
-
-    //    Construct  the following A matrix
-    //    [ 1,  5,  0,  0,  0],
-    //    [ 0,  2,  8,  0,  0],
-    //    [ 0,  0,  3,  9,  0],
-    //    [ 0,  0,  0,  4, 10],
-    //    [ 0,  0,  0,  0,  5]
-
-//    int rows = 5;
-//    int cols = 5;
-//    int nnzs = 9;
-//
-//    auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
-//
-//    // set the A matrix with the values we want to test
-//    double values[9] = {1, 5, 2, 8, 3, 9, 4, 10, 5};
-//    int row_position[6] = {0, 2, 4, 6, 8, 9};
-//    int col_index[9] = {0, 1, 1, 2, 2, 3, 3, 4, 4};
-//    A->setMatrix(values, row_position, col_index);
-//
-//    // Construct the rhs array
-//    // b = [1, 2, 3, 4, 5]
-//    auto b = new Matrix<double>(cols, 1, true);
-//    double b_values[5] = {1, 2, 3, 4, 5};
-//    b->setMatrix(5, b_values);
-//
-//    auto result = A->conjugateGradient(*b, TOL, 10);
-//
-//    result->printMatrix();
-
-
-//
-//    double correct_values[4] = {0, 59, 15, 18};
-//    auto result = A->matVecMult(*b);
-//
-//    for (int i = 0; i < 4; i++)
-//    {
-//        if (!fEqual(result->values[i], correct_values[i], TOL))
-//        {
-//            test_result = false;
-//            break;
-//        }
-//    }
-
-//    delete A;
-//    delete b;
-//    delete result;
-
 }
 
 TEST_CASE("sparse matrix mat-vect mult")
@@ -1251,39 +1279,8 @@ TEST_CASE("lu decomposition")
     REQUIRE(test_result);
 }
 
-TEST_CASE("Conjugate Gradient Method")
-{
-    bool test_result = true;
 
-    double A_values[9] = { 2, -1, 0, -1, 3, -1, 0, -1, 2 };
-    double b_values[3] = { 1, 8, -5 };
-
-    auto A = new Matrix<double>(3, 3, true);
-    auto b = new Matrix<double>(3, 1, true);
-
-    A->setMatrix(9, A_values);
-    b->setMatrix(3, b_values);
-
-    auto result = Solver<double>::conjugateGradient(A, b, TOL, 1000);
-
-    double correct_values[3] = { 2, 3, -1 };
-
-    for (int i = 0; i < 3; i++)
-    {
-        if (!fEqual(result->values[i], correct_values[i], TOL))
-        {
-            test_result = false;
-            break;
-        }
-    }
-
-    delete A;
-    delete b;
-    delete result;
-
-    REQUIRE(test_result);
-}
-
+//////// PRIVATE FUNCTION TESTS /////////////////
 
 // Impossible to run: lu decomp moved to private function
 // We still know they work because they are used in Solve LU

@@ -20,6 +20,12 @@ ACSE5_BINARY_DIR:STATIC=/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cm
 //Value Computed by CMake
 ACSE5_SOURCE_DIR:STATIC=/Users/fazi/Desktop/acse-5-assignment-unique-pointers
 
+//Value Computed by CMake
+Assignment_BINARY_DIR:STATIC=/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug
+
+//Value Computed by CMake
+Assignment_SOURCE_DIR:STATIC=/Users/fazi/Desktop/acse-5-assignment-unique-pointers
+
 //Path to a program.
 CMAKE_AR:FILEPATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar
 
@@ -157,7 +163,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=Lectures
+CMAKE_PROJECT_NAME:STATIC=Assignment
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib

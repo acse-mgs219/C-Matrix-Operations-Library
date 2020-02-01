@@ -6,7 +6,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_CXX
   "/Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.cpp" "/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles/Lectures.dir/CSRMatrix.cpp.o"
   "/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.cpp" "/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles/Lectures.dir/Matrix.cpp.o"
-  "/Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/test-main.cpp" "/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles/Lectures.dir/test/test-main.cpp.o"
+  "/Users/fazi/Desktop/acse-5-assignment-unique-pointers/main.cpp" "/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles/Lectures.dir/main.cpp.o"
   "/Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/test.cpp" "/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles/Lectures.dir/test/test.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "AppleClang")

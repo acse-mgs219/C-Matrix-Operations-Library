@@ -321,7 +321,6 @@ T Matrix<T>::innerVectorProduct(Matrix<T> &mat_right)
     // calculate inner product
     for (int i=0; i<this->size_of_values; i++)
     {
-        //std::cout << this->values[i] << " " << mat_right.values[i] << std::endl;
         result += this->values[i] * mat_right.values[i];
     }
 
@@ -356,10 +355,6 @@ void Matrix<T>::find_unique(std::vector<bool> check_list, std::vector<int>& uniq
         }
         count = 0;
     }
-    //    for (int i = 0; i < this->cols; i++)
-    //    {
-    //        std::cout << unique_list[i] << " ";
-    //    }
 }
 
 template <class T>
@@ -454,7 +449,7 @@ void Matrix<T>::sort_mat(Matrix<T>* rhs)
     }
 
     delete temp_mat;
-    delete temp_rhs;
+    delete[] temp_rhs;
 
 }
 
