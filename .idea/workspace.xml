@@ -14,6 +14,7 @@
     <list default="true" id="7564b55b-8e43-42dd-a5d7-f1c6814df806" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Solver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Solver.h" beforeDir="false" afterPath="$PROJECT_DIR$/Solver.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Assignment" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Assignment" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Assignment.dir/test/test.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Assignment.dir/test/test.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/test.cpp" afterDir="false" />
@@ -92,7 +93,7 @@
       <workItem from="1580289390638" duration="6414000" />
       <workItem from="1580417281784" duration="7975000" />
       <workItem from="1580499097846" duration="6847000" />
-      <workItem from="1580549604634" duration="6153000" />
+      <workItem from="1580549604634" duration="14627000" />
     </task>
     <servers />
   </component>
@@ -100,22 +101,22 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state width="299" height="542" key="GridCell.Tab.0.bottom" timestamp="1580556543665">
+    <state width="431" height="453" key="GridCell.Tab.0.bottom" timestamp="1580565921108">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="299" height="542" key="GridCell.Tab.0.bottom/0.23.1280.709@0.23.1280.709" timestamp="1580556543665" />
-    <state width="299" height="542" key="GridCell.Tab.0.center" timestamp="1580556543664">
+    <state width="431" height="453" key="GridCell.Tab.0.bottom/0.23.1280.709@0.23.1280.709" timestamp="1580565921108" />
+    <state width="431" height="453" key="GridCell.Tab.0.center" timestamp="1580565921107">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="299" height="542" key="GridCell.Tab.0.center/0.23.1280.709@0.23.1280.709" timestamp="1580556543664" />
-    <state width="299" height="542" key="GridCell.Tab.0.left" timestamp="1580556543664">
+    <state width="431" height="453" key="GridCell.Tab.0.center/0.23.1280.709@0.23.1280.709" timestamp="1580565921107" />
+    <state width="431" height="453" key="GridCell.Tab.0.left" timestamp="1580565921106">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="299" height="542" key="GridCell.Tab.0.left/0.23.1280.709@0.23.1280.709" timestamp="1580556543664" />
-    <state width="299" height="542" key="GridCell.Tab.0.right" timestamp="1580556543665">
+    <state width="431" height="453" key="GridCell.Tab.0.left/0.23.1280.709@0.23.1280.709" timestamp="1580565921106" />
+    <state width="431" height="453" key="GridCell.Tab.0.right" timestamp="1580565921107">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="299" height="542" key="GridCell.Tab.0.right/0.23.1280.709@0.23.1280.709" timestamp="1580556543665" />
+    <state width="431" height="453" key="GridCell.Tab.0.right/0.23.1280.709@0.23.1280.709" timestamp="1580565921107" />
     <state width="1238" height="250" key="GridCell.Tab.1.bottom" timestamp="1580330572618">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
@@ -136,13 +137,13 @@
       <screen x="0" y="23" width="1280" height="709" />
     </state>
     <state x="351" y="100" width="803" height="554" key="MultipleFileMergeDialog/0.23.1280.709@0.23.1280.709" timestamp="1580132582873" />
-    <state width="600" height="424" key="javadoc.popup" timestamp="1580165930247">
+    <state width="600" height="424" key="javadoc.popup" timestamp="1580562430529">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="600" height="424" key="javadoc.popup/0.23.1280.709@0.23.1280.709" timestamp="1580165930247" />
-    <state x="303" y="53" width="672" height="678" key="search.everywhere.popup" timestamp="1580514166911">
+    <state width="600" height="424" key="javadoc.popup/0.23.1280.709@0.23.1280.709" timestamp="1580562430529" />
+    <state x="303" y="53" width="672" height="678" key="search.everywhere.popup" timestamp="1580557671327">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state x="303" y="53" width="672" height="678" key="search.everywhere.popup/0.23.1280.709@0.23.1280.709" timestamp="1580514166911" />
+    <state x="303" y="53" width="672" height="678" key="search.everywhere.popup/0.23.1280.709@0.23.1280.709" timestamp="1580557671327" />
   </component>
 </project>

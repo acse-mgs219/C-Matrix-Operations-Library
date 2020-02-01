@@ -2,11 +2,12 @@
 #include "Solver.h"
 
 
+/////// DENSE MATRIX SOLVERS ///////
 template <class T>
 Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T initial_guess[])
 {
     // create some space to hold the solution to the iteration
-    auto x_var = new Matrix<T>(b->rows, b->cols, true);
+    auto x_var = new Matrix<T>(b->rows, b->cols, true); // return at end of function
 
     // create a vector to hold the previous values of the x values we iterate over
     std::unique_ptr< Matrix<T> > x_var_prev(new Matrix<T>(b->rows, b->cols, true));
@@ -62,15 +63,14 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
         residual = sqrt(residual / b->size());
         ++iteration;
     }
-
     return x_var;
 }
 
 template<class T>
-Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T* initial_guess) {
-
+Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T* initial_guess)
+{
     // create some space to hold the solution to the iteration
-    auto x_var = new Matrix<T>(b->rows, b->cols, true);
+    auto x_var = new Matrix<T>(b->rows, b->cols, true); // return at end of function
 
     // set the first x value to the initial guess
     x_var->setMatrix(b->rows, initial_guess);
@@ -125,7 +125,7 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
 template<class T>
 Matrix<T>* Solver<T>::solveGaussian(Matrix<T>* LHS, Matrix<T>* b)
 {
-    // transform matrices to upper triangular
+    // transform matrix to upper triangular
     Solver<T>::upperTriangular(LHS, b);
 
     // generate solution
@@ -135,12 +135,12 @@ Matrix<T>* Solver<T>::solveGaussian(Matrix<T>* LHS, Matrix<T>* b)
 }
 
 template<class T>
-Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
-
+Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b)
+{
     // create space to hold the upper triangular, lower triangular and permutation
-    auto upper_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
-    auto lower_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
-    auto permutation = new Matrix<T>(LHS->rows, LHS->cols, true);
+    auto upper_tri = new Matrix<T>(LHS->rows, LHS->cols, true);     // memory cleared
+    auto lower_tri = new Matrix<T>(LHS->rows, LHS->cols, true);     // memory cleared
+    auto permutation = new Matrix<T>(LHS->rows, LHS->cols, true);   // memory cleared
 
     // construct LU decomposition of the LHS matrix - LHS gives us the permutation
     Solver<T>::luDecompositionPivot(LHS, upper_tri, lower_tri, permutation);
@@ -149,13 +149,13 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
     permutation->transpose();
 
     // multiply the transpose of the permutation matrix by b
-    auto p_inv_b = permutation->matMatMult(*b);
+    auto p_inv_b = permutation->matMatMult(*b);                     // memory cleared
 
     // calculate the y values using forward substitution
-    auto y_values = Solver<T>::forwardSubstitution(lower_tri, p_inv_b);
+    auto y_values = Solver<T>::forwardSubstitution(lower_tri, p_inv_b);     // memory cleared
 
     // calculate the solution using back substitution and the y values we calculated earlier
-    auto *solution = Solver<T>::backSubstitution(upper_tri, y_values);
+    auto *solution = Solver<T>::backSubstitution(upper_tri, y_values);      // return at end of function
 
     // clean memory
     delete upper_tri;
@@ -167,7 +167,6 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
     return solution;
 }
 
-// solve Ax = b;
 template<class T>
 Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
@@ -180,7 +179,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     double delta_old = 1;
 
     // intialize x values to 0
-    auto x = new Matrix<T>(b->rows, b->cols, true);
+    auto x = new Matrix<T>(b->rows, b->cols, true);         // return at end of function
     x->setMatrix(b->rows, initial_guess);
 
     // workout Ax initially
@@ -375,7 +374,7 @@ void Solver<T>::luDecompositionPivot(Matrix<T>* LHS, Matrix<T>* upper_tri, Matri
         lower_tri->values[i * lower_tri->rows + i] = 1;
     }
 
-    // return the transpose of the permutation matrix
+    // transpose the permutation matrix
     permutation->transpose();
 }
 
@@ -450,13 +449,15 @@ Matrix<T>* Solver<T>::backSubstitution(Matrix<T>* LHS, Matrix<T>* b)
     }
 
     // create an empty vector
-    Matrix<T>* solution = new Matrix<T>(b->rows, b->cols, true);
+    Matrix<T>* solution = new Matrix<T>(b->rows, b->cols, true);    // return at end of function
 
+    // scaling factor
     double s;
 
     // iterate over system backwards
     for (int k = b->size() - 1; k >= 0; k--)
     {
+        // scaling factor
         s = 0;
 
         for (int j = k + 1; j < b->size(); j++)
@@ -490,6 +491,7 @@ Matrix<T>* Solver<T>::forwardSubstitution(Matrix<T>* LHS, Matrix<T>* b)
     // create an empty vector
     Matrix<T>* solution = new Matrix<T>(b->rows, b->cols, true);
 
+    // scaling factor
     double s;
 
     // iterate over system
@@ -513,6 +515,7 @@ Matrix<T>* Solver<T>::forwardSubstitution(Matrix<T>* LHS, Matrix<T>* b)
 template<class T>
 void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
 {
+    // loop over each row
     for (int k=0; k<matrix->rows; k++)
     {
         // if first column in row is negative, simply take its absolute value
@@ -524,6 +527,7 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
         else if (matrix->values[k * matrix->cols + k] < 0)
         {
             double sum = 0;
+
             for(int c=k; c>=0; c--)
             {
                 sum += fabs(matrix->values[k * matrix->cols + c]);
@@ -531,12 +535,12 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
 
             matrix->values[k * matrix->cols + k] = sum;
         }
+        // simply take the square root of the diagonal element and use that as it's updated value
         else {
-
             matrix->values[k * matrix->cols + k] = sqrt(matrix->values[k * matrix->cols + k]);
         }
 
-
+        // scale the other values in the matrix
         for (int i=k+1; i<matrix->rows; i++)
         {
             if (matrix->values[i * matrix->cols + k] != 0)
@@ -556,6 +560,8 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
         }
     }
 
+
+    // set all the values above the diagonal to 0 (makes the system lower triangular)
     for (int i=0; i<matrix->rows; i++)
     {
         for (int j=i+1; j<matrix->cols; j++)
@@ -578,27 +584,30 @@ Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double 
     double delta_old = 1;
 
     // intialize to x to 0
-    auto x = new Matrix<T>(b->rows, b->cols, true);
+    auto x = new Matrix<T>(b->rows, b->cols, true);             // return at end of function
     x->setMatrix(b->rows, initial_guess);
 
     // workout Ax initially
     std::unique_ptr< Matrix<T> > Ax(LHS->matVectMult(*x));
 
-    // r = b - Ax
-    auto r = new Matrix<T>(b->rows, b->cols, true);
-
+    // set the residual to  r = b - Ax initially
+    std::unique_ptr< Matrix<T> > r(new Matrix<T>(b->rows, b->cols, true));
     for (int i = 0; i < r->size(); i++)
     {
         r->values[i] = b->values[i] - Ax->values[i];
     }
 
-    auto p = new Matrix<T>(r->rows, r->cols, true);
-    auto w = new Matrix<T>(r->rows, r->cols, true);
+    // create some space for p and w matrices used in the iterations
+    std::unique_ptr< Matrix<T> > p(new Matrix<T>(r->rows, r->cols, true));
+    std::unique_ptr< Matrix<T> > w(new Matrix<T>(r->rows, r->cols, true));
 
+    // set delta to the inner product of r with itself
     double delta = r->innerVectorProduct(*r);
 
+    // iterate until we hit the convergence criteria or max iterations
     while (iteration < max_iterations && (sqrt(delta) > epsilon * sqrt(b->innerVectorProduct(*b))))
     {
+        // for the first iterations set p = r
         if (iteration == 0)
         {
             // p = r
@@ -607,8 +616,9 @@ Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double 
                 p->values[i] = r->values[i];
             }
         }
+            // for all the other iterations
         else {
-
+            // update beta based on the delta values
             beta = delta / delta_old;
 
             // p = r + beta * p
@@ -620,65 +630,93 @@ Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double 
 
         auto Ap = LHS->matVecMult(*p);
 
-        // w = Ap
+        // set w = Ap for this iteration
         for (int i = 0; i < w->rows * w->cols; i++)
         {
             w->values[i] = Ap->values[i];
         }
 
+        // update the alpha value based on delta and the inner product of p and w
         alpha = delta / p->innerVectorProduct(*w);
 
-        // x = x + alpha * p
+        // set x = x + alpha * p for this iteration
         for (int i = 0; i < x->rows * x->cols; i++)
         {
             x->values[i] = x->values[i] + alpha * p->values[i];
         }
 
-        // r = r - alpha * w
+        // set r = r - alpha * w for this iteration
         for (int i = 0; i < r->rows * r->cols; i++)
         {
             r->values[i] = r->values[i] - alpha * w->values[i];
         }
 
+        // update both delta and delta_old for this iteration
         delta_old = delta;
-
         delta = r->innerVectorProduct(*r);
 
         delete Ap;
         iteration++;
     }
 
-    delete r;
-    delete p;
-    delete w;
-
     return x;
 }
 
-template <class T>
-bool Solver<T>::check_finish(CSRMatrix<T>* LHS, Matrix<T>* mat_b, Matrix<T>* output)
-{
-    T tol = 0.00001;
-    T* cal_out = new T[LHS->rows];
-    T res = 0;
 
+
+/// SPARSE MATRIX FUNCTIONS
+
+template <class T>
+Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
+    Matrix<T>* output = new Matrix<T>(LHS->cols, 1, true);
+    T* temp = new T[LHS->rows];
     for (int i = 0; i < LHS->rows; i++)
     {
-        cal_out[i] = 0;
-        for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
-        {
-            cal_out[i] += LHS->values[val_index] * output->values[LHS->col_index[val_index]];
-        }
-        res += abs(mat_b->values[i] - cal_out[i]);
+        output->values[i] = 0.0;
     }
 
-    delete[] cal_out;
-    if ((res / LHS->rows) < tol)
-        return true;
-    else
-        return false;
-}
+    T* diagonal = new T[LHS->rows];
 
+    int iteration = 10;
+
+    //find diagonal elements
+    for (int i = 0; i < LHS->rows; i++)
+    {
+        for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
+        {
+            if (i == LHS->col_index[val_index])
+            {
+                diagonal[i] = LHS->values[val_index];
+            }
+        }
+    }
+
+    for (int k = 0; k < iteration; k++)//count for iterations, 10 times maximium
+    {
+        for (int i = 0; i < LHS->rows; i++)
+        {
+            temp[i] = mat_b->values[i];
+            for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
+            {
+                if (i == LHS->col_index[val_index]) continue;
+                temp[i] = temp[i] - LHS->values[val_index] * output->values[LHS->col_index[val_index]];
+            }
+            temp[i] = temp[i] / diagonal[i];
+        }
+        for (int i = 0; i < LHS->rows; i++) output->values[i] = temp[i];
+        if (Solver<T>::check_finish(LHS, mat_b, output)) break;
+    }
+
+    delete[] temp;
+
+    //cout << "Jacobi solution for the sparse matrix:" << endl;
+    //for (int i = 0; i < LHS->rows; i++)
+    //{
+    //    cout << output[i] << " ";
+    //}
+    delete[] diagonal;
+    return output;
+}
 
 template <class T>
 Matrix<T>* Solver<T>::solveGaussSeidel(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
@@ -719,62 +757,39 @@ Matrix<T>* Solver<T>::solveGaussSeidel(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
         if (Solver<T>::check_finish(LHS, mat_b, output)) break;
     }
 
+    //    cout << "Gauss-Seidel solution for the sparse matrix:" << endl;
+    //    for (int i = 0; i < LHS->rows; i++)
+    //    {
+    //        cout << output[i] << " ";
+    //    }
     delete[] diag_ele;
     return output;
 }
 
+
 template <class T>
-Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b)
+bool Solver<T>::check_finish(CSRMatrix<T>* LHS, Matrix<T>* mat_b, Matrix<T>* output)
 {
-    Matrix<T>* output = new Matrix<T>(LHS->cols, 1, true);
-
-    T* temp = new T[LHS->rows];
+    T tol = 0.00001;
+    T* cal_out = new T[LHS->rows];
+    T res = 0;
 
     for (int i = 0; i < LHS->rows; i++)
     {
-        output->values[i] = 0.0;
-    }
-
-    T* diagonal = new T[LHS->rows];
-
-    int iteration = 1000;
-
-    //find diagonal elements
-    for (int i = 0; i < LHS->rows; i++)
-    {
+        cal_out[i] = 0;
         for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
         {
-            if (i == LHS->col_index[val_index])
-            {
-                diagonal[i] = LHS->values[val_index];
-            }
+            cal_out[i] += LHS->values[val_index] * output->values[LHS->col_index[val_index]];
         }
+        res += abs(mat_b->values[i] - cal_out[i]);
     }
 
-    for (int k = 0; k < iteration; k++)
-    {
-        for (int i = 0; i < LHS->rows; i++)
-        {
-            temp[i] = mat_b->values[i];
-            for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
-            {
-                if (i == LHS->col_index[val_index]) continue;
-                temp[i] = temp[i] - LHS->values[val_index] * output->values[LHS->col_index[val_index]];
-            }
-            temp[i] = temp[i] / diagonal[i];
-        }
-        for (int i = 0; i < LHS->rows; i++) output->values[i] = temp[i];
-        if (Solver<T>::check_finish(LHS, mat_b, output)) break;
-    }
-
-    delete[] temp;
-
-    delete[] diagonal;
-    return output;
+    delete[] cal_out;
+    if ((res / LHS->rows) < tol)
+        return true;
+    else
+        return false;
 }
-
-
-
 
 
 
