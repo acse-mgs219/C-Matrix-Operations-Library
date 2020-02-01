@@ -32,44 +32,42 @@ const bool run_conjugate_gradient = false;
  * NOTE BEFORE
  * THIS TEST SEEMs TO BE FAILING ON MAC
 */
-//TEST_CASE("jacobi and gauss seidel test on large SPD Matrix")
-//{
-//    bool test_result = true;
-//
-//    auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrixSPD.txt");
-//    auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixBSPD.txt");
-//
-//    double initial_guess[1000];
-//
-//    std::fill_n(initial_guess, 1000, 1);
-//
-//    auto expectedSol = new Matrix<double>(1000, 1, (std::string) "massMatrixSolSPD.txt");
-//    auto A2 = new CSRMatrix<double>(A);
-//
-//
-//    auto realSol2 = Solver <double>::solveGaussSeidel(A2, b);
-//    realSol2->printMatrix();
-//
-//    auto realSol3 = Solver <double>::solveJacobi(A2, b);
-//
-//    for (int i = 0; i < expectedSol->rows; i++)
-//    {
-//        /*if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
-//        {
-//            test_result = false;
-//            break;
-//        }*/
-//
-//        if (!fEqual(realSol2->values[i], expectedSol->values[i], TOL))
-//        {
-//            test_result = false;
-//            break;
-//        }
-//    }
-//    delete realSol2;
-//
-//    REQUIRE(test_result);
-//}
+TEST_CASE("jacobi and gauss seidel test on large SPD Matrix")
+{
+    bool test_result = true;
+
+    auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrixSparse.txt");
+    auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixBSparse.txt");
+
+    double initial_guess[1000];
+
+    std::fill_n(initial_guess, 1000, 1);
+
+    auto expectedSol = new Matrix<double>(1000, 1, (std::string) "massMatrixSolSparse.txt");
+    auto A2 = new CSRMatrix<double>(A);
+
+    auto realSol2 = Solver <double>::solveGaussSeidel(A2, b);
+
+    auto realSol3 = Solver <double>::solveJacobi(A2, b);
+
+    for (int i = 0; i < expectedSol->rows; i++)
+    {
+        /*if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }*/
+
+        if (!fEqual(realSol2->values[i], expectedSol->values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
+    }
+    delete realSol2;
+
+    REQUIRE(test_result);
+}
 
 
 TEST_CASE("sparse solver tests")
