@@ -1,6 +1,7 @@
 #include "Matrix.h"
 #include "Solver.h"
 
+
 template <class T>
 Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T initial_guess[])
 {
@@ -596,7 +597,7 @@ Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double 
 
     double delta = r->innerVectorProduct(*r);
 
-    while (iteration < max_iterations && (sqrt(delta) > epsilon* sqrt(b->innerVectorProduct(*b))))
+    while (iteration < max_iterations && (sqrt(delta) > epsilon * sqrt(b->innerVectorProduct(*b))))
     {
         if (iteration == 0)
         {
@@ -605,7 +606,6 @@ Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double 
             {
                 p->values[i] = r->values[i];
             }
-
         }
         else {
 
@@ -724,9 +724,12 @@ Matrix<T>* Solver<T>::solveGaussSeidel(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
 }
 
 template <class T>
-Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
+Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b)
+{
     Matrix<T>* output = new Matrix<T>(LHS->cols, 1, true);
+
     T* temp = new T[LHS->rows];
+
     for (int i = 0; i < LHS->rows; i++)
     {
         output->values[i] = 0.0;
@@ -734,7 +737,7 @@ Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
 
     T* diagonal = new T[LHS->rows];
 
-    int iteration = 10;
+    int iteration = 1000;
 
     //find diagonal elements
     for (int i = 0; i < LHS->rows; i++)
@@ -748,7 +751,7 @@ Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
         }
     }
 
-    for (int k = 0; k < iteration; k++) //count for iterations, 10 times maximium
+    for (int k = 0; k < iteration; k++)
     {
         for (int i = 0; i < LHS->rows; i++)
         {
@@ -769,3 +772,15 @@ Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
     delete[] diagonal;
     return output;
 }
+
+
+
+
+
+
+
+
+
+
+
+

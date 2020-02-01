@@ -12,49 +12,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7564b55b-8e43-42dd-a5d7-f1c6814df806" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Matrix.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Matrix.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Solver.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Solver.h" beforeDir="false" afterPath="$PROJECT_DIR$/Solver.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/CXX.includecache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/DependInfo.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/DependInfo.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/Matrix.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/Matrix.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/build.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/build.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/cmake_clean.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/cmake_clean.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/depend.internal" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/depend.internal" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/depend.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/depend.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/link.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/link.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/test/test-main.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/test/test-main.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/test/test.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/test/test.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile2" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile2" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Lectures" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Lectures.cbp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/largeMatrix.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/largeMatrixB.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/largeMatrixSol.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrix.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixB.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixBSPD.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixBSparse.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixSPD.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixSol.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixSolSPD.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixSolSparse.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/massMatrixSparse.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/mediumMatrix.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/mediumMatrixB.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/mediumMatrixSol.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/smallMatrix.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/smallMatrixB.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/build/x64-Debug/smallMatrixSol.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test-main.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Assignment" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Assignment" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Assignment.dir/test/test.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Assignment.dir/test/test.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/test.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -91,10 +52,13 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/cmake-build-debug" />
     <property name="restartRequiresConfirmation" value="false" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cmake-build-debug" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/cmake-build-debug" />
     </key>
@@ -128,6 +92,7 @@
       <workItem from="1580289390638" duration="6414000" />
       <workItem from="1580417281784" duration="7975000" />
       <workItem from="1580499097846" duration="6847000" />
+      <workItem from="1580549604634" duration="6153000" />
     </task>
     <servers />
   </component>
@@ -135,22 +100,22 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state width="419" height="520" key="GridCell.Tab.0.bottom" timestamp="1580515608558">
+    <state width="299" height="542" key="GridCell.Tab.0.bottom" timestamp="1580556543665">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="419" height="520" key="GridCell.Tab.0.bottom/0.23.1280.709@0.23.1280.709" timestamp="1580515608558" />
-    <state width="419" height="520" key="GridCell.Tab.0.center" timestamp="1580515608557">
+    <state width="299" height="542" key="GridCell.Tab.0.bottom/0.23.1280.709@0.23.1280.709" timestamp="1580556543665" />
+    <state width="299" height="542" key="GridCell.Tab.0.center" timestamp="1580556543664">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="419" height="520" key="GridCell.Tab.0.center/0.23.1280.709@0.23.1280.709" timestamp="1580515608557" />
-    <state width="419" height="520" key="GridCell.Tab.0.left" timestamp="1580515608556">
+    <state width="299" height="542" key="GridCell.Tab.0.center/0.23.1280.709@0.23.1280.709" timestamp="1580556543664" />
+    <state width="299" height="542" key="GridCell.Tab.0.left" timestamp="1580556543664">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="419" height="520" key="GridCell.Tab.0.left/0.23.1280.709@0.23.1280.709" timestamp="1580515608556" />
-    <state width="419" height="520" key="GridCell.Tab.0.right" timestamp="1580515608557">
+    <state width="299" height="542" key="GridCell.Tab.0.left/0.23.1280.709@0.23.1280.709" timestamp="1580556543664" />
+    <state width="299" height="542" key="GridCell.Tab.0.right" timestamp="1580556543665">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="419" height="520" key="GridCell.Tab.0.right/0.23.1280.709@0.23.1280.709" timestamp="1580515608557" />
+    <state width="299" height="542" key="GridCell.Tab.0.right/0.23.1280.709@0.23.1280.709" timestamp="1580556543665" />
     <state width="1238" height="250" key="GridCell.Tab.1.bottom" timestamp="1580330572618">
       <screen x="0" y="23" width="1280" height="709" />
     </state>

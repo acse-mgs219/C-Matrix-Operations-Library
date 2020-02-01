@@ -11,7 +11,7 @@
 // desired epsilon for iterative algorithms
 #define TOL 0.0001
 
- #define RUN_ALL_TESTS
+// #define RUN_ALL_TESTS
 
 // Jacobi Tests:
 const bool run_jacobi = false;
@@ -28,23 +28,50 @@ const bool run_gaussian = false;
 // Conjugate Gradient Dense Tests:
 const bool run_conjugate_gradient = true;
 
-#if defined(RUN_ALL_TESTS)
-
-TEST_CASE("CG test on large SPD Matrix")
+TEST_CASE("sparse tests")
 {
     bool test_result = true;
 
+    auto A = new Matrix<double>(20, 20, (std::string) "massMatrixSPD.txt");
+    auto b = new Matrix<double>(20, 1, (std::string) "massMatrixBSPD.txt");
+    double initial_guess[20];
+    std::fill_n(initial_guess, 20, 1);
+    auto expectedSol = new Matrix<double>(20, 1, (std::string) "massMatrixSolSPD.txt");
+    auto A2 = new CSRMatrix<double>(A);
+
+    SECTION("jacobi sparse solver")
+    {
+        auto realSol2 = Solver<double>::solveJacobi(A2, b);
+        for (int i = 0; i < expectedSol->rows; i++)
+        {
+            if (!fEqual(realSol2->values[i], expectedSol->values[i], TOL*10))
+            {
+
+                std::cout << realSol2->values[i] << " " << expectedSol->values[i];
+
+                test_result = false;
+//                break;
+            }
+        }
+
+        delete realSol2;
+        REQUIRE(test_result);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     SECTION("CG sparse test on SPD matrix")
     {
-        auto A = new Matrix<double>(20, 20, (std::string) "massMatrixSPD.txt");
-        auto b = new Matrix<double>(20, 1, (std::string) "massMatrixBSPD.txt");
-        double initial_guess[20];
-        std::fill_n(initial_guess, 20, 1);
-        auto expectedSol = new Matrix<double>(20, 1, (std::string) "massMatrixSolSPD.txt");
-        auto A2 = new CSRMatrix<double>(A);
-
-        auto realSol2 = Solver<double>::conjugateGradient(A2, b, TOL, 1000, initial_guess);
-
+        auto realSol2 = Solver<double>::conjugateGradient(A2, b, TOL, 3000, initial_guess);
         for (int i = 0; i < expectedSol->rows; i++)
         {
             if (!fEqual(realSol2->values[i], expectedSol->values[i], TOL*10))
@@ -54,16 +81,24 @@ TEST_CASE("CG test on large SPD Matrix")
             }
         }
 
-        // clean memory
-        delete A;
-        delete b;
-        delete A2;
-
         delete realSol2;
-
         REQUIRE(test_result);
     }
+
+    // clean memory
+    delete A;
+    delete b;
+    delete A2;
 }
+
+
+
+
+
+
+
+
+#if defined(RUN_ALL_TESTS)
 
 //TEST_CASE("Dense To Sparse Conversion")
 //{
@@ -95,7 +130,7 @@ TEST_CASE("CG test on large SPD Matrix")
 //}
 
 
-// Conjugate Gradient Sparse Tests:
+// Sparse Matrix Dense format Tests:
 TEST_CASE("All solvers; diagonally dominant 1000x1000 matrix")
 {
     bool test_result = true;
