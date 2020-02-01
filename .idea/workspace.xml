@@ -2,7 +2,7 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="Lectures" targetName="Lectures" />
+      <config projectName="Assignment" targetName="Assignment" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
@@ -13,10 +13,7 @@
   <component name="ChangeListManager">
     <list default="true" id="7564b55b-8e43-42dd-a5d7-f1c6814df806" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Solver.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Solver.h" beforeDir="false" afterPath="$PROJECT_DIR$/Solver.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/test/test.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Lectures.dir/test/test.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Lectures" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Lectures" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Assignment" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Assignment" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/test.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -39,26 +36,33 @@
     </option>
   </component>
   <component name="ProjectId" id="1WobkVrS0VABpSsBhYC3PIxHTwv" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/cmake-build-debug" />
     <property name="restartRequiresConfirmation" value="false" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cmake-build-debug" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/cmake-build-debug" />
     </key>
   </component>
   <component name="RunManager">
-    <configuration name="Lectures" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Lectures" TARGET_NAME="Lectures" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Lectures" RUN_TARGET_NAME="Lectures">
+    <configuration name="Assignment" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Assignment" TARGET_NAME="Assignment" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Assignment" RUN_TARGET_NAME="Assignment">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -85,26 +89,32 @@
       <workItem from="1580256770876" duration="2000" />
       <workItem from="1580289390638" duration="6414000" />
       <workItem from="1580417281784" duration="7975000" />
+      <workItem from="1580499097846" duration="6847000" />
+      <workItem from="1580549604634" duration="14894000" />
+      <workItem from="1580566807863" duration="252000" />
     </task>
     <servers />
   </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
   <component name="WindowStateProjectService">
-    <state width="379" height="440" key="GridCell.Tab.0.bottom" timestamp="1580428744844">
+    <state width="395" height="558" key="GridCell.Tab.0.bottom" timestamp="1580566976924">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="379" height="440" key="GridCell.Tab.0.bottom/0.23.1280.709@0.23.1280.709" timestamp="1580428744844" />
-    <state width="379" height="440" key="GridCell.Tab.0.center" timestamp="1580428744840">
+    <state width="395" height="558" key="GridCell.Tab.0.bottom/0.23.1280.709@0.23.1280.709" timestamp="1580566976924" />
+    <state width="395" height="558" key="GridCell.Tab.0.center" timestamp="1580566976922">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="379" height="440" key="GridCell.Tab.0.center/0.23.1280.709@0.23.1280.709" timestamp="1580428744840" />
-    <state width="379" height="440" key="GridCell.Tab.0.left" timestamp="1580428744840">
+    <state width="395" height="558" key="GridCell.Tab.0.center/0.23.1280.709@0.23.1280.709" timestamp="1580566976922" />
+    <state width="395" height="558" key="GridCell.Tab.0.left" timestamp="1580566976921">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="379" height="440" key="GridCell.Tab.0.left/0.23.1280.709@0.23.1280.709" timestamp="1580428744840" />
-    <state width="379" height="440" key="GridCell.Tab.0.right" timestamp="1580428744842">
+    <state width="395" height="558" key="GridCell.Tab.0.left/0.23.1280.709@0.23.1280.709" timestamp="1580566976921" />
+    <state width="395" height="558" key="GridCell.Tab.0.right" timestamp="1580566976923">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="379" height="440" key="GridCell.Tab.0.right/0.23.1280.709@0.23.1280.709" timestamp="1580428744842" />
+    <state width="395" height="558" key="GridCell.Tab.0.right/0.23.1280.709@0.23.1280.709" timestamp="1580566976923" />
     <state width="1238" height="250" key="GridCell.Tab.1.bottom" timestamp="1580330572618">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
@@ -125,13 +135,13 @@
       <screen x="0" y="23" width="1280" height="709" />
     </state>
     <state x="351" y="100" width="803" height="554" key="MultipleFileMergeDialog/0.23.1280.709@0.23.1280.709" timestamp="1580132582873" />
-    <state width="600" height="424" key="javadoc.popup" timestamp="1580165930247">
+    <state width="600" height="424" key="javadoc.popup" timestamp="1580562430529">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="600" height="424" key="javadoc.popup/0.23.1280.709@0.23.1280.709" timestamp="1580165930247" />
-    <state x="303" y="53" width="672" height="678" key="search.everywhere.popup" timestamp="1580422499503">
+    <state width="600" height="424" key="javadoc.popup/0.23.1280.709@0.23.1280.709" timestamp="1580562430529" />
+    <state x="303" y="53" width="672" height="678" key="search.everywhere.popup" timestamp="1580557671327">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state x="303" y="53" width="672" height="678" key="search.everywhere.popup/0.23.1280.709@0.23.1280.709" timestamp="1580422499503" />
+    <state x="303" y="53" width="672" height="678" key="search.everywhere.popup/0.23.1280.709@0.23.1280.709" timestamp="1580557671327" />
   </component>
 </project>

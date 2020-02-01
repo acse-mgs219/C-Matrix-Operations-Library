@@ -8,6 +8,9 @@ CMakeFiles/Lectures.dir/CSRMatrix.cpp.o: ../Matrix.h
 CMakeFiles/Lectures.dir/Matrix.cpp.o: ../Matrix.cpp
 CMakeFiles/Lectures.dir/Matrix.cpp.o: ../Matrix.h
 
+CMakeFiles/Lectures.dir/main.cpp.o: ../main.cpp
+CMakeFiles/Lectures.dir/main.cpp.o: ../test/catch.hpp
+
 CMakeFiles/Lectures.dir/test/test-main.cpp.o: ../test/catch.hpp
 CMakeFiles/Lectures.dir/test/test-main.cpp.o: ../test/test-main.cpp
 
