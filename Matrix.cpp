@@ -28,7 +28,18 @@ Matrix<T>::Matrix(int nrows, int ncols, std::string fileName) :
 rows(nrows), cols(ncols), size_of_values(nrows* ncols), preallocated(true)
 {
     std::ifstream myfile;
-    myfile.open(fileName);
+
+    // make sure file can be opened
+    try
+    {
+        myfile.open(fileName);
+    }
+    // throw error if file cannot be found
+    catch (std::system_error& e)
+    {
+        throw std::invalid_argument(fileName + " not found in. Please check you have access to it");
+    }
+
     this->values = new T[this->size_of_values];
     // initialize values to 0
     for (int i = 0; i < rows; i++)
@@ -106,9 +117,9 @@ void Matrix<T>::makeRandomDD()
         for (int j = 0; j < this->cols; j++)
         {
             this->values[i * this->cols + j] = rand() % 100;
+            if (i == j)
+                this->values[i * this->cols + j] += 100*this->col; // max number in any cell is 100, there are this->col other cells
         }
-        if (i == j)
-            this->values[i * this->cols + j] += 100*this->col; // max number in any cell is 100, there are this->col other cells
     }
 }
 
