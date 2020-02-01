@@ -83,22 +83,9 @@ CMakeFiles/Lectures.dir/test/test.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Lectures.dir/test/test.cpp.s"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/test.cpp -o CMakeFiles/Lectures.dir/test/test.cpp.s
 
-CMakeFiles/Lectures.dir/test/test-main.cpp.o: CMakeFiles/Lectures.dir/flags.make
-CMakeFiles/Lectures.dir/test/test-main.cpp.o: ../test/test-main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Lectures.dir/test/test-main.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Lectures.dir/test/test-main.cpp.o -c /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/test-main.cpp
-
-CMakeFiles/Lectures.dir/test/test-main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Lectures.dir/test/test-main.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/test-main.cpp > CMakeFiles/Lectures.dir/test/test-main.cpp.i
-
-CMakeFiles/Lectures.dir/test/test-main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Lectures.dir/test/test-main.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/test-main.cpp -o CMakeFiles/Lectures.dir/test/test-main.cpp.s
-
 CMakeFiles/Lectures.dir/CSRMatrix.cpp.o: CMakeFiles/Lectures.dir/flags.make
 CMakeFiles/Lectures.dir/CSRMatrix.cpp.o: ../CSRMatrix.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Lectures.dir/CSRMatrix.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Lectures.dir/CSRMatrix.cpp.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Lectures.dir/CSRMatrix.cpp.o -c /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.cpp
 
 CMakeFiles/Lectures.dir/CSRMatrix.cpp.i: cmake_force
@@ -109,20 +96,33 @@ CMakeFiles/Lectures.dir/CSRMatrix.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Lectures.dir/CSRMatrix.cpp.s"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.cpp -o CMakeFiles/Lectures.dir/CSRMatrix.cpp.s
 
+CMakeFiles/Lectures.dir/main.cpp.o: CMakeFiles/Lectures.dir/flags.make
+CMakeFiles/Lectures.dir/main.cpp.o: ../main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Lectures.dir/main.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Lectures.dir/main.cpp.o -c /Users/fazi/Desktop/acse-5-assignment-unique-pointers/main.cpp
+
+CMakeFiles/Lectures.dir/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Lectures.dir/main.cpp.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/fazi/Desktop/acse-5-assignment-unique-pointers/main.cpp > CMakeFiles/Lectures.dir/main.cpp.i
+
+CMakeFiles/Lectures.dir/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Lectures.dir/main.cpp.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fazi/Desktop/acse-5-assignment-unique-pointers/main.cpp -o CMakeFiles/Lectures.dir/main.cpp.s
+
 # Object files for target Lectures
 Lectures_OBJECTS = \
 "CMakeFiles/Lectures.dir/Matrix.cpp.o" \
 "CMakeFiles/Lectures.dir/test/test.cpp.o" \
-"CMakeFiles/Lectures.dir/test/test-main.cpp.o" \
-"CMakeFiles/Lectures.dir/CSRMatrix.cpp.o"
+"CMakeFiles/Lectures.dir/CSRMatrix.cpp.o" \
+"CMakeFiles/Lectures.dir/main.cpp.o"
 
 # External object files for target Lectures
 Lectures_EXTERNAL_OBJECTS =
 
 Lectures: CMakeFiles/Lectures.dir/Matrix.cpp.o
 Lectures: CMakeFiles/Lectures.dir/test/test.cpp.o
-Lectures: CMakeFiles/Lectures.dir/test/test-main.cpp.o
 Lectures: CMakeFiles/Lectures.dir/CSRMatrix.cpp.o
+Lectures: CMakeFiles/Lectures.dir/main.cpp.o
 Lectures: CMakeFiles/Lectures.dir/build.make
 Lectures: CMakeFiles/Lectures.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable Lectures"

@@ -111,17 +111,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named Lectures
+# Target rules for targets named Assignment
 
 # Build rule for target.
-Lectures: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 Lectures
-.PHONY : Lectures
+Assignment: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Assignment
+.PHONY : Assignment
 
 # fast build rule for target.
-Lectures/fast:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/build
-.PHONY : Lectures/fast
+Assignment/fast:
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/build
+.PHONY : Assignment/fast
 
 CSRMatrix.o: CSRMatrix.cpp.o
 
@@ -129,7 +129,7 @@ CSRMatrix.o: CSRMatrix.cpp.o
 
 # target to build an object file
 CSRMatrix.cpp.o:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/CSRMatrix.cpp.o
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/CSRMatrix.cpp.o
 .PHONY : CSRMatrix.cpp.o
 
 CSRMatrix.i: CSRMatrix.cpp.i
@@ -138,7 +138,7 @@ CSRMatrix.i: CSRMatrix.cpp.i
 
 # target to preprocess a source file
 CSRMatrix.cpp.i:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/CSRMatrix.cpp.i
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/CSRMatrix.cpp.i
 .PHONY : CSRMatrix.cpp.i
 
 CSRMatrix.s: CSRMatrix.cpp.s
@@ -147,7 +147,7 @@ CSRMatrix.s: CSRMatrix.cpp.s
 
 # target to generate assembly for a file
 CSRMatrix.cpp.s:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/CSRMatrix.cpp.s
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/CSRMatrix.cpp.s
 .PHONY : CSRMatrix.cpp.s
 
 Matrix.o: Matrix.cpp.o
@@ -156,7 +156,7 @@ Matrix.o: Matrix.cpp.o
 
 # target to build an object file
 Matrix.cpp.o:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/Matrix.cpp.o
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/Matrix.cpp.o
 .PHONY : Matrix.cpp.o
 
 Matrix.i: Matrix.cpp.i
@@ -165,7 +165,7 @@ Matrix.i: Matrix.cpp.i
 
 # target to preprocess a source file
 Matrix.cpp.i:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/Matrix.cpp.i
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/Matrix.cpp.i
 .PHONY : Matrix.cpp.i
 
 Matrix.s: Matrix.cpp.s
@@ -174,35 +174,35 @@ Matrix.s: Matrix.cpp.s
 
 # target to generate assembly for a file
 Matrix.cpp.s:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/Matrix.cpp.s
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/Matrix.cpp.s
 .PHONY : Matrix.cpp.s
 
-test/test-main.o: test/test-main.cpp.o
+main.o: main.cpp.o
 
-.PHONY : test/test-main.o
+.PHONY : main.o
 
 # target to build an object file
-test/test-main.cpp.o:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/test/test-main.cpp.o
-.PHONY : test/test-main.cpp.o
+main.cpp.o:
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/main.cpp.o
+.PHONY : main.cpp.o
 
-test/test-main.i: test/test-main.cpp.i
+main.i: main.cpp.i
 
-.PHONY : test/test-main.i
+.PHONY : main.i
 
 # target to preprocess a source file
-test/test-main.cpp.i:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/test/test-main.cpp.i
-.PHONY : test/test-main.cpp.i
+main.cpp.i:
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/main.cpp.i
+.PHONY : main.cpp.i
 
-test/test-main.s: test/test-main.cpp.s
+main.s: main.cpp.s
 
-.PHONY : test/test-main.s
+.PHONY : main.s
 
 # target to generate assembly for a file
-test/test-main.cpp.s:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/test/test-main.cpp.s
-.PHONY : test/test-main.cpp.s
+main.cpp.s:
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/main.cpp.s
+.PHONY : main.cpp.s
 
 test/test.o: test/test.cpp.o
 
@@ -210,7 +210,7 @@ test/test.o: test/test.cpp.o
 
 # target to build an object file
 test/test.cpp.o:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/test/test.cpp.o
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/test/test.cpp.o
 .PHONY : test/test.cpp.o
 
 test/test.i: test/test.cpp.i
@@ -219,7 +219,7 @@ test/test.i: test/test.cpp.i
 
 # target to preprocess a source file
 test/test.cpp.i:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/test/test.cpp.i
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/test/test.cpp.i
 .PHONY : test/test.cpp.i
 
 test/test.s: test/test.cpp.s
@@ -228,7 +228,7 @@ test/test.s: test/test.cpp.s
 
 # target to generate assembly for a file
 test/test.cpp.s:
-	$(MAKE) -f CMakeFiles/Lectures.dir/build.make CMakeFiles/Lectures.dir/test/test.cpp.s
+	$(MAKE) -f CMakeFiles/Assignment.dir/build.make CMakeFiles/Assignment.dir/test/test.cpp.s
 .PHONY : test/test.cpp.s
 
 # Help Target
@@ -239,16 +239,16 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... Lectures"
+	@echo "... Assignment"
 	@echo "... CSRMatrix.o"
 	@echo "... CSRMatrix.i"
 	@echo "... CSRMatrix.s"
 	@echo "... Matrix.o"
 	@echo "... Matrix.i"
 	@echo "... Matrix.s"
-	@echo "... test/test-main.o"
-	@echo "... test/test-main.i"
-	@echo "... test/test-main.s"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 	@echo "... test/test.o"
 	@echo "... test/test.i"
 	@echo "... test/test.s"

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(Lectures)
+project(Assignment)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -11,7 +11,6 @@ endif()
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -S")
 
-#add_executable(Lectures main.cpp Matrix.cpp Matrix.h)
-#add_executable(Lectures Matrix.cpp Matrix.h lecture/main_daxpy.cpp lecture/main_daxpy.h main.cpp)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 
-add_executable(Lectures Matrix.cpp Matrix.h test/test.cpp test/test-main.cpp CSRMatrix.cpp CSRMatrix.h utilities.h)
+add_executable(Assignment Matrix.cpp Matrix.h test/test.cpp  CSRMatrix.cpp CSRMatrix.h utilities.h main.cpp)

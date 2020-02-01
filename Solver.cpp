@@ -13,7 +13,7 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
     // set the initial x values to our initial guess
     x_var_prev->setMatrix(b->size(), initial_guess);
 
-    // create a vector to hold the estimated right hand side - smart pointer as only used inside this scope
+    // create a vector to hold the estimated right hand side - smart pointer as only used inside LHS scope
     std::unique_ptr< Matrix<T> > estimated_rhs(LHS->matMatMult(*x_var_prev));
 
     // initialize residual which will be used to determine ending position
@@ -141,7 +141,7 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
     auto lower_tri = new Matrix<T>(LHS->rows, LHS->cols, true);
     auto permutation = new Matrix<T>(LHS->rows, LHS->cols, true);
 
-    // construct LU decomposition of the LHS matrix - this gives us the permutation
+    // construct LU decomposition of the LHS matrix - LHS gives us the permutation
     Solver<T>::luDecompositionPivot(LHS, upper_tri, lower_tri, permutation);
 
     // transpose the permutation matrix
@@ -170,7 +170,6 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b) {
 template<class T>
 Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
-
     // variable to keep track of the iterations
     int iteration = 0;
 
@@ -181,7 +180,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
 
     // intialize x values to 0
     auto x = new Matrix<T>(b->rows, b->cols, true);
-//    x->setMatrix(b->rows, initial_guess);
+    x->setMatrix(b->rows, initial_guess);
 
     // workout Ax initially
     std::unique_ptr< Matrix<T> > Ax(LHS->matMatMult(*x));
@@ -567,25 +566,29 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
 
 
 template<class T>
-Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>& b, double epsilon, int max_iterations)
+Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
-    int k = 0;
-    T beta = 1;
+    // variable to keep track of the iterations
+    int iteration = 0;
+
+    // algorithm specific variables - initialize all of them to 1
+    double beta = 1;
     double alpha = 1;
-    T delta_old = 1;
+    double delta_old = 1;
 
     // intialize to x to 0
-    auto x = new Matrix<T>(b.rows, b.cols, true);
+    auto x = new Matrix<T>(b->rows, b->cols, true);
+    x->setMatrix(b->rows, initial_guess);
 
-    // workout Ax
-    auto Ax = LHS->matVecMult(*x);
+    // workout Ax initially
+    std::unique_ptr< Matrix<T> > Ax(LHS->matVectMult(*x));
 
     // r = b - Ax
-    auto r = new Matrix<T>(b.rows, b.cols, true);
+    auto r = new Matrix<T>(b->rows, b->cols, true);
 
-    for (int i = 0; i < r->rows * r->cols; i++)
+    for (int i = 0; i < r->size(); i++)
     {
-        r->values[i] = b.values[i] - Ax->values[i];
+        r->values[i] = b->values[i] - Ax->values[i];
     }
 
     auto p = new Matrix<T>(r->rows, r->cols, true);
@@ -593,9 +596,9 @@ Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>& b, double 
 
     double delta = r->innerVectorProduct(*r);
 
-    while (k < max_iterations && (sqrt(delta) > epsilon* sqrt(b.innerVectorProduct(b))))
+    while (iteration < max_iterations && (sqrt(delta) > epsilon* sqrt(b->innerVectorProduct(*b))))
     {
-        if (k == 1)
+        if (iteration == 0)
         {
             // p = r
             for (int i = 0; i < p->rows * p->cols; i++)
@@ -642,13 +645,127 @@ Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>& b, double 
         delta = r->innerVectorProduct(*r);
 
         delete Ap;
-        k++;
+        iteration++;
     }
 
-    delete Ax;
     delete r;
     delete p;
     delete w;
 
     return x;
+}
+
+template <class T>
+bool Solver<T>::check_finish(CSRMatrix<T>* LHS, Matrix<T>* mat_b, Matrix<T>* output)
+{
+    T tol = 0.00001;
+    T* cal_out = new T[LHS->rows];
+    T res = 0;
+
+    for (int i = 0; i < LHS->rows; i++)
+    {
+        cal_out[i] = 0;
+        for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
+        {
+            cal_out[i] += LHS->values[val_index] * output->values[LHS->col_index[val_index]];
+        }
+        res += abs(mat_b->values[i] - cal_out[i]);
+    }
+
+    delete[] cal_out;
+    if ((res / LHS->rows) < tol)
+        return true;
+    else
+        return false;
+}
+
+
+template <class T>
+Matrix<T>* Solver<T>::solveGaussSeidel(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
+    Matrix<T>* output = new Matrix<T>(LHS->cols, 1, true);
+    for (int i = 0; i < LHS->cols; i++)
+    {
+        output->values[i] = 0.0;
+    }
+
+    T temp;
+    T* diag_ele = new T[LHS->cols];
+
+    int it_max = 10;
+
+    //find diagonal elements
+    for (int i = 0; i < LHS->rows; i++)
+    {
+        for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
+        {
+            if (i == LHS->col_index[val_index])
+            {
+                diag_ele[i] = LHS->values[val_index];
+            }
+        }
+    }
+
+
+    for (int k = 0; k < it_max; k++)//count for iterations, k times maximium
+    {
+        for (int i = 0; i < LHS->rows; i++) {
+            temp = mat_b->values[i];
+            for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++) {
+                if (i == LHS->col_index[val_index]) continue;
+                temp = temp - LHS->values[val_index] * output->values[LHS->col_index[val_index]];
+            }
+            output->values[i] = temp / diag_ele[i];
+        }
+        if (Solver<T>::check_finish(LHS, mat_b, output)) break;
+    }
+
+    delete[] diag_ele;
+    return output;
+}
+
+template <class T>
+Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
+    Matrix<T>* output = new Matrix<T>(LHS->cols, 1, true);
+    T* temp = new T[LHS->rows];
+    for (int i = 0; i < LHS->rows; i++)
+    {
+        output->values[i] = 0.0;
+    }
+
+    T* diagonal = new T[LHS->rows];
+
+    int iteration = 10;
+
+    //find diagonal elements
+    for (int i = 0; i < LHS->rows; i++)
+    {
+        for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
+        {
+            if (i == LHS->col_index[val_index])
+            {
+                diagonal[i] = LHS->values[val_index];
+            }
+        }
+    }
+
+    for (int k = 0; k < iteration; k++) //count for iterations, 10 times maximium
+    {
+        for (int i = 0; i < LHS->rows; i++)
+        {
+            temp[i] = mat_b->values[i];
+            for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
+            {
+                if (i == LHS->col_index[val_index]) continue;
+                temp[i] = temp[i] - LHS->values[val_index] * output->values[LHS->col_index[val_index]];
+            }
+            temp[i] = temp[i] / diagonal[i];
+        }
+        for (int i = 0; i < LHS->rows; i++) output->values[i] = temp[i];
+        if (Solver<T>::check_finish(LHS, mat_b, output)) break;
+    }
+
+    delete[] temp;
+
+    delete[] diagonal;
+    return output;
 }
