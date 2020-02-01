@@ -23,6 +23,11 @@ public:
     // set value of element at a certain position to the value
     void setValue(int row_index, int col_index, T value);
 
+    // make random matrix
+    void makeRandom();
+    void makeRandomSPD();
+    void makeRandomDD();
+
     // set all the values of the matrix
     virtual void setMatrix(int length, T *values_ptr);
 

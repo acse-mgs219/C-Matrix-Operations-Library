@@ -66,6 +66,53 @@ void Matrix<T>::setValue(int row_index, int col_index, T value)
 }
 
 template <class T>
+void Matrix<T>::makeRandom()
+{
+    for (int i = 0; i < this->rows; i++)
+    {
+        for (int j = 0; j < this->cols; j++)
+        {
+            this->values[i * this->cols + j] = rand() % 100;
+        }
+    }
+}
+
+template <class T>
+void Matrix<T>::makeRandomSPD()
+{
+    // Makes this into a lower triangular matrix
+    for (int i = 0; i < this->rows; i++)
+    {
+        for (int j = 0; j <= i; j++)
+        {
+            this->values[i * this->cols + j] = rand() % 100 + 1; // make sure no value on the diagonal is 0
+        }
+
+        for (int j = i+1; j < this->cols; j++)
+        {
+            this->values[i * this->cols + j] = 0;
+        }
+    }
+
+    // L * L' is always SPD if all values on L's diagonal are strictly positive
+    this = this->matMatMult(this);
+}
+
+template <class T>
+void Matrix<T>::makeRandomDD()
+{
+    for (int i = 0; i < this->rows; i++)
+    {
+        for (int j = 0; j < this->cols; j++)
+        {
+            this->values[i * this->cols + j] = rand() % 100;
+        }
+        if (i == j)
+            this->values[i * this->cols + j] += 100*this->col; // max number in any cell is 100, there are this->col other cells
+    }
+}
+
+template <class T>
 void Matrix<T>::setMatrix(int length, T *values_ptr)
 {
     // trying to set the matrix with wrong size inputs
