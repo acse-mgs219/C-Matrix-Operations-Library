@@ -85,19 +85,19 @@ This function swaps two certain rows of the input matrix.
 void transpose()
 ```
 
-This function gives a transposed matrix.
+This function transposes a matrix in place.
 
 ```c++
 void getValue(int row_index, int col_index)
 ```
 
-This function print the  values of matrix.
+This function returns A[i][j] for a matrix A
 
 ```c++
 void innerVectorProduct(Matrix<T> &mat_right)
 ```
 
-This function computes the inner vector product of matices.
+This function computes the inner vector product of matrices.
 
 #### Sparse matrices
 
@@ -123,13 +123,13 @@ This function compute matix-matrix product in sparse format.
 CSRMatrix<T>* matMatMultSymbolic(CSRMatrix<T>& mat_right, std::vector< std::pair< std::pair<int, int>, T> >& result)
 ```
 
-This function compute matix-matrix symbolic product in sparse format.
+This function compute matix-matrix symbolic product in sparse format. It finds the locations of non-zeros.
 
 ```c++
 void matMatMultNumeric(CSRMatrix<T>* symbolic_res, std::vector< std::pair< std::pair<int, int>, T> >& result)
 ```
 
-This function compute matix-matrix numerical product in sparse format.
+This function compute matix-matrix numerical product in sparse format. It takes the output of matMatMultSymbolic and finds the value of non-zeros
 
 ```c++
 void setMatrix(T* values_ptr, int iA[], int jA[])
