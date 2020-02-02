@@ -46,6 +46,19 @@ void makeRandomDD()
 This function generates a random diagonally donminant matrix.
 
 ```c++
+void makeRandomSPD()
+```
+
+This function generates a random SPD matrix that is also DD, thus it satisfies the stability conditions of all solvers.
+
+
+```c++
+void makeRandomSparseSPD()
+```
+
+Same as the above but a lot of the values are zero (never on the diagonal though) so that performance boosts from using sparse storage format can be observed.
+
+```c++
 void setMatrix(int length, T *values_ptr)
 ```
 
