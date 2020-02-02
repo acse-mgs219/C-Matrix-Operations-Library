@@ -108,7 +108,7 @@ void CSRMatrix<T>::printMatrix()
 // Do a matrix-vector product
 // output = this * input
 template<class T>
-Matrix<T>* CSRMatrix<T>::matVecMult(Matrix<T>& b)
+Matrix<T>* CSRMatrix<T>::matVectMult(Matrix<T>& b)
 {
     if (b.cols != 1)
     {

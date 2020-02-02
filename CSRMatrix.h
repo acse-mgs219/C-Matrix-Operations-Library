@@ -33,7 +33,7 @@ public:
     void matMatMultNumeric(CSRMatrix<T>* symbolic_res, std::vector< std::pair< std::pair<int, int>, T> >& result);
 
     // Perform some operations with our matrix
-    Matrix<T>* matVecMult(Matrix<T>& vector);
+    Matrix<T>* matVectMult(Matrix<T>& vector);
 
     void sort_mat(Matrix<T>* rhs);
     void find_unique_p(std::vector<bool> check_list, std::vector<int>& unique_list);

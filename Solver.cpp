@@ -1,18 +1,21 @@
 #include "Matrix.h"
 #include "Solver.h"
+
 #include <time.h>
-
-
 
 /////// DENSE MATRIX SOLVERS ///////
 template <class T>
 Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T initial_guess[], bool sortMatrix)
 {
+    /* Solves LHS * x = b for cases where LHS is strictly diagonally dominant */
 #ifdef PERFORMANCE_INFO
     clock_t tStart = clock();
 #endif
+
+    // User can choose to sort input matrix to help make it Diagonally Dominant (Warning: Experimental feature! Recommended off!)
     if (sortMatrix)
         LHS->sort_mat(b);
+
     if (initial_guess == nullptr)
     {
         // If the user has not provided an initial guess, use b as initial guess
@@ -24,7 +27,7 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
     auto x_var = new Matrix<T>(b->rows, b->cols, true); // return at end of function
 
     // create a vector to hold the previous values of the x values we iterate over
-    std::unique_ptr< Matrix<T> > x_var_prev(new Matrix<T>(b->rows, b->cols, true));
+    std::unique_ptr< Matrix<T> > x_var_prev(new Matrix<T>(b->rows, b->cols, true)); // unique pointer because it will never be used outside here
 
     // set the initial x values to our initial guess
     x_var_prev->setMatrix(b->size(), initial_guess);
@@ -33,7 +36,7 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
     std::unique_ptr< Matrix<T> > estimated_rhs(LHS->matMatMult(*x_var_prev));
 
     // initialize residual which will be used to determine ending position
-    double residual = tolerance * 2;
+    double residual = tolerance * 2; // initialize to anything > tolerance so that we go into the while loop
 
     // create a variable to hold the sum of row into columns
     std::unique_ptr<double[]> sum(new double[LHS->cols]);
@@ -50,6 +53,7 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
             sum[i] = 0;
             for (int j = 0; j < LHS->cols; j++)
             {
+                // because we are essentially rearranging the equation, only calculate the sum if not the same variable
                 if (i != j)
                 {
                     sum[i] += LHS->values[i * LHS->cols + j] * x_var_prev->values[j];
@@ -66,6 +70,8 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
 
         // reset the residual so we can calculate for the current iterative step only
         residual = 0;
+
+        // calculate the estimated rhs with our current answer to compare with b
         estimated_rhs.reset(LHS->matMatMult(*x_var));
 
         // check residual against the tolerance
@@ -93,8 +99,11 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
 #ifdef PERFORMANCE_INFO
     clock_t tStart = clock();
 #endif
+
+    // User can choose to sort input matrix to help make it Diagonally Dominant (Warning: Experimental feature! Recommended off!)
     if (sortMatrix)
         LHS->sort_mat(b);
+
     if (initial_guess == nullptr)
     {
         // If the user has not provided an initial guess, use b as initial guess
@@ -236,7 +245,7 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b)
 }
 
 template<class T>
-Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
+Matrix<T>* Solver<T>::solveConjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
 #ifdef PERFORMANCE_INFO
     clock_t tStart = clock();
@@ -259,17 +268,17 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     double delta_old = 1;
 
     // intialize x values to 0
-    auto x = new Matrix<T>(b->rows, b->cols, true);         // return at end of function
+    auto x = new Matrix<T>(b->rows, b->cols, true);   // return at end of function
     x->setMatrix(b->rows, initial_guess);
 
-    Matrix<T> *Ax;
+    Matrix<T>* Ax;
 
 #if defined(USE_BLAS)
     /*======================================
      * Take advantage of BLAS level 2 mat vect mult routine
      *======================================*/
     Ax = new Matrix<T>(LHS->rows, x->cols, true);
-    cblas_dgemv(CblasRowMajor, CblasNoTrans, LHS->rows, LHS->cols, 1, (double *) LHS->values, LHS->rows, (double *) b->values, 1, 1, (double *) x->values, 1);
+    cblas_dgemv(CblasRowMajor, CblasNoTrans, LHS->rows, LHS->cols, 1, (double*)LHS->values, LHS->rows, (double*)x->values, 1, 1, (double*)Ax->values, 1);
 #else
     /*======================================
      * Implementation without making use of the BLAS call
@@ -297,11 +306,11 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     /*======================================
      * BLAS level 1 call to work out the inner vector product (dot product)
      ======================================*/
-    // calculate the new value of the magnitude of the residual squared
-    delta = cblas_ddot(r->size(), (double *) (r->values), 1, (double *) r->values, 1);
+     // calculate the new value of the magnitude of the residual squared
+    delta = cblas_ddot(r->size(), (double*)(r->values), 1, (double*)r->values, 1);
 
     // convert absolute tolerance to relative tolerance
-    double absolute_tol = epsilon / sqrt(cblas_ddot(b->size(), (double *) (b->values), 1, (double *) b->values, 1));
+    absolute_tol = epsilon / sqrt(cblas_ddot(b->size(), (double*)(b->values), 1, (double*)b->values, 1));
 #else
     // calculate delta parameter which is the result of the inner product of r with itself
     delta = r->innerVectorProduct(*r);
@@ -320,7 +329,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
             /*====================================
              * use low level BLAS routine to quickly copy over desired values to where matrix/vector.
             ==================================== */
-            cblas_dcopy(p->size(), (double *) r->values, 1, (double *) p->values, 1);
+            cblas_dcopy(p->size(), (double*)r->values, 1, (double*)p->values, 1);
 #else
             for (int i = 0; i < p->size(); i++)
             {
@@ -340,7 +349,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
             }
         }
 
-        Matrix<T> *Ap;
+        Matrix<T>* Ap;
 
 #if defined(USE_BLAS)
         /*======================================
@@ -348,15 +357,11 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
         * ======================================*/
         Ap = new Matrix<T>(LHS->rows, p->cols, true);
 
-        cblas_dgemv(CblasRowMajor, CblasNoTrans, LHS->rows, LHS->cols, 1, (double *) LHS->values, LHS->rows, (double *) b->values, 1, 1, (double *) Ap->values, 1);
+        cblas_dgemv(CblasRowMajor, CblasNoTrans, LHS->rows, LHS->cols, 1, (double*)LHS->values, LHS->rows, (double*)p->values, 1, 1, (double*)Ap->values, 1);
 
-        cblas_dcopy(w->size(), (double *) Ap, 1, (double *) w->values, 1);
+        cblas_dcopy(w->size(), (double*)Ap->values, 1, (double*)w->values, 1);
 
-        alpha = delta / cblas_ddot(p->size(), (double *) (p->values), 1, (double *) w->values, 1);
-
-        cblas_daxpy(x->size(), (double) alpha, (double *) x->values, 1, (double *) x->values, 1);
-
-        cblas_daxpy(r->size(), (double) -alpha, (double *) w->values, 1, (double *) r->values, 1);
+        alpha = delta / cblas_ddot(p->size(), (double*)(p->values), 1, (double*)w->values, 1);
 #else
         Ap = LHS->matMatMult(*p);
 
@@ -368,7 +373,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
 
         // update the alpha value based on delta and the inner product of p and w
         alpha = delta / p->innerVectorProduct(*w);
-
+#endif
         // set x = x + alpha * p for this iteration
         for (int i = 0; i < x->size(); i++)
         {
@@ -380,7 +385,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
         {
             r->values[i] = r->values[i] - alpha * w->values[i];
         }
-#endif
+
         // update both delta and delta_old for this iteration
         delta_old = delta;
 
@@ -388,7 +393,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
         /*======================================
         * BLAS level 1 call to work out the inner vector product (dot product)
         ======================================*/
-        delta = cblas_ddot(r->size(), (double *) (r->values), 1, (double *) r->values, 1);
+        delta = cblas_ddot(r->size(), (double*)(r->values), 1, (double*)r->values, 1);
 #else
         // calculate delta parameter which is the result of the inner product of r with itself
         delta = r->innerVectorProduct(*r);
@@ -407,13 +412,241 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     return x;
 }
 
+/////// SPARSE MATRIX SOLVERS ///////
+
+template<class T>
+Matrix<T>* Solver<T>::solveConjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
+{
+#ifdef PERFORMANCE_INFO
+    clock_t tStart = clock();
+#endif
+    bool toDelete = false;
+    if (initial_guess == nullptr)
+    {
+        toDelete = true; // we allocated memory on the heap, we need to delete it.
+        // If the user has not provided an initial guess, use 0s as initial guess as the pseudo-code for the algorithm states
+        initial_guess = new T[b->size()];
+        std::fill_n(initial_guess, b->size(), 0);
+    }
+
+    // variable to keep track of the iterations
+    int iteration = 0;
+
+    // algorithm specific variables - initialize all of them to 1
+    double beta = 1;
+    double alpha = 1;
+    double delta_old = 1;
+
+    // intialize to x to 0
+    auto x = new Matrix<T>(b->rows, b->cols, true);             // return at end of function
+    x->setMatrix(b->rows, initial_guess);
+
+    // workout Ax initially
+    std::unique_ptr< Matrix<T> > Ax(LHS->matVectMult(*x));
+
+    // set the residual to  r = b - Ax initially
+    std::unique_ptr< Matrix<T> > r(new Matrix<T>(b->rows, b->cols, true));
+    for (int i = 0; i < r->size(); i++)
+    {
+        r->values[i] = b->values[i] - Ax->values[i];
+    }
+
+    // create some space for p and w matrices used in the iterations
+    std::unique_ptr< Matrix<T> > p(new Matrix<T>(r->rows, r->cols, true));
+    std::unique_ptr< Matrix<T> > w(new Matrix<T>(r->rows, r->cols, true));
+
+    // set delta to the inner product of r with itself
+    double delta = r->innerVectorProduct(*r);
+
+    // iterate until we hit the convergence criteria or max iterations
+    while (iteration < max_iterations && (sqrt(delta) > epsilon* sqrt(b->innerVectorProduct(*b))))
+    {
+        // for the first iterations set p = r
+        if (iteration == 0)
+        {
+            // p = r
+            for (int i = 0; i < p->rows * p->cols; i++)
+            {
+                p->values[i] = r->values[i];
+            }
+        }
+        // for all the other iterations
+        else {
+            // update beta based on the delta values
+            beta = delta / delta_old;
+
+            // p = r + beta * p
+            for (int i = 0; i < p->rows * p->cols; i++)
+            {
+                p->values[i] = r->values[i] + beta * p->values[i];
+            }
+        }
+
+        auto Ap = LHS->matVectMult(*p);
+
+        // set w = Ap for this iteration
+        for (int i = 0; i < w->rows * w->cols; i++)
+        {
+            w->values[i] = Ap->values[i];
+        }
+
+        // update the alpha value based on delta and the inner product of p and w
+        alpha = delta / p->innerVectorProduct(*w);
+
+        // set x = x + alpha * p for this iteration
+        for (int i = 0; i < x->rows * x->cols; i++)
+        {
+            x->values[i] = x->values[i] + alpha * p->values[i];
+        }
+
+        // set r = r - alpha * w for this iteration
+        for (int i = 0; i < r->rows * r->cols; i++)
+        {
+            r->values[i] = r->values[i] - alpha * w->values[i];
+        }
+
+        // update both delta and delta_old for this iteration
+        delta_old = delta;
+        delta = r->innerVectorProduct(*r);
+
+        delete Ap;
+        iteration++;
+    }
+#ifdef PERFORMANCE_INFO
+    clock_t tEnd = clock();
+    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
+    std::cout << "Completed in " << time << " ms and " << iteration << " iterations.\n";
+#endif
+
+    if (toDelete) delete initial_guess; // if we were the ones to set this up, delete it
+    return x;
+}
+
+template <class T>
+Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b, double tolerance, int max_iterations, bool sortMatrix)
+{
+#ifdef PERFORMANCE_INFO
+    clock_t tStart = clock();
+#endif
+
+    // User can choose to sort input matrix to help make it Diagonally Dominant (Warning: Experimental feature! Recommended off!)
+    if (sortMatrix)
+        LHS->sort_mat(mat_b);
+
+    Matrix<T>* output = new Matrix<T>(LHS->cols, 1, true); // allocate space for the output matrix (will be returned as a pointer)
+
+    T* temp = new T[LHS->rows];
+
+    // used to store the diagonal values
+    T* diagonal = new T[LHS->rows];
+
+    int it_max = max_iterations;
+
+    //find diagonal elements
+    for (int i = 0; i < LHS->rows; i++)
+    {
+        for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
+        {
+            if (i == LHS->col_index[val_index])
+            {
+                diagonal[i] = LHS->values[val_index];
+            }
+        }
+    }
+
+    int iterations = 0;
+
+    for (; iterations < it_max; iterations++) // Make sure we eventually stop if not converging
+    {
+        for (int i = 0; i < LHS->rows; i++)
+        {
+            temp[i] = mat_b->values[i];
+            for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
+            {
+                // Would mean i == j; because we are essentially rearranging the equation, only calculate the sum if not the same variable
+                if (i == LHS->col_index[val_index]) continue;
+                temp[i] = temp[i] - LHS->values[val_index] * output->values[LHS->col_index[val_index]];
+            }
+            temp[i] = temp[i] / diagonal[i];
+        }
+        for (int i = 0; i < LHS->rows; i++) output->values[i] = temp[i];
+        if (Solver<T>::check_finish(LHS, mat_b, output, tolerance)) break; // check if we have converged (within tolerance limit)
+    }
+
+    delete[] temp;
+    delete[] diagonal;
+
+#ifdef PERFORMANCE_INFO
+    clock_t tEnd = clock();
+    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
+    std::cout << "Completed in " << time << " ms and " << iterations << " iterations.\n";
+#endif
+
+    return output;
+}
+
+template <class T>
+Matrix<T>* Solver<T>::solveGaussSeidel(CSRMatrix<T>* LHS, Matrix<T>* mat_b, double tolerance, int max_iterations, bool sortMatrix)
+{
+#ifdef PERFORMANCE_INFO
+    clock_t tStart = clock();
+#endif
+
+    // User can choose to sort input matrix to help make it Diagonally Dominant (Warning: Experimental feature! Recommended off!)
+    if (sortMatrix)
+        LHS->sort_mat(mat_b);
+
+    Matrix<T>* output = new Matrix<T>(LHS->cols, 1, true);// allocate space for the output matrix (will be returned as a pointer)
+
+    T temp;
+
+    // will store the diagonal elements
+    T* diag_ele = new T[LHS->cols];
+
+    int it_max = max_iterations;
+
+    // find diagonal elements
+    for (int i = 0; i < LHS->rows; i++)
+    {
+        for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
+        {
+            if (i == LHS->col_index[val_index])
+            {
+                diag_ele[i] = LHS->values[val_index];
+            }
+        }
+    }
+
+    int iterations = 0;
+    for (; iterations < it_max; iterations++) // Make sure we do not iterate more than the user allowed us to
+    {
+        for (int i = 0; i < LHS->rows; i++) {
+            temp = mat_b->values[i];
+            for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++) {
+                if (i == LHS->col_index[val_index]) continue;
+                temp = temp - LHS->values[val_index] * output->values[LHS->col_index[val_index]];
+            }
+            output->values[i] = temp / diag_ele[i];
+        }
+        if (Solver<T>::check_finish(LHS, mat_b, output, tolerance)) break;
+    }
+
+    delete[] diag_ele;
+#ifdef PERFORMANCE_INFO
+    clock_t tEnd = clock();
+    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
+    std::cout << "Completed in " << time << " ms and " << iterations << " iterations.\n";
+#endif
+    return output;
+}
+
 template<class T>
 void Solver<T>::luDecomposition(Matrix<T>* LHS, Matrix<T>* upper_tri, Matrix<T>* lower_tri)
 {
     // make sure the matrix is square
     if (LHS->cols != LHS->rows)
     {
-        throw std::invalid_argument("input has wrong number dimensions");
+        throw std::invalid_argument("Input matrix must be square!");
     }
 
     // intialize the scaling factor s to -1
@@ -460,7 +693,7 @@ void Solver<T>::luDecompositionPivot(Matrix<T>* LHS, Matrix<T>* upper_tri, Matri
     // make sure the matrix is square
     if (LHS->cols != LHS->rows)
     {
-        throw std::invalid_argument("input has wrong number dimensions");
+        throw std::invalid_argument("Input matrix must be square!");
     }
 
     // variables to keep track of the index of the maximum value and the maximum value itself
@@ -536,13 +769,13 @@ void Solver<T>::upperTriangular(Matrix<T>* LHS, Matrix<T>* b)
     // check if A is square
     if (LHS->rows != LHS->cols)
     {
-        throw std::invalid_argument("A should be a square matrix!");
+        throw std::invalid_argument("Input matrix must be square!");
     }
 
     // check that the dimensions of A and b are compatible
     if (LHS->rows != b->size())
     {
-        throw std::invalid_argument("A and b dimensions dont match");
+        throw std::invalid_argument("The dimensions of A and b don't match!");
     }
 
     // s is the scaling factor to adjust a row. kmax keeeps track of the index of the maximum value; need for pivoting
@@ -591,13 +824,13 @@ Matrix<T>* Solver<T>::backSubstitution(Matrix<T>* LHS, Matrix<T>* b)
     // check if A is square
     if (LHS->rows != LHS->cols)
     {
-        throw std::invalid_argument("A should be a square matrix!");
+        throw std::invalid_argument("Input matrix must be square!");
     }
 
     // check that the dimensions of A and b are compatible
     if (LHS->rows != b->size())
     {
-        throw std::invalid_argument("A and b dimensions don't match");
+        throw std::invalid_argument("The dimensions of A and b don't match!");
     }
 
     // create an empty vector
@@ -631,13 +864,13 @@ Matrix<T>* Solver<T>::forwardSubstitution(Matrix<T>* LHS, Matrix<T>* b)
     // check if A is square
     if (LHS->rows != LHS->cols)
     {
-        throw std::invalid_argument("A should be a square matrix!");
+        throw std::invalid_argument("Input matrix must be square!");
     }
 
     // check that the dimensions of A and b are compatible
     if (LHS->rows != b->size())
     {
-        throw std::invalid_argument("A and b dimensions don't match");
+        throw std::invalid_argument("The dimensions of A and b don't match!");
     }
 
     // create an empty vector
@@ -721,230 +954,6 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
         }
     }
 }
-
-
-template<class T>
-Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
-{
-#ifdef PERFORMANCE_INFO
-    clock_t tStart = clock();
-#endif
-    if (initial_guess == nullptr)
-    {
-        // If the user has not provided an initial guess, use b as initial guess
-        // A rather arbitrary start point that has at least some relation to the output
-        initial_guess = b->values;
-    }
-
-    // variable to keep track of the iterations
-    int iteration = 0;
-
-    // algorithm specific variables - initialize all of them to 1
-    double beta = 1;
-    double alpha = 1;
-    double delta_old = 1;
-
-    // intialize to x to 0
-    auto x = new Matrix<T>(b->rows, b->cols, true);             // return at end of function
-    x->setMatrix(b->rows, initial_guess);
-
-    // workout Ax initially
-    std::unique_ptr< Matrix<T> > Ax(LHS->matVectMult(*x));
-
-    // set the residual to  r = b - Ax initially
-    std::unique_ptr< Matrix<T> > r(new Matrix<T>(b->rows, b->cols, true));
-    for (int i = 0; i < r->size(); i++)
-    {
-        r->values[i] = b->values[i] - Ax->values[i];
-    }
-
-    // create some space for p and w matrices used in the iterations
-    std::unique_ptr< Matrix<T> > p(new Matrix<T>(r->rows, r->cols, true));
-    std::unique_ptr< Matrix<T> > w(new Matrix<T>(r->rows, r->cols, true));
-
-    // set delta to the inner product of r with itself
-    double delta = r->innerVectorProduct(*r);
-
-    // iterate until we hit the convergence criteria or max iterations
-    while (iteration < max_iterations && (sqrt(delta) > epsilon * sqrt(b->innerVectorProduct(*b))))
-    {
-        // for the first iterations set p = r
-        if (iteration == 0)
-        {
-            // p = r
-            for (int i = 0; i < p->rows * p->cols; i++)
-            {
-                p->values[i] = r->values[i];
-            }
-        }
-            // for all the other iterations
-        else {
-            // update beta based on the delta values
-            beta = delta / delta_old;
-
-            // p = r + beta * p
-            for (int i = 0; i < p->rows * p->cols; i++)
-            {
-                p->values[i] = r->values[i] + beta * p->values[i];
-            }
-        }
-
-        auto Ap = LHS->matVecMult(*p);
-
-        // set w = Ap for this iteration
-        for (int i = 0; i < w->rows * w->cols; i++)
-        {
-            w->values[i] = Ap->values[i];
-        }
-
-        // update the alpha value based on delta and the inner product of p and w
-        alpha = delta / p->innerVectorProduct(*w);
-
-        // set x = x + alpha * p for this iteration
-        for (int i = 0; i < x->rows * x->cols; i++)
-        {
-            x->values[i] = x->values[i] + alpha * p->values[i];
-        }
-
-        // set r = r - alpha * w for this iteration
-        for (int i = 0; i < r->rows * r->cols; i++)
-        {
-            r->values[i] = r->values[i] - alpha * w->values[i];
-        }
-
-        // update both delta and delta_old for this iteration
-        delta_old = delta;
-        delta = r->innerVectorProduct(*r);
-
-        delete Ap;
-        iteration++;
-    }
-#ifdef PERFORMANCE_INFO
-    clock_t tEnd = clock();
-    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
-    std::cout << "Completed in " << time << " ms and " << iteration << " iterations.\n";
-#endif
-    return x;
-}
-
-
-
-/// SPARSE MATRIX FUNCTIONS
-
-template <class T>
-Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b, double tolerance, int max_iterations, bool sortMatrix)
-{
-#ifdef PERFORMANCE_INFO
-    clock_t tStart = clock();
-#endif
-    if (sortMatrix)
-        LHS->sort_mat(mat_b);
-    Matrix<T>* output = new Matrix<T>(LHS->cols, 1, true);
-    T* temp = new T[LHS->rows];
-    for (int i = 0; i < LHS->rows; i++)
-    {
-        output->values[i] = 0.0;
-    }
-
-    T* diagonal = new T[LHS->rows];
-
-    int it_max = max_iterations;
-
-    //find diagonal elements
-    for (int i = 0; i < LHS->rows; i++)
-    {
-        for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
-        {
-            if (i == LHS->col_index[val_index])
-            {
-                diagonal[i] = LHS->values[val_index];
-            }
-        }
-    }
-
-    int iterations = 0;
-
-    for (; iterations < it_max; iterations++)//count for iterations, 10 times maximium
-    {
-        for (int i = 0; i < LHS->rows; i++)
-        {
-            temp[i] = mat_b->values[i];
-            for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
-            {
-                if (i == LHS->col_index[val_index]) continue;
-                temp[i] = temp[i] - LHS->values[val_index] * output->values[LHS->col_index[val_index]];
-            }
-            temp[i] = temp[i] / diagonal[i];
-        }
-        for (int i = 0; i < LHS->rows; i++) output->values[i] = temp[i];
-        if (Solver<T>::check_finish(LHS, mat_b, output, tolerance)) break;
-    }
-
-    delete[] temp;
-    delete[] diagonal;
-
-#ifdef PERFORMANCE_INFO
-    clock_t tEnd = clock();
-    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
-    std::cout << "Completed in " << time << " ms and " << iterations << " iterations.\n";
-#endif
-    return output;
-}
-
-template <class T>
-Matrix<T>* Solver<T>::solveGaussSeidel(CSRMatrix<T>* LHS, Matrix<T>* mat_b, double tolerance, int max_iterations, bool sortMatrix)
-{
-#ifdef PERFORMANCE_INFO
-    clock_t tStart = clock();
-#endif
-    if (sortMatrix)
-        LHS->sort_mat(mat_b);
-    Matrix<T>* output = new Matrix<T>(LHS->cols, 1, true);
-    for (int i = 0; i < LHS->cols; i++)
-    {
-        output->values[i] = 0.0;
-    }
-
-    T temp;
-    T* diag_ele = new T[LHS->cols];
-
-    int it_max = max_iterations;
-
-    //find diagonal elements
-    for (int i = 0; i < LHS->rows; i++)
-    {
-        for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++)
-        {
-            if (i == LHS->col_index[val_index])
-            {
-                diag_ele[i] = LHS->values[val_index];
-            }
-        }
-    }
-
-    int iterations = 0;
-    for (; iterations < it_max; iterations++)//count for iterations, k times maximium
-    {
-        for (int i = 0; i < LHS->rows; i++) {
-            temp = mat_b->values[i];
-            for (int val_index = LHS->row_position[i]; val_index < LHS->row_position[i + 1]; val_index++) {
-                if (i == LHS->col_index[val_index]) continue;
-                temp = temp - LHS->values[val_index] * output->values[LHS->col_index[val_index]];
-            }
-            output->values[i] = temp / diag_ele[i];
-        }
-        if (Solver<T>::check_finish(LHS, mat_b, output, tolerance)) break;
-    }
-
-    delete[] diag_ele;
-#ifdef PERFORMANCE_INFO
-    clock_t tEnd = clock();
-    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
-    std::cout << "Completed in " << time << " ms and " << iterations << " iterations.\n";
-#endif
-    return output;
-}
-
 
 template <class T>
 bool Solver<T>::check_finish(CSRMatrix<T>* LHS, Matrix<T>* mat_b, Matrix<T>* output, double tolerance)

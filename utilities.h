@@ -5,13 +5,6 @@
 //#define USE_BLAS
 #define PERFORMANCE_INFO
 
-// a function to compare two numbers within a given tolerance
-bool fEqual(double a, double b, double tolerance)
-{
-
-    return fabs(a - b) < tolerance;
-}
-
 template <class T>
 bool hasConverged(T approximate[], T real[], int length, double tolerance)
 {

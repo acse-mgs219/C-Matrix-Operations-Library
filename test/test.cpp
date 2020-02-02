@@ -9,6 +9,13 @@
 #include "../Solver.cpp"
 #include <fstream>
 
+// a function to compare two numbers within a given tolerance
+bool fEqual(double a, double b, double tolerance)
+{
+
+    return fabs(a - b) < tolerance;
+}
+
 // desired epsilon for iterative algorithms
 #define TOL 0.001
 
@@ -68,7 +75,7 @@ TEST_CASE("Performance evaluation")
 
         // solve using CG
         std::cout << "Solving using CG iterative solver. Size = " << sizes[i] << std::endl;
-        sol = Solver <double>::conjugateGradient(A, b);
+        sol = Solver <double>::solveConjugateGradient(A, b);
         std::cout << "converges?: " << hasConverged(sol->values, realSol->values, sol->size(), TOL) << std::endl;
         std::cout << "===============" << std::endl;
         delete sol;
@@ -446,7 +453,7 @@ TEST_CASE("sparse solver tests")
         auto A2 = new CSRMatrix<double>(A);
 
         // construct solution using conjugate gradient method
-        std::unique_ptr< Matrix<double> > realSol2(Solver<double>::conjugateGradient(A2, b, TOL, 3000, initial_guess));
+        std::unique_ptr< Matrix<double> > realSol2(Solver<double>::solveConjugateGradient(A2, b, TOL, 3000, initial_guess));
 
         // check values are within a reasonable level of tolerance to true solution
         for (int i = 0; i < expectedSol->rows; i++)
@@ -558,7 +565,7 @@ TEST_CASE("Stable solvers; massive 1000x1000 matrix")
     {
         SECTION("Conjugate Gradient Test Large")
         {
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::conjugateGradient(A, b, TOL, 10000, initial_guess));
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveConjugateGradient(A, b, TOL, 10000, initial_guess));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -631,7 +638,7 @@ TEST_CASE("Stable solvers; large 400x400 matrix")
     {
         SECTION("Conjugate Gradient Test Large")
         {
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::conjugateGradient(A, b, TOL, 10000, initial_guess));
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveConjugateGradient(A, b, TOL, 10000, initial_guess));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -703,7 +710,7 @@ TEST_CASE("Stable solvers; medium 100x100 matrix")
     {
         SECTION("Conjugate Gradient Test Medium")
         {
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess));
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveConjugateGradient(A, b, TOL, 1000, initial_guess));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -813,7 +820,7 @@ TEST_CASE("All solvers; small 10x10 matrix")
     {
         SECTION("Conjugate Gradient Test Small")
         {
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess));
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveConjugateGradient(A, b, TOL, 1000, initial_guess));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -856,7 +863,7 @@ TEST_CASE("sparse matrix; conjugate gradient")
 
         b->setMatrix(3, b_values);
 
-        std::unique_ptr< Matrix<double> > result(Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess));
+        std::unique_ptr< Matrix<double> > result(Solver<double>::solveConjugateGradient(A, b, TOL, 1000, initial_guess));
 
         double correct_values[3] = { 2, 3, -1 };
 
