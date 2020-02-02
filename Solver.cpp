@@ -1,7 +1,6 @@
 #include "Matrix.h"
 #include "Solver.h"
 
-
 /////// DENSE MATRIX SOLVERS ///////
 template <class T>
 Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T initial_guess[])
@@ -115,6 +114,7 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
 
         // calculate RMSE to check for convergence condition
         residual = sqrt(residual / b->size());
+
         ++iteration;
     }
 
@@ -148,8 +148,17 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b)
     // transpose the permutation matrix
     permutation->transpose();
 
-    // multiply the transpose of the permutation matrix by b
-    auto p_inv_b = permutation->matMatMult(*b);                     // memory cleared
+    /*======================================
+     *  Naive implementation without BLAS calls
+        // multiply the transpose of the permutation matrix by b
+        auto p_inv_b = permutation->matMatMult(*b);                     // memory cleared
+    ======================================*/
+    auto p_inv_b = new Matrix<T>(b->rows, b->cols, true);
+
+    /*======================================
+     * BLAS call to do the matrix vector multiplication
+     * ======================================*/
+    cblas_dgemv(CblasRowMajor, CblasNoTrans, permutation->rows, permutation->cols, 1, (double *) permutation->values, permutation->rows, (double *) b->values, 1, 1, (double *) p_inv_b->values, 1);
 
     // calculate the y values using forward substitution
     auto y_values = Solver<T>::forwardSubstitution(lower_tri, p_inv_b);     // memory cleared
@@ -182,8 +191,17 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     auto x = new Matrix<T>(b->rows, b->cols, true);         // return at end of function
     x->setMatrix(b->rows, initial_guess);
 
-    // workout Ax initially
-    std::unique_ptr< Matrix<T> > Ax(LHS->matMatMult(*x));
+    /*======================================
+     *  No BLAS level 2 call made
+        // workout Ax initially
+        std::unique_ptr< Matrix<T> > Ax(LHS->matMatMult(*x));
+     ======================================*/
+
+    /*======================================
+     * Take advantage of BLAS level 2 mat vect mult routine
+     *======================================*/
+    auto Ax = new Matrix<T>(LHS->rows, x->cols, true);
+    cblas_dgemv(CblasRowMajor, CblasNoTrans, LHS->rows, LHS->cols, 1, (double *) LHS->values, LHS->rows, (double *) b->values, 1, 1, (double *) x->values, 1);
 
     // set the residual to  r = b - Ax initially
     std::unique_ptr< Matrix<T> > r(new Matrix<T>(b->rows, b->cols, true));
@@ -198,23 +216,41 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     std::unique_ptr< Matrix<T> > p(new Matrix<T>(r->rows, r->cols, true));
     std::unique_ptr< Matrix<T> > w(new Matrix<T>(r->rows, r->cols, true));
 
-    // calculate delta parameter which is the result of the inner product of r with itself
-    double delta = r->innerVectorProduct(*r);
+    /*======================================
+     *  Naive solution that does not take advantage of low level BLAS call
+        // calculate delta parameter which is the result of the inner product of r with itself
+        double delta = r->innerVectorProduct(*r);
+    ======================================*/
+
+    /*======================================
+     * BLAS level 1 call to work out the inner vector product (dot product)
+     ======================================*/
+    double delta = cblas_ddot(r->size(), (double *) (r->values), 1, (double *) r->values, 1);
 
     // iterate until the convergence criteria is reached or we hit the max iterations
-    while (iteration < max_iterations && (sqrt(delta) > epsilon* sqrt(b->innerVectorProduct(*b))))
+    while (iteration < max_iterations && (sqrt(delta) > epsilon * sqrt(b->innerVectorProduct(*b))))
     {
         // for the first iterations set p = r
         if (iteration == 0)
         {
-            for (int i = 1; i < p->size(); i++)
-            {
-                p->values[i] = r->values[i];
-            }
+            /*======================================
+             * No BLAS Level 1 call
+             ======================================
+                for (int i = 0; i < p->size(); i++)
+                {
+                    p->values[i] = r->values[i];
+                }
+            */
+
+            /*====================================
+             * use low level BLAS routine to quickly copy over desired values to where matrix/vector.
+            ==================================== */
+            cblas_dcopy(p->size(), (double *) r->values, 1, (double *) p->values, 1);
 
         }
-            // for all the other iterations
+        // for all the other iterations
         else {
+
             // update beta based on the delta values
             beta = delta / delta_old;
 
@@ -225,35 +261,70 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
             }
         }
 
+        /*======================================
         std::unique_ptr< Matrix<T> > Ap(LHS->matMatMult(*p));
+        ======================================*/
 
-        // set w = Ap for this iteration
-        for (int i = 0; i < w->size(); i++)
-        {
-            w->values[i] = Ap->values[i];
-        }
+        /*======================================
+        * BLAS call to do the matrix vector multiplication
+        * ======================================*/
+        auto Ap = new Matrix<T>(LHS->rows, p->cols, true);
+        cblas_dgemv(CblasRowMajor, CblasNoTrans, LHS->rows, LHS->cols, 1, (double *) LHS->values, LHS->rows, (double *) b->values, 1, 1, (double *) Ap->values, 1);
 
+        /*===============================
+            // set w = Ap for this iteration
+            for (int i = 0; i < w->size(); i++)
+            {
+                w->values[i] = Ap->values[i];
+            }
+         ===============================*/
+
+        /*======================================
+        * BLAS call to do copy the values of Ap into w
+        * ======================================*/
+        cblas_dcopy(w->size(), (double *) Ap, 1, (double *) w->values, 1);
+
+        /*=======================================
         // update the alpha value based on delta and the inner product of p and w
         alpha = delta / p->innerVectorProduct(*w);
+        =========================================*/
+        alpha = delta / cblas_ddot(p->size(), (double *) (p->values), 1, (double *) w->values, 1);
 
-        // set x = x + alpha * p for this iteration
-        for (int i = 0; i < x->size(); i++)
-        {
-            x->values[i] = x->values[i] + alpha * p->values[i];
-        }
+        /*
+            // set x = x + alpha * p for this iteration
+            for (int i = 0; i < x->size(); i++)
+            {
+                x->values[i] = x->values[i] + alpha * p->values[i];
+            }
+        */
 
+        /*======================================
+        * BLAS call to DAXPY
+        * ======================================*/
+        cblas_daxpy(x->size(), (double) alpha, (double *) x->values, 1, (double *) x->values, 1);
+
+        /*=======================================
         // set r = r - alpha * w for this iteration
         for (int i = 0; i < r->size(); i++)
         {
             r->values[i] = r->values[i] - alpha * w->values[i];
         }
+        =======================================*/
+
+        /*======================================
+        * BLAS call to DAXPY
+        * ======================================*/
+        cblas_daxpy(r->size(), (double) -alpha, (double *) w->values, 1, (double *) r->values, 1);
 
         // update both delta and delta_old for this iteration
         delta_old = delta;
         delta = r->innerVectorProduct(*r);
 
         ++iteration;
+        delete Ap;
     }
+
+    delete Ax;
 
     return x;
 }
@@ -559,7 +630,6 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
             }
         }
     }
-
 
     // set all the values above the diagonal to 0 (makes the system lower triangular)
     for (int i=0; i<matrix->rows; i++)

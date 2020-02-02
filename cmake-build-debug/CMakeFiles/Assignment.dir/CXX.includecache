@@ -41,6 +41,8 @@ fstream
 -
 cmath
 -
+cblas.h
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cblas.h
 
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
 string

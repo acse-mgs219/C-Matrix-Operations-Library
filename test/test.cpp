@@ -28,6 +28,158 @@ const bool run_gaussian = true;
 // Conjugate Gradient Dense Tests:
 const bool run_conjugate_gradient = false;
 
+
+TEST_CASE("set matrix function - using BLAS dcopy routine")
+{
+    bool test_result = true;
+
+    int cols = 4;
+    std::unique_ptr<Matrix<double> > b(new Matrix<double>(cols, 1, true));
+
+    double b_values[4] = { 7, 3, 5, 2 };
+    b->setMatrix(cols, b_values);
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (!fEqual(b->values[i], b_values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
+    }
+
+    REQUIRE(test_result);
+}
+
+TEST_CASE("matrix multiplication; square matrix - using BLAS")
+{
+    // flag to check if we pass or fail the test
+    bool test_result = true;
+
+    int rows = 2;
+    int cols = 2;
+
+    // the values we want to set in our matrices
+    double matrix_values[4] = { 1, 2, 3, 4 };
+
+    // the correct output of multiply A * A
+    double correct_values[4] = { 7, 10, 15, 22 };
+
+    // create a matrix and set all the values to 10
+    auto* matrix = new Matrix<double>(rows, cols, true);
+    auto* right_matrix = new Matrix<double>(rows, cols, true);
+
+    matrix->setMatrix(rows * cols, matrix_values);
+    right_matrix->setMatrix(rows * cols, matrix_values);
+
+    // create output matrix to hold the results
+    auto* output_matrix = matrix->matMatMult(*right_matrix);
+
+    // check that the values in the result match the correct values
+    for (int i = 0; i < rows * cols; i++)
+    {
+        if (!fEqual(output_matrix->values[i], correct_values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
+    }
+
+    // clean up memory
+    delete matrix;
+    delete right_matrix;
+    delete output_matrix;
+
+    REQUIRE(test_result);
+}
+
+
+TEST_CASE("sparse matrix mat-vect mult")
+{
+    bool test_result = true;
+    int rows = 4;
+    int cols = 4;
+    int nnzs = 4;
+
+    auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
+    auto b = new Matrix<double>(cols, 1, true);
+
+    SECTION("simple mat vect mult")
+    {
+        // set the A matrix with the values we want to test
+        double values[4] = { 5, 8, 3, 6 };
+        int iA[5] = { 0, 0, 2, 3, 4 };
+        int jA[4] = { 0, 1, 2, 1 };
+        A->setMatrix(values, iA, jA);
+
+        double b_values[4] = { 7, 3, 5, 2 };
+        b->setMatrix(4, b_values);
+
+        double correct_values[4] = { 0, 59, 15, 18 };
+        auto result = A->matVecMult(*b);
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (!fEqual(result->values[i], correct_values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+
+        delete result;
+        REQUIRE(test_result);
+    }
+
+    SECTION("larger mat vect mult")
+    {
+        int rows = 5;
+        int cols = 5;
+        int nnzs = 9;
+
+        auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
+
+        // set the A matrix with the values we want to test
+        double values[9] = { 1, 5, 2, 8, 3, 9, 4, 10, 5 };
+        int row_position[6] = { 0, 2, 4, 6, 8, 9 };
+        int col_index[9] = { 0, 1, 1, 2, 2, 3, 3, 4, 4 };
+        A->setMatrix(values, row_position, col_index);
+
+        // Construct the rhs array
+        // b = [1, 2, 3, 4, 5]
+        auto b = new Matrix<double>(cols, 1, true);
+        double b_values[5] = { 1, 2, 3, 4, 5 };
+        b->setMatrix(5, b_values);
+
+        double correct_values[5] = { 11, 28, 45, 66, 25 };
+        auto result = A->matVecMult(*b);
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (!fEqual(result->values[i], correct_values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+
+        delete result;
+        REQUIRE(test_result);
+    }
+
+    delete A;
+    delete b;
+
+    REQUIRE(test_result);
+}
+
+
+
+
+
+
+
+
 /*
  * NOTE BEFORE
  * THIS TEST SEEMs TO BE FAILING ON MAC
@@ -661,84 +813,7 @@ TEST_CASE("sparse matrix; conjugate gradient")
     }
 }
 
-TEST_CASE("sparse matrix mat-vect mult")
-{
-    bool test_result = true;
-    int rows = 4;
-    int cols = 4;
-    int nnzs = 4;
 
-    auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
-    auto b = new Matrix<double>(cols, 1, true);
-
-    SECTION("simple mat vect mult")
-    {
-        // set the A matrix with the values we want to test
-        double values[4] = { 5, 8, 3, 6 };
-        int iA[5] = { 0, 0, 2, 3, 4 };
-        int jA[4] = { 0, 1, 2, 1 };
-        A->setMatrix(values, iA, jA);
-
-        double b_values[4] = { 7, 3, 5, 2 };
-        b->setMatrix(4, b_values);
-
-        double correct_values[4] = { 0, 59, 15, 18 };
-        auto result = A->matVecMult(*b);
-
-        for (int i = 0; i < 4; i++)
-        {
-            if (!fEqual(result->values[i], correct_values[i], TOL))
-            {
-                test_result = false;
-                break;
-            }
-        }
-
-        delete result;
-        REQUIRE(test_result);
-    }
-
-    SECTION("larger mat vect mult")
-    {
-        int rows = 5;
-        int cols = 5;
-        int nnzs = 9;
-
-        auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
-
-        // set the A matrix with the values we want to test
-        double values[9] = { 1, 5, 2, 8, 3, 9, 4, 10, 5 };
-        int row_position[6] = { 0, 2, 4, 6, 8, 9 };
-        int col_index[9] = { 0, 1, 1, 2, 2, 3, 3, 4, 4 };
-        A->setMatrix(values, row_position, col_index);
-
-        // Construct the rhs array
-        // b = [1, 2, 3, 4, 5]
-        auto b = new Matrix<double>(cols, 1, true);
-        double b_values[5] = { 1, 2, 3, 4, 5 };
-        b->setMatrix(5, b_values);
-
-        double correct_values[5] = { 11, 28, 45, 66, 25 };
-        auto result = A->matVecMult(*b);
-
-        for (int i = 0; i < 5; i++)
-        {
-            if (!fEqual(result->values[i], correct_values[i], TOL))
-            {
-                test_result = false;
-                break;
-            }
-        }
-
-        delete result;
-        REQUIRE(test_result);
-    }
-
-    delete A;
-    delete b;
-
-    REQUIRE(test_result);
-}
 
 TEST_CASE("jacobi iteration")
 {
