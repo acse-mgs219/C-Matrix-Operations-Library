@@ -311,3 +311,214 @@ void CSRMatrix<T>::setMatrix(T* values_ptr, int iA[], int jA[])
         this->row_position[i] = iA[i];
     }
 }
+
+template <class T>
+void CSRMatrix<T>::sort_mat(Matrix<T>* rhs) {
+
+    auto* temp_mat = new CSRMatrix<T>(this->rows, this->cols, this->nnzs, true);
+    auto* temp_rhs = new double[this->rows];
+    for (int i = 0; i < nnzs; i++)
+    {
+        temp_mat->values[i] = 0;
+        temp_mat->col_index[i] = 0;
+        temp_mat->row_position[i] = 0;
+    }
+
+    int* c = new int[this->rows]; // number of values in a row
+    for (int i = 0; i < this->rows; i++)
+    {
+        c[i] = 0;
+    }
+
+    double** a = new double* [this->rows]; // values in a row
+    int** b = new int* [this->rows]; // column index of a row
+
+    std::vector <bool> check_list(this->cols, true);
+
+    while (!(std::none_of(check_list.begin(), check_list.end(), [](bool v) { return v; })))
+    {
+        std::vector <int> unique_list(this->cols, -1);
+
+        //update unique_list with find_unique function
+        this->find_unique_p(check_list, unique_list);
+        //if column j has a unique entry on row i (equals to "unique_list[j]"), then in temp_mat, set row j equals to (row i in original matrix), so that in temp_mat, the entry on [i,j] is the unique one, and then set this column j as false in the while loop to be excluded
+        if (!(std::all_of(unique_list.begin(), unique_list.end(), [](int v)
+            {
+                return v == -1; })))
+        {
+            // loop over the check_list
+            for (int j = 0; j < this->cols; j++)
+            {
+                // choose non-unique column
+                if (unique_list[j] != -1)
+                {
+                    // find the largest element
+                    for (int i = 0; i < this->rows + 1; i++)
+                    {
+
+                        if (this->row_position[i] < unique_list[j] + 1 && unique_list[j] < this->row_position[i + 1])
+                        {
+                            a[j] = new double[row_position[i + 1] - row_position[i]];
+                            b[j] = new int[row_position[i + 1] - row_position[i]];
+
+                            c[j] = row_position[i + 1] - row_position[i];
+                            for (int idx = this->row_position[i];idx < this->row_position[i + 1];idx++)
+                            {
+                                // add the col_index, exactly the same as original col_index, but on different location
+                                // add the value value[i*cols+col] to value'[j*cols+col] (this expression is in dense format)
+                                // all the row_position value (row[j] and after) add  1
+                                for (int itr_row_pos = j + 1; itr_row_pos < this->cols + 1; itr_row_pos++)
+                                {
+                                    temp_mat->row_position[itr_row_pos] += 1;
+                                }
+                                a[j][idx - row_position[i]] = this->values[idx];
+                                b[j][idx - row_position[i]] = this->col_index[idx];
+
+                                this->col_index[idx] = -1;
+
+                            }
+                            temp_rhs[j] = rhs->values[i];
+                            // this if condition only need to be run once
+                            break;
+                        }
+                    }
+                    // set column j false, don't need to check it anymore.
+                    check_list[j] = false;
+                }
+            }
+        }
+
+                //Then fill the first available column with value, and remove it from check_list
+        else
+        {
+            for (int j = 0; j < this->cols; j++)
+            {
+                if (check_list[j])
+                {
+                    for (int num_col = 0; num_col < this->nnzs;num_col++)
+                    {
+
+                        if (this->col_index[num_col] != 0 && this->col_index[num_col] != -1)
+                        {
+                            for (int i = 0; i < this->rows; i++)
+                            {
+                                if (this->row_position[i] < num_col + 1 && num_col < this->row_position[i + 1])
+                                {
+                                    a[j] = new double[row_position[i + 1] - row_position[i]];
+                                    b[j] = new int[row_position[i + 1] - row_position[i]];
+                                    c[j] = row_position[i + 1] - row_position[i];
+                                    for (int idx = this->row_position[i];idx < this->row_position[i + 1];idx++)
+                                    {
+                                        // add the value value[i*cols+col] to value'[j*cols+col] (this expression is in dense format)
+                                        // all the row_position value (row[j] and after) add  1
+                                        for (int itr_row_pos = j; itr_row_pos < this->cols; itr_row_pos++)
+                                        {
+                                            temp_mat->row_position[itr_row_pos + 1] += 1;
+                                        }
+                                        // add the col_index, exactly the same as original col_index, but on different location
+                                        a[j][idx - row_position[i]] = this->values[idx];
+                                        b[j][idx - row_position[i]] = this->col_index[idx];
+
+                                        this->col_index[idx] = -1;
+
+                                    }
+                                    temp_rhs[j] = rhs->values[i];
+                                    // this if condition only need to be run once
+                                    break;
+                                }
+
+                            }
+                            // column [j] is finished
+                            check_list[j] = false;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < this->rows + 1; i++) {
+        this->row_position[i] = temp_mat->row_position[i];
+    }
+
+    // generate the new output matrix-values, col_index, row_index
+    std::vector<double> temp_valuess;
+    std::vector<int> temp_colss;
+    for (int i = 0; i < this->rows; i++)
+    {
+        int temp_c = c[i];
+
+        for (int j = 0; j < temp_c; j++)
+        {
+            temp_valuess.push_back(a[i][j]);
+            temp_colss.push_back(b[i][j]);
+        }
+        this->row_position[i] = temp_mat->row_position[i];
+    }
+    this->row_position[this->rows] = temp_mat->row_position[this->rows];
+
+    for (int i = 0; i < this->nnzs; i++)
+    {
+        this->values[i] = temp_valuess[i];
+        this->col_index[i] = temp_colss[i];
+    }
+
+
+    for (int i = 0; i < this->rows; i++)
+    {
+        rhs->values[i] = temp_rhs[i];
+    }
+
+
+    delete temp_mat;
+    delete[] temp_rhs;
+    delete[] c;
+    for (int i = 0; i < this->rows; i++)
+    {
+        delete[] a[i];
+        delete[] b[i];
+    }
+    delete[] a;
+    delete[] b;
+
+}
+
+template <class T>
+void CSRMatrix<T>::find_unique_p(std::vector<bool> check_list, std::vector<int>& unique_list)
+{
+    auto* count = new int[this->cols];
+    //set initial count array values 0
+    for (int i = 0; i < this->cols; i++)
+    {
+        count[i] = 0;
+    }
+    //count the number of non-zero value of each cols
+    for (int i = 0; i < this->nnzs; i++)
+    {
+        if (col_index[i] != -1)
+        {
+            if (check_list[col_index[i]])
+            {
+                count[this->col_index[i]] += 1;
+            }
+        }
+    }
+    //transfer to unique_list
+    for (int n = 0; n < this->cols; n++)
+    {
+        if (count[n] == 1)
+        {
+            for (int j = 0; j < this->nnzs; j++)
+            {
+                if (this->col_index[j] == n)
+                {
+                    unique_list[n] = j;
+                    break;
+                }
+            }
+        }
+    }
+    delete[] count;
+}

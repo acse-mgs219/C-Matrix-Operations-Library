@@ -7,11 +7,12 @@
 #include "../CSRMatrix.cpp"
 #include "../Solver.h"
 #include "../Solver.cpp"
+#include <fstream>
 
 // desired epsilon for iterative algorithms
-#define TOL 0.0001
+#define TOL 0.001
 
-#define RUN_ALL_TESTS
+//#define RUN_ALL_TESTS
 
 // Jacobi Tests:
 const bool run_jacobi = true;
@@ -28,6 +29,72 @@ const bool run_gaussian = true;
 // Conjugate Gradient Dense Tests:
 const bool run_conjugate_gradient = false;
 
+
+
+TEST_CASE("Performance evaluation")
+{
+    int sizes[8] = {100, 250, 500, 750, 1000, 2500, 5000, 7500};
+
+    std::ofstream out("dense_performance_tests.txt");
+
+    // for each test case file
+    for (int i=0; i<8; i++)
+    {
+        auto cinbuf = std::cout.rdbuf(out.rdbuf());
+
+        // Read in A matrix
+        auto A = new Matrix<double>(sizes[i], sizes[i], (std::string) "SPDMatrix_Performance_" + std::to_string(sizes[i]) + ".txt");
+
+        // read in the right hand side b vector
+        auto b = new Matrix<double>(sizes[i], 1, (std::string) "SPDMatrixb_Performance_" + std::to_string(sizes[i]) + ".txt");
+
+        auto realSol = new Matrix<double>(sizes[i], 1, (std::string) "SPDMatrixSol_Performance_" + std::to_string(sizes[i]) + ".txt");
+
+        Matrix<double> *sol;
+
+        // solve using jacobi
+        std::cout << "Solving using Jacobi iterative solver. Size = " << sizes[i] << std::endl;
+        sol = Solver <double>::solveJacobi(A, b);
+        std::cout << "converges?: " << hasConverged(sol->values, realSol->values, sol->size(), TOL) << std::endl;
+        std::cout << "===============" << std::endl;
+        delete sol;
+
+        // solve using Gauss-Seidel
+        std::cout << "Solving using Gauss-Seidel iterative solver. Size = " << sizes[i] << std::endl;
+        sol = Solver <double>::solveGaussSeidel(A, b);
+        std::cout << "converges?: " << hasConverged(sol->values, realSol->values, sol->size(), TOL) << std::endl;
+        std::cout << "===============" << std::endl;
+        delete sol;
+
+        // solve using CG
+        std::cout << "Solving using CG iterative solver. Size = " << sizes[i] << std::endl;
+        sol = Solver <double>::conjugateGradient(A, b);
+        std::cout << "converges?: " << hasConverged(sol->values, realSol->values, sol->size(), TOL) << std::endl;
+        std::cout << "===============" << std::endl;
+        delete sol;
+
+        // solve using LU
+        std::cout << "Solving using LU direct solver. Size = " << sizes[i] << std::endl;
+        sol = Solver <double>::solveLU(A, b);
+        std::cout << "converges?: " << hasConverged(sol->values, realSol->values, sol->size(), TOL) << std::endl;
+        std::cout << "===============" << std::endl;
+        delete sol;
+
+        // solve using Gaussian Elimination
+        std::cout << "Solving using Gaussian Elimination direct solver. Size = " << sizes[i] << std::endl;
+        sol = Solver <double>::solveGaussian(A, b);
+        std::cout << "converges?: " << hasConverged(sol->values, realSol->values, sol->size(), TOL) << std::endl;
+        std::cout << "===============" << std::endl;
+        delete sol;
+
+        delete A;
+        delete b;
+        delete realSol;
+    }
+}
+
+
+#if defined(RUN_ALL_TESTS)
 
 // Sparse Matrix Dense format Tests:
 TEST_CASE("All solvers; diagonally dominant 1000x1000 sparse matrix")
@@ -132,38 +199,6 @@ TEST_CASE("All solvers; diagonally dominant 1000x1000 sparse matrix")
     delete A;
     delete b;
 }
-
-
-
-
-
-
-
-
-//TEST_CASE("weird SPD")
-//{
-//    auto A = new Matrix<double>(400, 400, (std::string) "SPDMatrixA.txt");
-//    auto b = new Matrix<double>(400, 1, (std::string) "SPDMatrixb.txt");
-//
-////    double initial_guess[400] = {0};
-////
-////    auto sol = Solver<double>::conjugateGradient(A, b, TOL, 2000, initial_guess);
-////
-////    sol->printMatrix();
-//
-////    delete sol;
-//
-////    std::cout << "We can also represent A as sparse and use our Sparse Conjugate Gradient on it.\n";
-////    CSRMatrix<double>* sparseA = new CSRMatrix<double>(A);
-////    sol = Solver<double>::conjugateGradient(sparseA, b);
-////    std::cout << "We get the same solution:\n";
-//
-//    delete A;
-//    delete b;
-//}
-
-
-#if defined(RUN_ALL_TESTS)
 
 
 TEST_CASE("set matrix function - using BLAS dcopy routine")

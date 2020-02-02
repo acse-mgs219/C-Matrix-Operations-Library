@@ -29,6 +29,7 @@ public:
     void makeRandom();
     void makeRandomSPD();
     void makeRandomDD();
+    void makeRandomSparseSPD();
 
     // set all the values of the matrix
     virtual void setMatrix(int length, T *values_ptr);
