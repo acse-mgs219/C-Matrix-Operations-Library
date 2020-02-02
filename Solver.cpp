@@ -3,6 +3,9 @@
 
 #include <time.h>
 
+#define PERFORMANCE_INFO
+
+
 /////// DENSE MATRIX SOLVERS ///////
 template <class T>
 Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T initial_guess[], bool sortMatrix)

@@ -3,7 +3,6 @@
 
 #include <cmath>
 //#define USE_BLAS
-#define PERFORMANCE_INFO
 
 template <class T>
 bool hasConverged(T approximate[], T real[], int length, double tolerance)

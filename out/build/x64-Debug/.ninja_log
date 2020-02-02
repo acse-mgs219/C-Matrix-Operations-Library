@@ -1,0 +1,12 @@
+# ninja log v5
+105	1514	602388217	CMakeFiles/Assignment.dir/Matrix.cpp.obj	646249d7039a32f
+96	1233	602388268	CMakeFiles/Assignment.dir/CSRMatrix.cpp.obj	190037a4cc3a13e8
+3	1536	602388268	CMakeFiles/Assignment.dir/test/test.cpp.obj	2c1128bf834a297a
+177	5231	602388272	CMakeFiles/Assignment.dir/main.cpp.obj	d2d4dddb78c82ccc
+5280	8193	602388274	Assignment.exe	a0ca18af5d54da4c
+1	43	0	clean	b049eaf95b698d8c
+244	1601	602388609	CMakeFiles/Assignment.dir/CSRMatrix.cpp.obj	190037a4cc3a13e8
+2	1624	602388609	CMakeFiles/Assignment.dir/test/test.cpp.obj	2c1128bf834a297a
+76	1666	602388609	CMakeFiles/Assignment.dir/Matrix.cpp.obj	646249d7039a32f
+155	4520	602388612	CMakeFiles/Assignment.dir/main.cpp.obj	d2d4dddb78c82ccc
+4565	6539	602388613	Assignment.exe	a0ca18af5d54da4c
