@@ -147,7 +147,7 @@ TEST_CASE("All solvers; diagonally dominant 1000x1000 sparse matrix")
 //
 ////    double initial_guess[400] = {0};
 ////
-////    auto sol = Solver<double>::conjugateGradient(A, b, TOL, 2000, initial_guess);
+////    auto sol = Solver<double>::solveConjugateGradient(A, b, TOL, 2000, initial_guess);
 ////
 ////    sol->printMatrix();
 //
@@ -155,7 +155,7 @@ TEST_CASE("All solvers; diagonally dominant 1000x1000 sparse matrix")
 //
 ////    std::cout << "We can also represent A as sparse and use our Sparse Conjugate Gradient on it.\n";
 ////    CSRMatrix<double>* sparseA = new CSRMatrix<double>(A);
-////    sol = Solver<double>::conjugateGradient(sparseA, b);
+////    sol = Solver<double>::solveConjugateGradient(sparseA, b);
 ////    std::cout << "We get the same solution:\n";
 //
 //    delete A;
@@ -411,7 +411,7 @@ TEST_CASE("sparse solver tests")
         auto A2 = new CSRMatrix<double>(A);
 
         // construct solution using conjugate gradient method
-        std::unique_ptr< Matrix<double> > realSol2(Solver<double>::conjugateGradient(A2, b, TOL, 3000, initial_guess));
+        std::unique_ptr< Matrix<double> > realSol2(Solver<double>::solveConjugateGradient(A2, b, TOL, 3000, initial_guess));
 
         // check values are within a reasonable level of tolerance to true solution
         for (int i = 0; i < expectedSol->rows; i++)
@@ -523,7 +523,7 @@ TEST_CASE("Stable solvers; massive 1000x1000 matrix")
     {
         SECTION("Conjugate Gradient Test Large")
         {
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::conjugateGradient(A, b, TOL, 10000, initial_guess));
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveConjugateGradient(A, b, TOL, 10000, initial_guess));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -596,7 +596,7 @@ TEST_CASE("Stable solvers; large 400x400 matrix")
     {
         SECTION("Conjugate Gradient Test Large")
         {
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::conjugateGradient(A, b, TOL, 10000, initial_guess));
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveConjugateGradient(A, b, TOL, 10000, initial_guess));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -668,7 +668,7 @@ TEST_CASE("Stable solvers; medium 100x100 matrix")
     {
         SECTION("Conjugate Gradient Test Medium")
         {
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess));
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveConjugateGradient(A, b, TOL, 1000, initial_guess));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -778,7 +778,7 @@ TEST_CASE("All solvers; small 10x10 matrix")
     {
         SECTION("Conjugate Gradient Test Small")
         {
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess));
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveConjugateGradient(A, b, TOL, 1000, initial_guess));
 
             for (int i = 0; i < expectedSol->rows; i++)
             {
@@ -821,7 +821,7 @@ TEST_CASE("sparse matrix; conjugate gradient")
 
         b->setMatrix(3, b_values);
 
-        std::unique_ptr< Matrix<double> > result(Solver<double>::conjugateGradient(A, b, TOL, 1000, initial_guess));
+        std::unique_ptr< Matrix<double> > result(Solver<double>::solveConjugateGradient(A, b, TOL, 1000, initial_guess));
 
         double correct_values[3] = { 2, 3, -1 };
 

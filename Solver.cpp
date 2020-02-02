@@ -237,7 +237,7 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b)
 }
 
 template<class T>
-Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
+Matrix<T>* Solver<T>::solvesolveConjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
 #ifdef PERFORMANCE_INFO
     clock_t tStart = clock();
@@ -723,7 +723,7 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
 
 
 template<class T>
-Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
+Matrix<T>* Solver<T>::solvesolveConjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
 #ifdef PERFORMANCE_INFO
     clock_t tStart = clock();

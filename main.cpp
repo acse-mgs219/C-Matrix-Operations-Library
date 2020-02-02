@@ -50,7 +50,7 @@ int main()
     b->writeMatrix("SPDMatrixb.txt");
     std::cout << "Since A is SPD, we can solve it with Conjugate Gradient. The solution will be:\n";
     Solver<double>::maxIt = 10000;
-    sol = Solver<double>::conjugateGradient(A, b);
+    sol = Solver<double>::solvesolveConjugateGradient(A, b);
     sol->printMatrix();
 
     delete sol;
@@ -59,7 +59,7 @@ int main()
     std::cin.get();
     std::cout << "We can also represent A as sparse and use our Sparse Conjugate Gradient on it.\n";
     CSRMatrix<double>* sparseA = new CSRMatrix<double>(A);
-    sol = Solver<double>::conjugateGradient(sparseA, b);
+    sol = Solver<double>::solvesolveConjugateGradient(sparseA, b);
     std::cout << "We get the same solution:\n";
     sol->printMatrix();
 
@@ -149,7 +149,7 @@ int main()
         A->makeRandomSPD();
         b = new Matrix<double>(i, 1, true);
         b->makeRandom();
-        Solver<double>::conjugateGradient(A, b);
+        Solver<double>::solvesolveConjugateGradient(A, b);
         delete A;
         delete b;
         std::cout << "\n";
@@ -171,11 +171,11 @@ int main()
 
     auto sol = new Matrix<double>(3000, 1, true);
    
-    /*std::cout << "\nConjugate Gradient:\n";
-    sol = Solver<double>::conjugateGradient(A, b);
+    std::cout << "\nConjugate Gradient:\n";
+    sol = Solver<double>::solvesolveConjugateGradient(A, b);
     sol->printMatrix();
 
-    std::cout << "\nLU Decomp:\n";
+    /*std::cout << "\nLU Decomp:\n";
     sol = Solver<double>::solveLU(A, b);
     sol->printMatrix();
 
@@ -189,12 +189,12 @@ int main()
 
     std::cout << "\nGauss-Seidel:\n";
     sol = Solver<double>::solveGaussSeidel(A, b);
-    sol->printMatrix();
+    sol->printMatrix();*/
 
     auto sparseA = new CSRMatrix(A);
     std::cout << "\nConjugate Gradient Sparse:\n";
-    sol = Solver<double>::conjugateGradient(sparseA, b);
-    sol->printMatrix();*/
+    sol = Solver<double>::solvesolveConjugateGradient(sparseA, b);
+    sol->printMatrix();
 
     std::cout << "\nJacobi:\n";
     sol = Solver<double>::solveJacobi(A, b);
@@ -202,15 +202,5 @@ int main()
 
     std::cout << "\nGauss-Seidel:\n";
     sol = Solver<double>::solveGaussSeidel(A, b);
-    sol->printMatrix();
-
-    auto sparseA = new CSRMatrix(A);
-
-    std::cout << "\nJacobi Sparse:\n";
-    sol = Solver<double>::solveJacobi(sparseA, b);
-    sol->printMatrix();
-
-    std::cout << "\nGauss-Seidel Sparse:\n";
-    sol = Solver<double>::solveGaussSeidel(sparseA, b);
     sol->printMatrix();
 }

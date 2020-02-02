@@ -11,11 +11,11 @@ public:
 	static Matrix<T>* solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance = TOL, int max_iterations = maxIt, T initial_guess[] = nullptr, bool sortMatrix = false);
     static Matrix<T>* solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tolerance = TOL, int max_iterations = maxIt, T initial_guess[] = nullptr, bool sortMatrix = false);
     static Matrix<T>* solveLU(Matrix<T>* LHS, Matrix<T>* b);
-    static Matrix<T>* conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon = TOL, int max_iterations = maxIt, T initial_guess[] = nullptr);
+    static Matrix<T>* solvesolveConjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon = TOL, int max_iterations = maxIt, T initial_guess[] = nullptr);
     static Matrix<T>* solveGaussian(Matrix<T>* LHS, Matrix<T>* b);
 
     // Sparse Matrices
-    static Matrix<T>* conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon = TOL, int max_iterations = maxIt, T initial_guess[] = nullptr);
+    static Matrix<T>* solvesolveConjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon = TOL, int max_iterations = maxIt, T initial_guess[] = nullptr);
 
     // helper method
     static void incompleteCholesky(Matrix<T>* matrix);
