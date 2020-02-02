@@ -38,6 +38,9 @@ public:
     void sort_mat(Matrix<T>* rhs);
     void find_unique_p(std::vector<bool> check_list, std::vector<int>& unique_list);
 
+    void sort_mat(Matrix<T>* rhs);
+    void find_unique_p(std::vector<bool> check_list, std::vector<int>& unique_list);
+
     // Explicitly using the C++11 nullptr here
     int* row_position = nullptr;
     int* col_index = nullptr;

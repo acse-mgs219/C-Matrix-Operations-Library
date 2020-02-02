@@ -250,10 +250,12 @@ Matrix<T>* Solver<T>::solveConjugateGradient(Matrix<T>* LHS, Matrix<T>* b, doubl
 #ifdef PERFORMANCE_INFO
     clock_t tStart = clock();
 #endif
+
+    bool toDelete = false;
     if (initial_guess == nullptr)
     {
-        // If the user has not provided an initial guess, use b as initial guess
-        // A rather arbitrary start point that has at least some relation to the output
+        toDelete = true; // we are allocating memory on the heap so we need to eventually delete it, mark that
+        // If the user has not provided an initial guess set initial guess to 0
         T* initialguess = new T[b->size()];
         std::fill_n(initialguess, b->size(), 0);
         initial_guess = initialguess;
@@ -403,6 +405,7 @@ Matrix<T>* Solver<T>::solveConjugateGradient(Matrix<T>* LHS, Matrix<T>* b, doubl
     }
 
     delete Ax;
+    if (toDelete) delete initial_guess; // if we had created this, we need to delete it
 
 #ifdef PERFORMANCE_INFO
     clock_t tEnd = clock();
