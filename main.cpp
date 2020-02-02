@@ -33,6 +33,8 @@ int main()
     delete sol;
     delete sol2;
 
+    std::cout << "Press any key to continue . . . ";
+    std::cin.get();
     std::cout << "Moving onto large matrices, we will generate a 400x400 random matrix guaranteed to be SPD\n";
     A = new Matrix<double>(400, 400, true);
     A->makeRandomSPD();
@@ -53,6 +55,8 @@ int main()
 
     delete sol;
 
+    std::cout << "Press any key to continue . . . ";    
+    std::cin.get();
     std::cout << "We can also represent A as sparse and use our Sparse Conjugate Gradient on it.\n";
     CSRMatrix<double>* sparseA = new CSRMatrix<double>(A);
     sol = Solver<double>::conjugateGradient(sparseA, b);
@@ -63,7 +67,9 @@ int main()
     delete b;
     delete sol;
 
-    /*std::cout << "\n\nTiming tests for Jacobi as n grows:\n";
+    std::cout << "Press any key to continue to timing tests, starting with Jacobi\n";
+    std::cin.get();
+    std::cout << "\n\nTiming tests for Jacobi as n grows:\n";
     for (int i = 10; i <= 1000; i *= 10)
     {
         std::cout << "When running " << i << "x" << i << " system:\n";
@@ -72,12 +78,17 @@ int main()
         b = new Matrix<double>(i, 1, true);
         b->makeRandom();
         sol = Solver<double>::solveJacobi(A, b);
+        sparseA = new CSRMatrix<double>(A);
+        sol2 = Solver<double>::solveJacobi(sparseA, b);
         sol->printMatrix();
+        sol2->printMatrix();
         delete A;
         delete b;
         std::cout << "\n";
-    }*/
+    }
 
+    std::cout << "Press any key to continue to Gauss-Seidel tests\n";
+    std::cin.get();
     std::cout << "\n\nTiming tests for Gauss-Seidel as n grows:\n";
     for (int i = 10; i <= 1000; i *= 10)
     {
@@ -87,12 +98,17 @@ int main()
         b = new Matrix<double>(i, 1, true);
         b->makeRandom();
         sol = Solver<double>::solveGaussSeidel(A, b);
+        sparseA = new CSRMatrix<double>(A);
+        sol2 = Solver<double>::solveGaussSeidel(sparseA, b);
         sol->printMatrix();
+        sol2->printMatrix();
         delete A;
         delete b;
         std::cout << "\n";
     }
 
+    std::cout << "Press any key to continue to Gaussian tests\n";
+    std::cin.get();
     std::cout << "\n\nTiming tests for Gaussian as n grows:\n";
     for (int i = 10; i <= 1000; i *= 10)
     {
@@ -107,6 +123,8 @@ int main()
         std::cout << "\n";
     }
 
+    std::cout << "Press any key to continue to LU Decomp tests\n";
+    std::cin.get();
     std::cout << "\n\nTiming tests for LU Decomp as n grows:\n";
     for (int i = 10; i <= 1000; i *= 10)
     {
@@ -121,6 +139,8 @@ int main()
         std::cout << "\n";
     }
 
+    std::cout << "Press any key to continue to Conjugate Gradient tests\n";
+    std::cin.get();
     std::cout << "\n\nTiming tests for CG as n grows:\n";
     for (int i = 10; i <= 1000; i *= 10)
     {
@@ -134,8 +154,9 @@ int main()
         delete b;
         std::cout << "\n";
     }
-    // run tests
-    //int result = Catch::Session().run();
 
-    //return result;
+    // run tests
+    int result = Catch::Session().run();
+
+    return result;
 }

@@ -88,7 +88,7 @@ void Matrix<T>::makeRandomSPD()
         {
             this->values[i * this->cols + j] = rand() % 100 + 1; // make sure no value on the diagonal is 0
             if (i == j)
-                this->values[i * this->cols + j] += 100 * this->cols; // max number in any cell is 100, there are this->col other cells
+                this->values[i * this->cols + j] += 100 * this->cols; // make sure eigen value is positive
             tr->values[j * this->cols + i] = this->values[i * this->cols + j];
         }
 
@@ -98,9 +98,6 @@ void Matrix<T>::makeRandomSPD()
             tr->values[j * this->cols + i] = 0;
         }
     }
-
-    this->printMatrix();
-    tr->printMatrix();
 
     // L * L' is always SPD if all values on L's diagonal are strictly positive
     auto c = this->matMatMult(*tr);
@@ -232,6 +229,8 @@ void Matrix<T>::printMatrix()
         }
         std::cout << "\n";
     }
+
+    std::cout << "\n";
 
 }
 

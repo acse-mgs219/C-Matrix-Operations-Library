@@ -78,7 +78,6 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
 
         // calculate the RMSE norm of the residuals
         residual = sqrt(residual / b->size());
-        std::cout << residual << std::endl;
         ++iteration;
     }
 
@@ -876,12 +875,3 @@ bool Solver<T>::check_finish(CSRMatrix<T>* LHS, Matrix<T>* mat_b, Matrix<T>* out
     else
         return false;
 }
-
-
-
-
-
-
-
-
-
