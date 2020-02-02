@@ -1,10 +1,24 @@
 #include "Matrix.h"
 #include "Solver.h"
+#include <time.h>
+
+#define PERFORMANCE_INFO
 
 /////// DENSE MATRIX SOLVERS ///////
 template <class T>
 Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T initial_guess[])
 {
+#ifdef PERFORMANCE_INFO
+    clock_t tStart = clock();
+    int iters = 0;
+#endif
+    if (initial_guess == nullptr)
+    {
+        // If the user has not provided an initial guess, use b as initial guess
+        // A rather arbitrary start point that has at least some relation to the output
+        initial_guess = b->values;
+    }
+
     // create some space to hold the solution to the iteration
     auto x_var = new Matrix<T>(b->rows, b->cols, true); // return at end of function
 
@@ -27,8 +41,11 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
     int iteration = 0;
 
     // iterate until we hit the convergence criteria or max iterations
-    while (residual > tolerance&& iteration < max_iterations)
+    while (residual > tolerance && iteration < max_iterations)
     {
+#ifdef PERFORMANCE_INFO
+        iters++;
+#endif
         // loop over each row of the left hand side, each column of b, and calculate the sum
         for (int i = 0; i < LHS->rows; i++)
         {
@@ -51,6 +68,7 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
 
         // reset the residual so we can calculate for the current iterative step only
         residual = 0;
+        estimated_rhs.reset(LHS->matMatMult(*x_var));
 
         // check residual against the tolerance
         for (int i = 0; i < b->size(); i++)
@@ -62,12 +80,29 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
         residual = sqrt(residual / b->size());
         ++iteration;
     }
+
+#ifdef PERFORMANCE_INFO
+    clock_t tEnd = clock();
+    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
+    std::cout << "Completed in " << time << " ms and " << iters << " iterations.\n";
+#endif
     return x_var;
 }
 
 template<class T>
 Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T* initial_guess)
 {
+#ifdef PERFORMANCE_INFO
+    clock_t tStart = clock();
+    int iters = 0;
+#endif
+    if (initial_guess == nullptr)
+    {
+        // If the user has not provided an initial guess, use b as initial guess
+        // A rather arbitrary start point that has at least some relation to the output
+        initial_guess = b->values;
+    }
+
     // create some space to hold the solution to the iteration
     auto x_var = new Matrix<T>(b->rows, b->cols, true); // return at end of function
 
@@ -85,6 +120,9 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
     // iterate until we hit the convergence criteria or max_iterations
     while (residual > tolerance&& iteration < max_iterations)
     {
+#ifdef PERFORMANCE_INFO
+        iters++;
+#endif
         // loop over each row in the LHS matrix and multiply into the column of b
         for (int i = 0; i < LHS->rows; i++)
         {
@@ -105,6 +143,7 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
 
         // reset the residual to 0
         residual = 0;
+        estimated_rhs.reset(LHS->matMatMult(*x_var));
 
         // check residual to see if we have hit the convergence criteria
         for (int i = 0; i < b->size(); i++)
@@ -117,7 +156,11 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
 
         ++iteration;
     }
-
+#ifdef PERFORMANCE_INFO
+    clock_t tEnd = clock();
+    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
+    std::cout << "Completed in " << time << " ms and " << iters << " iterations.\n";
+#endif
     return x_var;
 }
 
@@ -125,18 +168,29 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
 template<class T>
 Matrix<T>* Solver<T>::solveGaussian(Matrix<T>* LHS, Matrix<T>* b)
 {
+#ifdef PERFORMANCE_INFO
+    clock_t tStart = clock();
+#endif
     // transform matrix to upper triangular
     Solver<T>::upperTriangular(LHS, b);
 
     // generate solution
     auto *solution = Solver<T>::backSubstitution(LHS, b);
 
+#ifdef PERFORMANCE_INFO
+    clock_t tEnd = clock();
+    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
+    std::cout << "Completed in " << time << " ms.\n";
+#endif
     return solution;
 }
 
 template<class T>
 Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b)
 {
+#ifdef PERFORMANCE_INFO
+    clock_t tStart = clock();
+#endif
     // create space to hold the upper triangular, lower triangular and permutation
     auto upper_tri = new Matrix<T>(LHS->rows, LHS->cols, true);     // memory cleared
     auto lower_tri = new Matrix<T>(LHS->rows, LHS->cols, true);     // memory cleared
@@ -178,12 +232,30 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b)
     delete p_inv_b;
     delete y_values;
 
+#ifdef PERFORMANCE_INFO
+    clock_t tEnd = clock();
+    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
+    std::cout << "Completed in " << time << " ms.\n";
+#endif
     return solution;
 }
 
 template<class T>
 Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
+#ifdef PERFORMANCE_INFO
+    clock_t tStart = clock();
+    int iters = 0;
+#endif
+    if (initial_guess == nullptr)
+    {
+        // If the user has not provided an initial guess, use b as initial guess
+        // A rather arbitrary start point that has at least some relation to the output
+        T* initialguess = new T[b->size()];
+        std::fill_n(initialguess, b->size(), 0);
+        initial_guess = initialguess;
+    }
+
     // variable to keep track of the iterations
     int iteration = 0;
 
@@ -240,6 +312,9 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     // iterate until the convergence criteria is reached or we hit the max iterations
     while (iteration < max_iterations && (sqrt(delta) > epsilon * sqrt(b->innerVectorProduct(*b))))
     {
+#ifdef PERFORMANCE_INFO
+        iters++;
+#endif
         // for the first iterations set p = r
         if (iteration == 0)
         {
@@ -323,6 +398,11 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
 
     delete Ax;
 
+#ifdef PERFORMANCE_INFO
+    clock_t tEnd = clock();
+    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
+    std::cout << "Completed in " << time << " ms and " << iters << " iterations.\n";
+#endif
     return x;
 }
 
@@ -653,6 +733,13 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
 template<class T>
 Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
+    if (initial_guess == nullptr)
+    {
+        // If the user has not provided an initial guess, use b as initial guess
+        // A rather arbitrary start point that has at least some relation to the output
+        initial_guess = b->values;
+    }
+
     // variable to keep track of the iterations
     int iteration = 0;
 
@@ -868,12 +955,3 @@ bool Solver<T>::check_finish(CSRMatrix<T>* LHS, Matrix<T>* mat_b, Matrix<T>* out
     else
         return false;
 }
-
-
-
-
-
-
-
-
-

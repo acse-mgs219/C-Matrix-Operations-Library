@@ -126,22 +126,36 @@ void Matrix<T>::makeRandom()
 template <class T>
 void Matrix<T>::makeRandomSPD()
 {
-    // Makes this into a lower triangular matrix
+    auto tr = new Matrix<T>(this->rows, this->cols, true);
+    // Makes this into a lower triangular matrix, with b its transpose
     for (int i = 0; i < this->rows; i++)
     {
         for (int j = 0; j <= i; j++)
         {
             this->values[i * this->cols + j] = rand() % 100 + 1; // make sure no value on the diagonal is 0
+            if (i == j)
+                this->values[i * this->cols + j] += 100 * this->cols; // make sure eigen value is positive
+            tr->values[j * this->cols + i] = this->values[i * this->cols + j];
         }
 
         for (int j = i+1; j < this->cols; j++)
         {
             this->values[i * this->cols + j] = 0;
+            tr->values[j * this->cols + i] = 0;
         }
     }
 
     // L * L' is always SPD if all values on L's diagonal are strictly positive
-    this = this->matMatMult(this);
+    auto c = this->matMatMult(*tr);
+    for (int i = 0; i < this->rows; i++)
+    {
+        for (int j = 0; j < this->cols; j++)
+        {
+            this->values[i * this->cols + j] = c->values[i * this->cols + j];
+        }
+    }
+    delete tr;
+    delete c;
 }
 
 template <class T>
@@ -153,7 +167,7 @@ void Matrix<T>::makeRandomDD()
         {
             this->values[i * this->cols + j] = rand() % 100;
             if (i == j)
-                this->values[i * this->cols + j] += 100*this->col; // max number in any cell is 100, there are this->col other cells
+                this->values[i * this->cols + j] += 100 * this->cols; // max number in any cell is 100, there are this->col other cells
         }
     }
 }
@@ -185,6 +199,22 @@ void Matrix<T>::setMatrix(int length, T *values_ptr)
     #endif
 }
 
+template <class T>
+void Matrix<T>::writeMatrix(std::string fileName)
+{
+    std::ofstream file;
+    file.open(fileName);
+    for (int i = 0; i < this->rows; i++)
+    {
+        for (int j = 0; j < this->cols; j++)
+        {
+            file << this->values[i * this->cols + j] << " ";
+        }
+        file << "\n";
+    }
+    file.close();
+}
+
 // print values (not matrix form)
 template <class T>
 void Matrix<T>::printValues()
@@ -201,16 +231,64 @@ void Matrix<T>::printValues()
 template <class T>
 void Matrix<T>::printMatrix()
 {
-    std::cout << "Printing in Matrix form:" << std::endl;
+    std::cout << "\nPrinting in Matrix form:" << std::endl;
+    
+    // if the matrix is too big, only display the corner values 
+    int rowStart, rowEnd, colStart, colEnd, dotRows = 0, dotCols = 0;
+    if (this->rows > 20)
+    {
+        rowStart = 1; // display first 2 rows
+        rowEnd = this->rows - 3; // and last 2
+    }
+    else
+    {
+        rowStart = this->rows; // if less than 20, just display all rows
+        rowEnd = this->rows; // this does not matter
+    }
+
+    if (this->cols > 20)
+    {
+        colStart = 1; // display first 2 cols 
+        colEnd = this->cols - 3; // and last 2
+    }
+    else
+    {
+        colStart = this->cols; // if less than 20, just display all cols
+        colEnd = this->cols; // this does not matter
+    }
+
     for (int i=0; i<this->rows; i++)
     {
+        if (i > rowStart&& i < rowEnd)
+        {
+            if (dotRows < 3)
+            {
+                dotRows++;
+                std::cout << ".\n";
+            }
+            else
+                i = rowEnd; // no need to keep looping
+            continue;
+        }
+        dotCols = 0; // display 3 dots on each row
         for (int j=0; j<this->cols; j++)
         {
             // we have explicitly assumed row-major ordering here
-            std::cout << this->values[i * this->cols + j] << " ";
+            if (j < colStart || j > colEnd)
+                std::cout << this->values[i * this->cols + j] << " ";
+            else if (dotCols < 3)
+            {
+                std::cout << " . ";
+                dotCols++;
+            }
+            else
+                j = colEnd; // no need to keep looking
         }
         std::cout << "\n";
     }
+
+    std::cout << "\n";
+
 }
 
 // assumes user has already created mat_right and output matrices

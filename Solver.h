@@ -8,14 +8,14 @@ class Solver
 {
 public:
     // Dense Matrices
-	static Matrix<T>* solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T initial_guess[]);
-    static Matrix<T>* solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T initial_guess[]);
+	static Matrix<T>* solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance = TOL, int max_iterations = maxIt, T initial_guess[] = nullptr);
+    static Matrix<T>* solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tolerance = TOL, int max_iterations = maxIt, T initial_guess[] = nullptr);
     static Matrix<T>* solveLU(Matrix<T>* LHS, Matrix<T>* b);
-    static Matrix<T>* conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[]);
+    static Matrix<T>* conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon = TOL, int max_iterations = maxIt, T initial_guess[] = nullptr);
     static Matrix<T>* solveGaussian(Matrix<T>* LHS, Matrix<T>* b);
 
     // Sparse Matrices
-    static Matrix<T>* conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[]);
+    static Matrix<T>* conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon = TOL, int max_iterations = maxIt, T initial_guess[] = nullptr);
 
     // helper method
     static void incompleteCholesky(Matrix<T>* matrix);
@@ -25,6 +25,9 @@ public:
 
     // NEED TO TEST
     static Matrix<T>* solveGaussSeidel(CSRMatrix<T>* LHS, Matrix<T>* b);
+
+    inline static double TOL = 0.0001;
+    inline static int maxIt = 1000;
 
 private:
     // Helper functions
