@@ -1,8 +1,8 @@
 #include "catch.hpp"
-#include "../Matrix.h"
-#include "../Matrix.cpp"
 #include <stdexcept>
 #include "../utilities.h"
+#include "../Matrix.h"
+#include "../Matrix.cpp"
 #include "../CSRMatrix.h"
 #include "../CSRMatrix.cpp"
 #include "../Solver.h"
@@ -27,6 +27,290 @@ const bool run_gaussian = true;
 
 // Conjugate Gradient Dense Tests:
 const bool run_conjugate_gradient = false;
+
+
+// Sparse Matrix Dense format Tests:
+TEST_CASE("All solvers; diagonally dominant 1000x1000 sparse matrix")
+{
+    bool test_result = true;
+
+    // construct the test matrices
+    auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrixSparse.txt");
+    auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixBSparse.txt");
+
+    // initial guess for iterative methods - set all values to 1
+    double initial_guess[1000];
+    std::fill_n(initial_guess, 1000, 1);
+
+    // read in the expected result
+    std::unique_ptr< Matrix<double> > expectedSol(new Matrix<double>(1000, 1, (std::string) "massMatrixSolSparse.txt"));
+
+    if (run_jacobi)
+    {
+        SECTION("Jacobi Solver Test Gigantic")
+        {
+            // construct solution using jacobi (dense) method
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess));
+
+            // check values are reasonably accurate
+            for (int i = 0; i < expectedSol->rows; i++)
+            {
+                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+                {
+                    test_result = false;
+                    break;
+                }
+            }
+
+            REQUIRE(test_result);
+        }
+    }
+
+    if (run_gauss_seidel)
+    {
+        SECTION("Gauss-Seidel Solver Test Gigantic")
+        {
+            // construct solution using gauss seidel (dense) method
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussSeidel(A, b, TOL, 1000, initial_guess));
+
+            // check values are reasonably accurate
+            for (int i = 0; i < expectedSol->rows; i++)
+            {
+                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+                {
+                    test_result = false;
+                    break;
+                }
+            }
+
+            REQUIRE(test_result);
+        }
+    }
+
+    if (run_lu_decomp)
+    {
+        SECTION("LU Decomp Solver Test Gigantic")
+        {
+            // construct solution using LU (dense) method
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveLU(A, b));
+
+            // check values are within reasonable tolerance of true solution
+            for (int i = 0; i < expectedSol->rows; i++)
+            {
+                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+                {
+                    test_result = false;
+                    break;
+                }
+            }
+
+            REQUIRE(test_result);
+        }
+    }
+
+    if (run_gaussian)
+    {
+        SECTION("Gaussian Test Gigantic")
+        {
+            // construct solution using gaussian elimination (dense) method
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussian(A, b));
+
+            // check values are within a reasonable level of accuracy of true solution
+            for (int i = 0; i < expectedSol->rows; i++)
+            {
+                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+                {
+                    test_result = false;
+                    break;
+                }
+            }
+
+            REQUIRE(test_result);
+        }
+    }
+
+    delete A;
+    delete b;
+}
+
+
+
+
+
+
+
+
+//TEST_CASE("weird SPD")
+//{
+//    auto A = new Matrix<double>(400, 400, (std::string) "SPDMatrixA.txt");
+//    auto b = new Matrix<double>(400, 1, (std::string) "SPDMatrixb.txt");
+//
+////    double initial_guess[400] = {0};
+////
+////    auto sol = Solver<double>::conjugateGradient(A, b, TOL, 2000, initial_guess);
+////
+////    sol->printMatrix();
+//
+////    delete sol;
+//
+////    std::cout << "We can also represent A as sparse and use our Sparse Conjugate Gradient on it.\n";
+////    CSRMatrix<double>* sparseA = new CSRMatrix<double>(A);
+////    sol = Solver<double>::conjugateGradient(sparseA, b);
+////    std::cout << "We get the same solution:\n";
+//
+//    delete A;
+//    delete b;
+//}
+
+
+#if defined(RUN_ALL_TESTS)
+
+
+TEST_CASE("set matrix function - using BLAS dcopy routine")
+{
+    bool test_result = true;
+
+    int cols = 4;
+    std::unique_ptr<Matrix<double> > b(new Matrix<double>(cols, 1, true));
+
+    double b_values[4] = { 7, 3, 5, 2 };
+    b->setMatrix(cols, b_values);
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (!fEqual(b->values[i], b_values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
+    }
+
+    REQUIRE(test_result);
+}
+
+TEST_CASE("matrix multiplication; square matrix - using BLAS")
+{
+    // flag to check if we pass or fail the test
+    bool test_result = true;
+
+    int rows = 2;
+    int cols = 2;
+
+    // the values we want to set in our matrices
+    double matrix_values[4] = { 1, 2, 3, 4 };
+
+    // the correct output of multiply A * A
+    double correct_values[4] = { 7, 10, 15, 22 };
+
+    // create a matrix and set all the values to 10
+    auto* matrix = new Matrix<double>(rows, cols, true);
+    auto* right_matrix = new Matrix<double>(rows, cols, true);
+
+    matrix->setMatrix(rows * cols, matrix_values);
+    right_matrix->setMatrix(rows * cols, matrix_values);
+
+    // create output matrix to hold the results
+    auto* output_matrix = matrix->matMatMult(*right_matrix);
+
+    // check that the values in the result match the correct values
+    for (int i = 0; i < rows * cols; i++)
+    {
+        if (!fEqual(output_matrix->values[i], correct_values[i], TOL))
+        {
+            test_result = false;
+            break;
+        }
+    }
+
+    // clean up memory
+    delete matrix;
+    delete right_matrix;
+    delete output_matrix;
+
+    REQUIRE(test_result);
+}
+
+
+TEST_CASE("sparse matrix mat-vect mult")
+{
+    bool test_result = true;
+    int rows = 4;
+    int cols = 4;
+    int nnzs = 4;
+
+    auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
+    auto b = new Matrix<double>(cols, 1, true);
+
+    SECTION("simple mat vect mult")
+    {
+        // set the A matrix with the values we want to test
+        double values[4] = { 5, 8, 3, 6 };
+        int iA[5] = { 0, 0, 2, 3, 4 };
+        int jA[4] = { 0, 1, 2, 1 };
+        A->setMatrix(values, iA, jA);
+
+        double b_values[4] = { 7, 3, 5, 2 };
+        b->setMatrix(4, b_values);
+
+        double correct_values[4] = { 0, 59, 15, 18 };
+        auto result = A->matVecMult(*b);
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (!fEqual(result->values[i], correct_values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+
+        delete result;
+        REQUIRE(test_result);
+    }
+
+    SECTION("larger mat vect mult")
+    {
+        int rows = 5;
+        int cols = 5;
+        int nnzs = 9;
+
+        auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
+
+        // set the A matrix with the values we want to test
+        double values[9] = { 1, 5, 2, 8, 3, 9, 4, 10, 5 };
+        int row_position[6] = { 0, 2, 4, 6, 8, 9 };
+        int col_index[9] = { 0, 1, 1, 2, 2, 3, 3, 4, 4 };
+        A->setMatrix(values, row_position, col_index);
+
+        // Construct the rhs array
+        // b = [1, 2, 3, 4, 5]
+        auto b = new Matrix<double>(cols, 1, true);
+        double b_values[5] = { 1, 2, 3, 4, 5 };
+        b->setMatrix(5, b_values);
+
+        double correct_values[5] = { 11, 28, 45, 66, 25 };
+        auto result = A->matVecMult(*b);
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (!fEqual(result->values[i], correct_values[i], TOL))
+            {
+                test_result = false;
+                break;
+            }
+        }
+
+        delete result;
+        REQUIRE(test_result);
+    }
+
+    delete A;
+    delete b;
+
+    REQUIRE(test_result);
+}
+
+
 
 /*
  * NOTE BEFORE
@@ -148,7 +432,7 @@ TEST_CASE("sparse solver tests")
     }
 }
 
-#if defined(RUN_ALL_TESTS)
+
 
 //TEST_CASE("Dense To Sparse Conversion")
 //{
@@ -180,110 +464,6 @@ TEST_CASE("sparse solver tests")
 //}
 
 
-// Sparse Matrix Dense format Tests:
-TEST_CASE("All solvers; diagonally dominant 1000x1000 sparse matrix")
-{
-    bool test_result = true;
-
-    // construct the test matrices
-    auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrixSparse.txt");
-    auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixBSparse.txt");
-
-    // initial guess for iterative methods - set all values to 1
-    double initial_guess[1000];
-    std::fill_n(initial_guess, 1000, 1);
-
-    // read in the expected result
-    std::unique_ptr< Matrix<double> > expectedSol(new Matrix<double>(1000, 1, (std::string) "massMatrixSolSparse.txt"));
-
-    if (run_jacobi)
-    {
-        SECTION("Jacobi Solver Test Gigantic")
-        {
-            // construct solution using jacobi (dense) method
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess));
-
-            // check values are reasonably accurate
-            for (int i = 0; i < expectedSol->rows; i++)
-            {
-                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
-                {
-                    test_result = false;
-                    break;
-                }
-            }
-
-            REQUIRE(test_result);
-        }
-    }
-
-    if (run_gauss_seidel)
-    {
-        SECTION("Gauss-Seidel Solver Test Gigantic")
-        {
-            // construct solution using gauss seidel (dense) method
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussSeidel(A, b, TOL, 1000, initial_guess));
-
-            // check values are reasonably accurate
-            for (int i = 0; i < expectedSol->rows; i++)
-            {
-                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
-                {
-                    test_result = false;
-                    break;
-                }
-            }
-
-            REQUIRE(test_result);
-        }
-    }
-
-    if (run_lu_decomp)
-    {
-        SECTION("LU Decomp Solver Test Gigantic")
-        {
-            // construct solution using LU (dense) method
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveLU(A, b));
-
-            // check values are within reasonable tolerance of true solution
-            for (int i = 0; i < expectedSol->rows; i++)
-            {
-                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
-                {
-                    test_result = false;
-                    break;
-                }
-            }
-
-            REQUIRE(test_result);
-        }
-    }
-
-
-    if (run_gaussian)
-    {
-        SECTION("Gaussian Test Gigantic")
-        {
-            // construct solution using gaussian elimination (dense) method
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussian(A, b));
-
-            // check values are within a reasonable level of accuracy of true solution
-            for (int i = 0; i < expectedSol->rows; i++)
-            {
-                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
-                {
-                    test_result = false;
-                    break;
-                }
-            }
-
-            REQUIRE(test_result);
-        }
-    }
-
-    delete A;
-    delete b;
-}
 
 TEST_CASE("Stable solvers; massive 1000x1000 matrix")
 {
@@ -661,84 +841,7 @@ TEST_CASE("sparse matrix; conjugate gradient")
     }
 }
 
-TEST_CASE("sparse matrix mat-vect mult")
-{
-    bool test_result = true;
-    int rows = 4;
-    int cols = 4;
-    int nnzs = 4;
 
-    auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
-    auto b = new Matrix<double>(cols, 1, true);
-
-    SECTION("simple mat vect mult")
-    {
-        // set the A matrix with the values we want to test
-        double values[4] = { 5, 8, 3, 6 };
-        int iA[5] = { 0, 0, 2, 3, 4 };
-        int jA[4] = { 0, 1, 2, 1 };
-        A->setMatrix(values, iA, jA);
-
-        double b_values[4] = { 7, 3, 5, 2 };
-        b->setMatrix(4, b_values);
-
-        double correct_values[4] = { 0, 59, 15, 18 };
-        auto result = A->matVecMult(*b);
-
-        for (int i = 0; i < 4; i++)
-        {
-            if (!fEqual(result->values[i], correct_values[i], TOL))
-            {
-                test_result = false;
-                break;
-            }
-        }
-
-        delete result;
-        REQUIRE(test_result);
-    }
-
-    SECTION("larger mat vect mult")
-    {
-        int rows = 5;
-        int cols = 5;
-        int nnzs = 9;
-
-        auto A = new CSRMatrix<double>(rows, cols, nnzs, true);
-
-        // set the A matrix with the values we want to test
-        double values[9] = { 1, 5, 2, 8, 3, 9, 4, 10, 5 };
-        int row_position[6] = { 0, 2, 4, 6, 8, 9 };
-        int col_index[9] = { 0, 1, 1, 2, 2, 3, 3, 4, 4 };
-        A->setMatrix(values, row_position, col_index);
-
-        // Construct the rhs array
-        // b = [1, 2, 3, 4, 5]
-        auto b = new Matrix<double>(cols, 1, true);
-        double b_values[5] = { 1, 2, 3, 4, 5 };
-        b->setMatrix(5, b_values);
-
-        double correct_values[5] = { 11, 28, 45, 66, 25 };
-        auto result = A->matVecMult(*b);
-
-        for (int i = 0; i < 5; i++)
-        {
-            if (!fEqual(result->values[i], correct_values[i], TOL))
-            {
-                test_result = false;
-                break;
-            }
-        }
-
-        delete result;
-        REQUIRE(test_result);
-    }
-
-    delete A;
-    delete b;
-
-    REQUIRE(test_result);
-}
 
 TEST_CASE("jacobi iteration")
 {

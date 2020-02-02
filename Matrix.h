@@ -1,4 +1,6 @@
-#pragma once
+#ifndef MATRIX_H
+#define MATRIX_H
+
 #include <string>
 #include <vector>
 
@@ -65,3 +67,5 @@ protected:
     bool preallocated = false;
     int size_of_values = -1;
 };
+
+#endif

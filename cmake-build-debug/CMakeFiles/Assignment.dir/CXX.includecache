@@ -13,11 +13,7 @@ iostream
 -
 stdexcept
 -
-CSRMatrix.h
-/Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.h
 vector
--
-cmath
 -
 
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.h
@@ -29,10 +25,6 @@ Matrix.h
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
 memory
 -
-vector
--
-string
--
 stdexcept
 -
 iostream
@@ -41,6 +33,8 @@ fstream
 -
 cmath
 -
+cblas.h
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cblas.h
 
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
 string
@@ -635,14 +629,14 @@ cassert
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/test.cpp
 catch.hpp
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/catch.hpp
-../Matrix.h
-/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
-../Matrix.cpp
-/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.cpp
 stdexcept
 -
 ../utilities.h
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/utilities.h
+../Matrix.h
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.h
+../Matrix.cpp
+/Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.cpp
 ../CSRMatrix.h
 /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.h
 ../CSRMatrix.cpp

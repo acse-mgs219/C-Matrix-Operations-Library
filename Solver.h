@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SOLVER_H
+#define SOLVER_H
+
 #include "Matrix.h"
 
 template <class T>
@@ -39,3 +41,5 @@ private:
     // REMOVE AS THE FUNCTIONS CALLING THIS DON'T WORK
     static bool check_finish(CSRMatrix<T>* LHS, Matrix<T>* mat_b, Matrix<T>* output);
 };
+
+#endif

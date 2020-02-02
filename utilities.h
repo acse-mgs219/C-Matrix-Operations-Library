@@ -1,7 +1,8 @@
-#include <cmath>
+#ifndef UTILITIES_H
+#define UTILITIES_H
 
-#ifndef LECTURES_UTILITIES_H
-#define LECTURES_UTILITIES_H
+#include <cmath>
+#define USE_BLAS
 
 // a function to compare two numbers within a given tolerance
 bool fEqual(double a, double b, double tolerance)
@@ -9,4 +10,4 @@ bool fEqual(double a, double b, double tolerance)
     return fabs(a - b) < tolerance;
 }
 
-#endif //LECTURES_UTILITIES_H
+#endif
