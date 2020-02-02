@@ -1,0 +1,160 @@
+Solving using Jacobi iterative solver. Size = 100
+Completed in 9.433 ms and 27 iterations.
+converges?: 1
+===============
+Solving using Gauss-Seidel iterative solver. Size = 100
+Completed in 3.201 ms and 14 iterations.
+converges?: 1
+===============
+Solving using CG iterative solver. Size = 100
+Completed in 6.44 ms and 48 iterations.
+converges?: 1
+===============
+Solving using LU direct solver. Size = 100
+Completed in 4.756 ms.
+converges?: 1
+===============
+Solving using Gaussian Elimination direct solver. Size = 100
+Completed in 2.528 ms.
+converges?: 1
+===============
+Solving using Jacobi iterative solver. Size = 250
+Completed in 61.519 ms and 28 iterations.
+converges?: 1
+===============
+Solving using Gauss-Seidel iterative solver. Size = 250
+Completed in 17.251 ms and 15 iterations.
+converges?: 1
+===============
+Solving using CG iterative solver. Size = 250
+Completed in 27.016 ms and 34 iterations.
+converges?: 1
+===============
+Solving using LU direct solver. Size = 250
+Completed in 49.072 ms.
+converges?: 1
+===============
+Solving using Gaussian Elimination direct solver. Size = 250
+Completed in 40.488 ms.
+converges?: 1
+===============
+Solving using Jacobi iterative solver. Size = 500
+Completed in 170.704 ms and 30 iterations.
+converges?: 1
+===============
+Solving using Gauss-Seidel iterative solver. Size = 500
+Completed in 53.806 ms and 16 iterations.
+converges?: 1
+===============
+Solving using CG iterative solver. Size = 500
+Completed in 49.117 ms and 27 iterations.
+converges?: 1
+===============
+Solving using LU direct solver. Size = 500
+Completed in 245.538 ms.
+converges?: 1
+===============
+Solving using Gaussian Elimination direct solver. Size = 500
+Completed in 241.25 ms.
+converges?: 1
+===============
+Solving using Jacobi iterative solver. Size = 750
+Completed in 345.559 ms and 30 iterations.
+converges?: 1
+===============
+Solving using Gauss-Seidel iterative solver. Size = 750
+Completed in 117.011 ms and 16 iterations.
+converges?: 1
+===============
+Solving using CG iterative solver. Size = 750
+Completed in 100.439 ms and 25 iterations.
+converges?: 1
+===============
+Solving using LU direct solver. Size = 750
+Completed in 677.191 ms.
+converges?: 1
+===============
+Solving using Gaussian Elimination direct solver. Size = 750
+Completed in 566.886 ms.
+converges?: 1
+===============
+Solving using Jacobi iterative solver. Size = 1000
+Completed in 635.819 ms and 31 iterations.
+converges?: 1
+===============
+Solving using Gauss-Seidel iterative solver. Size = 1000
+Completed in 228.516 ms and 17 iterations.
+converges?: 1
+===============
+Solving using CG iterative solver. Size = 1000
+Completed in 178.06 ms and 24 iterations.
+converges?: 1
+===============
+Solving using LU direct solver. Size = 1000
+Completed in 1564.7 ms.
+converges?: 1
+===============
+Solving using Gaussian Elimination direct solver. Size = 1000
+Completed in 1480.4 ms.
+converges?: 1
+===============
+Solving using Jacobi iterative solver. Size = 2500
+Completed in 4817.02 ms and 33 iterations.
+converges?: 1
+===============
+Solving using Gauss-Seidel iterative solver. Size = 2500
+Completed in 1550.19 ms and 18 iterations.
+converges?: 1
+===============
+Solving using CG iterative solver. Size = 2500
+Completed in 1096.98 ms and 22 iterations.
+converges?: 1
+===============
+Solving using LU direct solver. Size = 2500
+Completed in 24714.4 ms.
+converges?: 1
+===============
+Solving using Gaussian Elimination direct solver. Size = 2500
+Completed in 21026.7 ms.
+converges?: 1
+===============
+Solving using Jacobi iterative solver. Size = 5000
+Completed in 17632.6 ms and 34 iterations.
+converges?: 1
+===============
+Solving using Gauss-Seidel iterative solver. Size = 5000
+Completed in 5989.15 ms and 18 iterations.
+converges?: 1
+===============
+Solving using CG iterative solver. Size = 5000
+Completed in 3765.52 ms and 21 iterations.
+converges?: 1
+===============
+Solving using LU direct solver. Size = 5000
+Completed in 180405 ms.
+converges?: 1
+===============
+Solving using Gaussian Elimination direct solver. Size = 5000
+Completed in 172160 ms.
+converges?: 1
+===============
+Solving using Jacobi iterative solver. Size = 7500
+Completed in 41647.4 ms and 35 iterations.
+converges?: 1
+===============
+Solving using Gauss-Seidel iterative solver. Size = 7500
+Completed in 13756.2 ms and 19 iterations.
+converges?: 1
+===============
+Solving using CG iterative solver. Size = 7500
+Completed in 8330.62 ms and 21 iterations.
+converges?: 1
+===============
+Solving using LU direct solver. Size = 7500
+Completed in 576326 ms.
+converges?: 1
+===============
+Solving using Gaussian Elimination direct solver. Size = 7500
+Completed in 572453 ms.
+converges?: 1
+===============
