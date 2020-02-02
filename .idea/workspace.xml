@@ -13,16 +13,8 @@
   <component name="ChangeListManager">
     <list default="true" id="7564b55b-8e43-42dd-a5d7-f1c6814df806" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Matrix.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Matrix.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Solver.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Assignment" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Assignment" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Assignment.dir/flags.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Assignment.dir/flags.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Assignment.dir/link.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Assignment.dir/link.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Assignment.dir/test/test.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Assignment.dir/test/test.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/test.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -64,10 +56,10 @@
     <property name="settings.editor.selected.configurable" value="zielu.gittoolbox.app.config" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/cmake-build-debug" />
     </key>
-    <key name="MoveFile.RECENT_KEYS">
+    <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/cmake-build-debug" />
     </key>
   </component>
@@ -107,7 +99,7 @@
       <workItem from="1580576716566" duration="52000" />
       <workItem from="1580576771105" duration="150000" />
       <workItem from="1580576925130" duration="1040000" />
-      <workItem from="1580580171678" duration="22882000" />
+      <workItem from="1580580171678" duration="24175000" />
     </task>
     <servers />
   </component>
@@ -115,22 +107,22 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state width="201" height="558" key="GridCell.Tab.0.bottom" timestamp="1580604948397">
+    <state width="421" height="497" key="GridCell.Tab.0.bottom" timestamp="1580606334019">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="201" height="558" key="GridCell.Tab.0.bottom/0.23.1280.709@0.23.1280.709" timestamp="1580604948397" />
-    <state width="201" height="558" key="GridCell.Tab.0.center" timestamp="1580604948396">
+    <state width="421" height="497" key="GridCell.Tab.0.bottom/0.23.1280.709@0.23.1280.709" timestamp="1580606334019" />
+    <state width="421" height="497" key="GridCell.Tab.0.center" timestamp="1580606334017">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="201" height="558" key="GridCell.Tab.0.center/0.23.1280.709@0.23.1280.709" timestamp="1580604948396" />
-    <state width="201" height="558" key="GridCell.Tab.0.left" timestamp="1580604948395">
+    <state width="421" height="497" key="GridCell.Tab.0.center/0.23.1280.709@0.23.1280.709" timestamp="1580606334017" />
+    <state width="421" height="497" key="GridCell.Tab.0.left" timestamp="1580606334016">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="201" height="558" key="GridCell.Tab.0.left/0.23.1280.709@0.23.1280.709" timestamp="1580604948395" />
-    <state width="201" height="558" key="GridCell.Tab.0.right" timestamp="1580604948396">
+    <state width="421" height="497" key="GridCell.Tab.0.left/0.23.1280.709@0.23.1280.709" timestamp="1580606334016" />
+    <state width="421" height="497" key="GridCell.Tab.0.right" timestamp="1580606334019">
       <screen x="0" y="23" width="1280" height="709" />
     </state>
-    <state width="201" height="558" key="GridCell.Tab.0.right/0.23.1280.709@0.23.1280.709" timestamp="1580604948396" />
+    <state width="421" height="497" key="GridCell.Tab.0.right/0.23.1280.709@0.23.1280.709" timestamp="1580606334019" />
     <state width="1238" height="250" key="GridCell.Tab.1.bottom" timestamp="1580330572618">
       <screen x="0" y="23" width="1280" height="709" />
     </state>

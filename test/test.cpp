@@ -11,7 +11,7 @@
 // desired epsilon for iterative algorithms
 #define TOL 0.0001
 
- #define RUN_ALL_TESTS
+// #define RUN_ALL_TESTS
 
 // Jacobi Tests:
 const bool run_jacobi = true;
@@ -27,6 +27,32 @@ const bool run_gaussian = true;
 
 // Conjugate Gradient Dense Tests:
 const bool run_conjugate_gradient = false;
+
+
+TEST_CASE("weird SPD")
+{
+    auto A = new Matrix<double>(400, 400, (std::string) "SPDMatrixA.txt");
+    auto b = new Matrix<double>(400, 1, (std::string) "SPDMatrixb.txt");
+
+    double initial_guess[400] = {0};
+
+    auto sol = Solver<double>::conjugateGradient(A, b, TOL, 2000, initial_guess);
+
+    sol->printMatrix();
+
+//    delete sol;
+
+//    std::cout << "We can also represent A as sparse and use our Sparse Conjugate Gradient on it.\n";
+//    CSRMatrix<double>* sparseA = new CSRMatrix<double>(A);
+//    sol = Solver<double>::conjugateGradient(sparseA, b);
+//    std::cout << "We get the same solution:\n";
+
+    delete A;
+    delete b;
+}
+
+
+#if defined(RUN_ALL_TESTS)
 
 
 TEST_CASE("set matrix function - using BLAS dcopy routine")
@@ -300,7 +326,7 @@ TEST_CASE("sparse solver tests")
     }
 }
 
-#if defined(RUN_ALL_TESTS)
+
 
 //TEST_CASE("Dense To Sparse Conversion")
 //{
