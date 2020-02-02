@@ -148,17 +148,22 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b)
     // transpose the permutation matrix
     permutation->transpose();
 
-    /*======================================
-     *  Naive implementation without BLAS calls
-        // multiply the transpose of the permutation matrix by b
-        auto p_inv_b = permutation->matMatMult(*b);                     // memory cleared
-    ======================================*/
-    auto p_inv_b = new Matrix<T>(b->rows, b->cols, true);
+    Matrix<T> *p_inv_b;
 
+    #if defined(USE_BLAS)
     /*======================================
      * BLAS call to do the matrix vector multiplication
      * ======================================*/
+    p_inv_b = new Matrix<T>(b->rows, b->cols, true); // memory cleared
     cblas_dgemv(CblasRowMajor, CblasNoTrans, permutation->rows, permutation->cols, 1, (double *) permutation->values, permutation->rows, (double *) b->values, 1, 1, (double *) p_inv_b->values, 1);
+
+    #else
+    /*======================================
+     *  Naive implementation without BLAS calls
+     *======================================*/
+    // multiply the transpose of the permutation matrix by b
+    p_inv_b = permutation->matMatMult(*b);      // memory cleared
+    #endif
 
     // calculate the y values using forward substitution
     auto y_values = Solver<T>::forwardSubstitution(lower_tri, p_inv_b);     // memory cleared
@@ -191,17 +196,20 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     auto x = new Matrix<T>(b->rows, b->cols, true);         // return at end of function
     x->setMatrix(b->rows, initial_guess);
 
-    /*======================================
-     *  No BLAS level 2 call made
-        // workout Ax initially
-        std::unique_ptr< Matrix<T> > Ax(LHS->matMatMult(*x));
-     ======================================*/
+    Matrix<T> *Ax;
 
+    #if defined(USE_BLAS)
     /*======================================
      * Take advantage of BLAS level 2 mat vect mult routine
      *======================================*/
-    auto Ax = new Matrix<T>(LHS->rows, x->cols, true);
+    Ax = new Matrix<T>(LHS->rows, x->cols, true);
     cblas_dgemv(CblasRowMajor, CblasNoTrans, LHS->rows, LHS->cols, 1, (double *) LHS->values, LHS->rows, (double *) b->values, 1, 1, (double *) x->values, 1);
+    #else
+    /*======================================
+     * Implementation without making use of the BLAS call
+     ======================================*/
+    Ax = LHS->matMatMult(*x);
+    #endif
 
     // set the residual to  r = b - Ax initially
     std::unique_ptr< Matrix<T> > r(new Matrix<T>(b->rows, b->cols, true));
@@ -216,16 +224,18 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     std::unique_ptr< Matrix<T> > p(new Matrix<T>(r->rows, r->cols, true));
     std::unique_ptr< Matrix<T> > w(new Matrix<T>(r->rows, r->cols, true));
 
-    /*======================================
-     *  Naive solution that does not take advantage of low level BLAS call
-        // calculate delta parameter which is the result of the inner product of r with itself
-        double delta = r->innerVectorProduct(*r);
-    ======================================*/
+    double delta;
 
+    #if defined(USE_BLAS)
     /*======================================
      * BLAS level 1 call to work out the inner vector product (dot product)
      ======================================*/
-    double delta = cblas_ddot(r->size(), (double *) (r->values), 1, (double *) r->values, 1);
+    delta = cblas_ddot(r->size(), (double *) (r->values), 1, (double *) r->values, 1);
+
+    #else
+    // calculate delta parameter which is the result of the inner product of r with itself
+    delta = r->innerVectorProduct(*r);
+    #endif
 
     // iterate until the convergence criteria is reached or we hit the max iterations
     while (iteration < max_iterations && (sqrt(delta) > epsilon * sqrt(b->innerVectorProduct(*b))))
@@ -233,20 +243,18 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
         // for the first iterations set p = r
         if (iteration == 0)
         {
-            /*======================================
-             * No BLAS Level 1 call
-             ======================================
-                for (int i = 0; i < p->size(); i++)
-                {
-                    p->values[i] = r->values[i];
-                }
-            */
-
+            #if defined(USE_BLAS)
             /*====================================
              * use low level BLAS routine to quickly copy over desired values to where matrix/vector.
             ==================================== */
             cblas_dcopy(p->size(), (double *) r->values, 1, (double *) p->values, 1);
 
+            #else
+            for (int i = 0; i < p->size(); i++)
+            {
+                p->values[i] = r->values[i];
+            }
+            #endif
         }
         // for all the other iterations
         else {
@@ -261,60 +269,49 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
             }
         }
 
-        /*======================================
-        std::unique_ptr< Matrix<T> > Ap(LHS->matMatMult(*p));
-        ======================================*/
+        Matrix<T> *Ap;
 
-        /*======================================
-        * BLAS call to do the matrix vector multiplication
-        * ======================================*/
-        auto Ap = new Matrix<T>(LHS->rows, p->cols, true);
-        cblas_dgemv(CblasRowMajor, CblasNoTrans, LHS->rows, LHS->cols, 1, (double *) LHS->values, LHS->rows, (double *) b->values, 1, 1, (double *) Ap->values, 1);
+        #if defined(USE_BLAS)
+            /*======================================
+            * BLAS call to do the matrix vector multiplication
+            * ======================================*/
+            Ap = new Matrix<T>(LHS->rows, p->cols, true);
 
-        /*===============================
+            cblas_dgemv(CblasRowMajor, CblasNoTrans, LHS->rows, LHS->cols, 1, (double *) LHS->values, LHS->rows, (double *) b->values, 1, 1, (double *) Ap->values, 1);
+
+            cblas_dcopy(w->size(), (double *) Ap, 1, (double *) w->values, 1);
+
+            alpha = delta / cblas_ddot(p->size(), (double *) (p->values), 1, (double *) w->values, 1);
+
+            cblas_daxpy(x->size(), (double) alpha, (double *) x->values, 1, (double *) x->values, 1);
+
+            cblas_daxpy(r->size(), (double) -alpha, (double *) w->values, 1, (double *) r->values, 1);
+
+        #else
+
+            Ap = LHS->matMatMult(*p);
+
             // set w = Ap for this iteration
             for (int i = 0; i < w->size(); i++)
             {
                 w->values[i] = Ap->values[i];
             }
-         ===============================*/
 
-        /*======================================
-        * BLAS call to do copy the values of Ap into w
-        * ======================================*/
-        cblas_dcopy(w->size(), (double *) Ap, 1, (double *) w->values, 1);
+            // update the alpha value based on delta and the inner product of p and w
+            alpha = delta / p->innerVectorProduct(*w);
 
-        /*=======================================
-        // update the alpha value based on delta and the inner product of p and w
-        alpha = delta / p->innerVectorProduct(*w);
-        =========================================*/
-        alpha = delta / cblas_ddot(p->size(), (double *) (p->values), 1, (double *) w->values, 1);
-
-        /*
             // set x = x + alpha * p for this iteration
             for (int i = 0; i < x->size(); i++)
             {
                 x->values[i] = x->values[i] + alpha * p->values[i];
             }
-        */
 
-        /*======================================
-        * BLAS call to DAXPY
-        * ======================================*/
-        cblas_daxpy(x->size(), (double) alpha, (double *) x->values, 1, (double *) x->values, 1);
-
-        /*=======================================
-        // set r = r - alpha * w for this iteration
-        for (int i = 0; i < r->size(); i++)
-        {
-            r->values[i] = r->values[i] - alpha * w->values[i];
-        }
-        =======================================*/
-
-        /*======================================
-        * BLAS call to DAXPY
-        * ======================================*/
-        cblas_daxpy(r->size(), (double) -alpha, (double *) w->values, 1, (double *) r->values, 1);
+            // set r = r - alpha * w for this iteration
+            for (int i = 0; i < r->size(); i++)
+            {
+                r->values[i] = r->values[i] - alpha * w->values[i];
+            }
+        #endif
 
         // update both delta and delta_old for this iteration
         delta_old = delta;
@@ -341,11 +338,22 @@ void Solver<T>::luDecomposition(Matrix<T>* LHS, Matrix<T>* upper_tri, Matrix<T>*
     // intialize the scaling factor s to -1
     double s = -1;
 
+
+    #if defined(USE_BLAS)
+
+    cblas_dcopy(LHS->size(), (double *) LHS, 1, (double *) upper_tri->values, 1);
+
+    #else
+
     // copy the values of A into the upper triangular matrix
     for (int i = 0; i < LHS->size(); i++)
     {
         upper_tri->values[i] = LHS->values[i];
     }
+
+    #endif
+
+
 
     // loop over each pivot row
     for (int k = 0; k < LHS->rows - 1; k++)

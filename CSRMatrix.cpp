@@ -1,9 +1,7 @@
 #include "CSRMatrix.h"
 #include <iostream>
 #include <stdexcept>
-#include "CSRMatrix.h"
 #include <vector>
-#include <cmath>
 
 // Constructor - using an initialisation list here
 template <class T>
@@ -116,6 +114,7 @@ Matrix<T>* CSRMatrix<T>::matVecMult(Matrix<T>& b)
     {
         throw std::invalid_argument("argument must be a column vector (number of columns = 1)");
     }
+
     if (this->cols != b.rows)
     {
         throw std::invalid_argument("A and b dimensions do not match");

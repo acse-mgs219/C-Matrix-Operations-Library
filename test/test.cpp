@@ -1,8 +1,8 @@
 #include "catch.hpp"
-#include "../Matrix.h"
-#include "../Matrix.cpp"
 #include <stdexcept>
 #include "../utilities.h"
+#include "../Matrix.h"
+#include "../Matrix.cpp"
 #include "../CSRMatrix.h"
 #include "../CSRMatrix.cpp"
 #include "../Solver.h"
@@ -11,7 +11,7 @@
 // desired epsilon for iterative algorithms
 #define TOL 0.0001
 
-// #define RUN_ALL_TESTS
+//#define RUN_ALL_TESTS
 
 // Jacobi Tests:
 const bool run_jacobi = true;
@@ -29,27 +29,138 @@ const bool run_gaussian = true;
 const bool run_conjugate_gradient = false;
 
 
-TEST_CASE("weird SPD")
+// Sparse Matrix Dense format Tests:
+TEST_CASE("All solvers; diagonally dominant 1000x1000 sparse matrix")
 {
-    auto A = new Matrix<double>(400, 400, (std::string) "SPDMatrixA.txt");
-    auto b = new Matrix<double>(400, 1, (std::string) "SPDMatrixb.txt");
+    bool test_result = true;
 
-    double initial_guess[400] = {0};
+    // construct the test matrices
+    auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrixSparse.txt");
+    auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixBSparse.txt");
 
-    auto sol = Solver<double>::conjugateGradient(A, b, TOL, 2000, initial_guess);
+    // initial guess for iterative methods - set all values to 1
+    double initial_guess[1000];
+    std::fill_n(initial_guess, 1000, 1);
 
-    sol->printMatrix();
+    // read in the expected result
+    std::unique_ptr< Matrix<double> > expectedSol(new Matrix<double>(1000, 1, (std::string) "massMatrixSolSparse.txt"));
 
-//    delete sol;
+    if (run_jacobi)
+    {
+        SECTION("Jacobi Solver Test Gigantic")
+        {
+            // construct solution using jacobi (dense) method
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess));
 
-//    std::cout << "We can also represent A as sparse and use our Sparse Conjugate Gradient on it.\n";
-//    CSRMatrix<double>* sparseA = new CSRMatrix<double>(A);
-//    sol = Solver<double>::conjugateGradient(sparseA, b);
-//    std::cout << "We get the same solution:\n";
+            // check values are reasonably accurate
+            for (int i = 0; i < expectedSol->rows; i++)
+            {
+                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+                {
+                    test_result = false;
+                    break;
+                }
+            }
+
+            REQUIRE(test_result);
+        }
+    }
+
+    if (run_gauss_seidel)
+    {
+        SECTION("Gauss-Seidel Solver Test Gigantic")
+        {
+            // construct solution using gauss seidel (dense) method
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussSeidel(A, b, TOL, 1000, initial_guess));
+
+            // check values are reasonably accurate
+            for (int i = 0; i < expectedSol->rows; i++)
+            {
+                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+                {
+                    test_result = false;
+                    break;
+                }
+            }
+
+            REQUIRE(test_result);
+        }
+    }
+
+    if (run_lu_decomp)
+    {
+        SECTION("LU Decomp Solver Test Gigantic")
+        {
+            // construct solution using LU (dense) method
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveLU(A, b));
+
+            // check values are within reasonable tolerance of true solution
+            for (int i = 0; i < expectedSol->rows; i++)
+            {
+                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+                {
+                    test_result = false;
+                    break;
+                }
+            }
+
+            REQUIRE(test_result);
+        }
+    }
+
+    if (run_gaussian)
+    {
+        SECTION("Gaussian Test Gigantic")
+        {
+            // construct solution using gaussian elimination (dense) method
+            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussian(A, b));
+
+            // check values are within a reasonable level of accuracy of true solution
+            for (int i = 0; i < expectedSol->rows; i++)
+            {
+                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
+                {
+                    test_result = false;
+                    break;
+                }
+            }
+
+            REQUIRE(test_result);
+        }
+    }
 
     delete A;
     delete b;
 }
+
+
+
+
+
+
+
+
+//TEST_CASE("weird SPD")
+//{
+//    auto A = new Matrix<double>(400, 400, (std::string) "SPDMatrixA.txt");
+//    auto b = new Matrix<double>(400, 1, (std::string) "SPDMatrixb.txt");
+//
+////    double initial_guess[400] = {0};
+////
+////    auto sol = Solver<double>::conjugateGradient(A, b, TOL, 2000, initial_guess);
+////
+////    sol->printMatrix();
+//
+////    delete sol;
+//
+////    std::cout << "We can also represent A as sparse and use our Sparse Conjugate Gradient on it.\n";
+////    CSRMatrix<double>* sparseA = new CSRMatrix<double>(A);
+////    sol = Solver<double>::conjugateGradient(sparseA, b);
+////    std::cout << "We get the same solution:\n";
+//
+//    delete A;
+//    delete b;
+//}
 
 
 #if defined(RUN_ALL_TESTS)
@@ -198,11 +309,6 @@ TEST_CASE("sparse matrix mat-vect mult")
 
     REQUIRE(test_result);
 }
-
-
-
-
-
 
 
 
@@ -358,110 +464,6 @@ TEST_CASE("sparse solver tests")
 //}
 
 
-// Sparse Matrix Dense format Tests:
-TEST_CASE("All solvers; diagonally dominant 1000x1000 sparse matrix")
-{
-    bool test_result = true;
-
-    // construct the test matrices
-    auto A = new Matrix<double>(1000, 1000, (std::string) "massMatrixSparse.txt");
-    auto b = new Matrix<double>(1000, 1, (std::string) "massMatrixBSparse.txt");
-
-    // initial guess for iterative methods - set all values to 1
-    double initial_guess[1000];
-    std::fill_n(initial_guess, 1000, 1);
-
-    // read in the expected result
-    std::unique_ptr< Matrix<double> > expectedSol(new Matrix<double>(1000, 1, (std::string) "massMatrixSolSparse.txt"));
-
-    if (run_jacobi)
-    {
-        SECTION("Jacobi Solver Test Gigantic")
-        {
-            // construct solution using jacobi (dense) method
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveJacobi(A, b, TOL, 1000, initial_guess));
-
-            // check values are reasonably accurate
-            for (int i = 0; i < expectedSol->rows; i++)
-            {
-                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
-                {
-                    test_result = false;
-                    break;
-                }
-            }
-
-            REQUIRE(test_result);
-        }
-    }
-
-    if (run_gauss_seidel)
-    {
-        SECTION("Gauss-Seidel Solver Test Gigantic")
-        {
-            // construct solution using gauss seidel (dense) method
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussSeidel(A, b, TOL, 1000, initial_guess));
-
-            // check values are reasonably accurate
-            for (int i = 0; i < expectedSol->rows; i++)
-            {
-                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
-                {
-                    test_result = false;
-                    break;
-                }
-            }
-
-            REQUIRE(test_result);
-        }
-    }
-
-    if (run_lu_decomp)
-    {
-        SECTION("LU Decomp Solver Test Gigantic")
-        {
-            // construct solution using LU (dense) method
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveLU(A, b));
-
-            // check values are within reasonable tolerance of true solution
-            for (int i = 0; i < expectedSol->rows; i++)
-            {
-                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
-                {
-                    test_result = false;
-                    break;
-                }
-            }
-
-            REQUIRE(test_result);
-        }
-    }
-
-
-    if (run_gaussian)
-    {
-        SECTION("Gaussian Test Gigantic")
-        {
-            // construct solution using gaussian elimination (dense) method
-            std::unique_ptr< Matrix<double> > realSol(Solver<double>::solveGaussian(A, b));
-
-            // check values are within a reasonable level of accuracy of true solution
-            for (int i = 0; i < expectedSol->rows; i++)
-            {
-                if (!fEqual(realSol->values[i], expectedSol->values[i], TOL))
-                {
-                    test_result = false;
-                    break;
-                }
-            }
-
-            REQUIRE(test_result);
-        }
-    }
-
-    delete A;
-    delete b;
-}
 
 TEST_CASE("Stable solvers; massive 1000x1000 matrix")
 {

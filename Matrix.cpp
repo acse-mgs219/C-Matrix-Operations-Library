@@ -1,7 +1,5 @@
 #include "Matrix.h"
 #include <memory>
-#include <vector>
-#include <string>
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
@@ -29,18 +27,13 @@ Matrix<T>::Matrix(int nrows, int ncols, std::string fileName) :
 rows(nrows), cols(ncols), size_of_values(nrows* ncols), preallocated(true)
 {
     std::ifstream myfile;
-    // make sure file can be opened
-    try
-    {
-        myfile.open(fileName);
-    }
-    // throw error if file cannot be found
-    catch (std::system_error& e)
-    {
-        throw std::invalid_argument(fileName + " not found in. Please check you have access to it");
-    }
+    myfile.open(fileName);
+
+    if (!myfile)
+        throw std::invalid_argument(fileName + " not found. Please check you have access to it");
 
     this->values = new T[this->size_of_values];
+
     // initialize values to 0
     for (int i = 0; i < rows; i++)
     {
@@ -85,27 +78,27 @@ Matrix<T> *Matrix<T>::matVectMult(Matrix<T> &b)
     // create output vector
     auto output = new Matrix<T>(b.rows, b.cols, true);
 
+    #if defined(USE_BLAS)
+    /*============================
+    *  call to BLAS level 1 routine; determines dot product of row and column quickly.
+    *  row-major order should take advantage of caching for fast memory access.
+    ============================ */
+    for (int i = 0; i < this->rows; i++)
+    {
+        output->values[i] = cblas_ddot(b.rows, (double *) (this->values + i * this->cols), 1, (double *) b.values, 1);
+    }
+
+    #else
     // Loop over each row of A
     for (int i = 0; i < this->rows; i++)
     {
-        /*=======================
-        * // unoptimized implementation that does not use BLAS level 1 routines.
-        * // Uses nested for loops.
-
         // go over the column and multiply element wise.
         for (int j=0; j < this->cols; j++)
         {
             output->values[i] += this->values[i * this->cols + j] * b.values[j];
         }
-        *=======================/
-
-
-        /*
-        *  call to BLAS level 1 routine; determines dot product of row and column quickly.
-        *  row-major order should take advantage of caching for fast memory access.
-        */
-        output->values[i] = cblas_ddot(b.rows, (double *) (this->values + i * this->cols), 1, (double *) b.values, 1);
     }
+    #endif
 
     return output;
 }
@@ -173,19 +166,23 @@ void Matrix<T>::setMatrix(int length, T *values_ptr)
     {
         throw std::invalid_argument("input has wrong number of elements");
     }
-    /*====================================
-     *  naive implementation uses for loops to copy the elements over.
-     *  // set the values of the array (just overwrite as we don't want dangling pointers)
-        for (int i=0; i<length; i++)
-        {
-            this->values[i] = values_ptr[i];
-        }
-    ==================================== */
 
+    #if defined(USE_BLAS)
     /*====================================
      * use low level BLAS routine to quickly copy over desired values to where matrix/vector.
     ==================================== */
     cblas_dcopy(length, (double *) values_ptr, 1, (double *) this->values, 1);
+
+    #else
+    /*====================================
+     *  naive implementation uses for loops to copy the elements over.
+     *  // set the values of the array (just overwrite as we don't want dangling pointers)
+     *==================================== */
+    for (int i=0; i<length; i++)
+    {
+        this->values[i] = values_ptr[i];
+    }
+    #endif
 }
 
 // print values (not matrix form)
@@ -235,22 +232,7 @@ Matrix<T> *Matrix<T>::matMatMult(Matrix& mat_right)
         output->values[i] = 0;
     }
 
-    /*======================================
-     *  matrix multiplication is O(n^3).
-     *  Although this is loop ordering takes advantage of caching, it
-     *  does not take advantage of BLAS routines (for row by row access).
-        for (int i=0; i<this->rows; i++)
-        {
-            for (int k=0; k<this->cols; k++)
-            {
-                for (int j=0; j<mat_right.cols; j++)
-                {
-                    output->values[i * output->cols + j] += this->values[i * this->cols + k] * mat_right.values[k * mat_right.cols + j];
-                }
-            }
-        }
-     ======================================*/
-
+    #if defined(USE_BLAS)
     /*======================================
      * Using the BLAS daxpy routine, we can take advantage of of the row by row access and contiguous memory.
      ======================================*/
@@ -261,6 +243,23 @@ Matrix<T> *Matrix<T>::matMatMult(Matrix& mat_right)
             cblas_daxpy(output->cols, (double) this->values[i * this->cols + k], (double *) (mat_right.values + k * mat_right.cols), 1, (output->values + i * mat_right.cols), 1);
         }
     }
+    #else
+    /*======================================
+     *  matrix multiplication is O(n^3).
+     *  Although this is loop ordering takes advantage of caching, it
+     *  does not take advantage of BLAS routines (for row by row access).
+     *======================================*/
+        for (int i=0; i<this->rows; i++)
+        {
+            for (int k=0; k<this->cols; k++)
+            {
+                for (int j=0; j<mat_right.cols; j++)
+                {
+                    output->values[i * output->cols + j] += this->values[i * this->cols + k] * mat_right.values[k * mat_right.cols + j];
+                }
+            }
+        }
+    #endif
 
     return output;
 }
@@ -277,50 +276,12 @@ void Matrix<T>::swapRows(Matrix<T> *b, int i, int j)
     T *iA = new T[this->cols];
     T *ib = new T[b->cols];
 
-    /*
-     * implementation without BLAS calls
-     *
-        for (int k=0; k<this->cols; k++)
-        {
-            iA[k] = this->values[i * this->cols + k];
-
-            // also copy b
-            if (k < b->cols)
-            {
-                ib[k] = b->values[i * b->cols + k];
-            }
-        }
-     */
-
+    #if defined(USE_BLAS)
     // first copy into iA
     cblas_dcopy(this->cols, (double *) (this->values + i * this->cols), 1, (double *) iA, 1);
 
     // now copy into ib
     cblas_dcopy(b->cols, (double *) (b->values + i * b->cols), 1, (double *) ib, 1);
-
-    /*
-     * Implementation not taking advantage of BLAS calls - uses for loops.
-     *
-        // swap the rows
-        for (int k=0; k<this->cols; k++)
-        {
-             //copy row j of A into row i of A
-            this->values[i * this->cols + k] = this->values[j *this->cols + k];
-
-            // copy row 1 into row 2
-            this->values[j * this->cols + k] = iA[k];
-
-            if (k < b->cols)
-            {
-                // row j into row i of b
-                b->values[i * b->cols + k] = b->values[j * b->cols + k];
-
-                // row i into row j
-                b->values[j * b->cols + k] = ib[k];
-
-            }
-        }
-     */
 
     // copy row j of A into row i of A
     cblas_dcopy(this->cols, (double *) (this->values + j * this->cols), 1, (double *) (this->values + i * this->cols), 1);
@@ -334,6 +295,42 @@ void Matrix<T>::swapRows(Matrix<T> *b, int i, int j)
     // copy row i into row j
     cblas_dcopy(b->cols, (double *) ib, 1, (double *) (b->values + j * b->cols), 1);
 
+    #else
+    /*=================================
+     * implementation without BLAS calls
+     =================================*/
+    for (int k=0; k<this->cols; k++)
+    {
+        iA[k] = this->values[i * this->cols + k];
+
+        // also copy b
+        if (k < b->cols)
+        {
+            ib[k] = b->values[i * b->cols + k];
+        }
+    }
+
+    // swap the rows
+    for (int k=0; k<this->cols; k++)
+    {
+         //copy row j of A into row i of A
+        this->values[i * this->cols + k] = this->values[j *this->cols + k];
+
+        // copy row 1 into row 2
+        this->values[j * this->cols + k] = iA[k];
+
+        if (k < b->cols)
+        {
+            // row j into row i of b
+            b->values[i * b->cols + k] = b->values[j * b->cols + k];
+
+            // row i into row j
+            b->values[j * b->cols + k] = ib[k];
+
+        }
+    }
+    #endif
+
     // clean memory
     delete[] iA;
     delete[] ib;
@@ -343,41 +340,41 @@ template<class T>
 void Matrix<T>::swapRowsMatrix(int i, int j)
 {
     // no swap required
-    if (i == j) {
+    if (i == j)
         return;
-    }
 
     // create copy of the first row
     T *iA = new T[this->cols];
 
-    /*
-     * Implementation without BLAS calls
-        for (int k=0; k<this->cols; k++)
-        {
-            iA[k] = this->values[i * this->cols + k];
-        }
-    */
-
+    #if defined(USE_BLAS)
     // copy row i into iA
     cblas_dcopy(this->cols, (double *) (this->values + i * this->cols), 1, (double *) iA, 1);
-
-    /*
-        // swap the rows
-        for (int k=0; k<this->cols; k++)
-        {
-             //copy row j of A into row i of A
-            this->values[i * this->cols + k] = this->values[j * this->cols + k];
-
-             //copy row 1 into row 2
-            this->values[j * this->cols + k] = iA[k];
-        }
-     */
 
     //copy row j of A into row i of A
     cblas_dcopy(this->cols, (double *) (this->values + j * this->cols), 1, (double *) (this->values + i * this->cols), 1);
 
     //copy row 1 into row 2
     cblas_dcopy(this->cols, (double *) iA, 1, (double *) (this->values + j * this->cols), 1);
+
+    #else
+    /*===================================
+    * Implementation without BLAS calls
+    ===================================*/
+    for (int k=0; k<this->cols; k++)
+    {
+       iA[k] = this->values[i * this->cols + k];
+    }
+
+    // swap the rows
+    for (int k=0; k<this->cols; k++)
+    {
+        //copy row j of A into row i of A
+       this->values[i * this->cols + k] = this->values[j * this->cols + k];
+
+        //copy row 1 into row 2
+       this->values[j * this->cols + k] = iA[k];
+    }
+    #endif
 
     // clean memory
     delete[] iA;

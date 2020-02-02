@@ -1,7 +1,5 @@
-#ifndef LECTURES_CSRMATRIX_H
-#define LECTURES_CSRMATRIX_H
-
-#pragma once
+#ifndef CSRMATRIX_H
+#define CSRMATRIX_H
 
 #include "Matrix.h"
 
@@ -50,4 +48,4 @@ private:
 };
 
 
-#endif //LECTURES_CSRMATRIX_H
+#endif
