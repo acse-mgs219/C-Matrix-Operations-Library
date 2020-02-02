@@ -2,7 +2,7 @@
 #define UTILITIES_H
 
 #include <cmath>
-//#include "cblas.h"
+#include "cblas.h"
 //#define USE_BLAS
 
 template <class T>
