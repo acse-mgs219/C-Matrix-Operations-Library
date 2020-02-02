@@ -11,7 +11,7 @@
 // desired epsilon for iterative algorithms
 #define TOL 0.0001
 
- #define RUN_ALL_TESTS
+#define RUN_ALL_TESTS
 
 // Jacobi Tests:
 const bool run_jacobi = true;

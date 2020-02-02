@@ -31,6 +31,9 @@ public:
     // set all the values of the matrix
     virtual void setMatrix(int length, T *values_ptr);
 
+    // write the matrix to a file
+    void writeMatrix(std::string fileName);
+
     // get the value of an element at a certain position
     T getValue(int row_index, int col_index);
 
