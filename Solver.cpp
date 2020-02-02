@@ -2,7 +2,7 @@
 #include "Solver.h"
 #include <time.h>
 
-#define PERFORMANCE_INFO
+
 
 /////// DENSE MATRIX SOLVERS ///////
 template <class T>
@@ -117,7 +117,7 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
     int iteration = 0;
 
     // iterate until we hit the convergence criteria or max_iterations
-    while (residual > tolerance&& iteration < max_iterations)
+    while (residual > tolerance && iteration < max_iterations)
     {
         // loop over each row in the LHS matrix and multiply into the column of b
         for (int i = 0; i < LHS->rows; i++)
@@ -200,20 +200,19 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b)
 
     Matrix<T> *p_inv_b;
 
-    #if defined(USE_BLAS)
+#if defined(USE_BLAS)
     /*======================================
      * BLAS call to do the matrix vector multiplication
      * ======================================*/
     p_inv_b = new Matrix<T>(b->rows, b->cols, true); // memory cleared
     cblas_dgemv(CblasRowMajor, CblasNoTrans, permutation->rows, permutation->cols, 1, (double *) permutation->values, permutation->rows, (double *) b->values, 1, 1, (double *) p_inv_b->values, 1);
-
-    #else
+#else
     /*======================================
      *  Naive implementation without BLAS calls
      *======================================*/
     // multiply the transpose of the permutation matrix by b
     p_inv_b = permutation->matMatMult(*b);      // memory cleared
-    #endif
+#endif
 
     // calculate the y values using forward substitution
     auto y_values = Solver<T>::forwardSubstitution(lower_tri, p_inv_b);     // memory cleared
@@ -237,7 +236,7 @@ Matrix<T>* Solver<T>::solveLU(Matrix<T>* LHS, Matrix<T>* b)
 }
 
 template<class T>
-Matrix<T>* Solver<T>::solvesolveConjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
+Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
 #ifdef PERFORMANCE_INFO
     clock_t tStart = clock();
@@ -265,18 +264,18 @@ Matrix<T>* Solver<T>::solvesolveConjugateGradient(Matrix<T>* LHS, Matrix<T>* b, 
 
     Matrix<T> *Ax;
 
-    #if defined(USE_BLAS)
+#if defined(USE_BLAS)
     /*======================================
      * Take advantage of BLAS level 2 mat vect mult routine
      *======================================*/
     Ax = new Matrix<T>(LHS->rows, x->cols, true);
     cblas_dgemv(CblasRowMajor, CblasNoTrans, LHS->rows, LHS->cols, 1, (double *) LHS->values, LHS->rows, (double *) b->values, 1, 1, (double *) x->values, 1);
-    #else
+#else
     /*======================================
      * Implementation without making use of the BLAS call
      ======================================*/
     Ax = LHS->matMatMult(*x);
-    #endif
+#endif
 
     // set the residual to  r = b - Ax initially
     std::unique_ptr< Matrix<T> > r(new Matrix<T>(b->rows, b->cols, true));
@@ -292,40 +291,45 @@ Matrix<T>* Solver<T>::solvesolveConjugateGradient(Matrix<T>* LHS, Matrix<T>* b, 
     std::unique_ptr< Matrix<T> > w(new Matrix<T>(r->rows, r->cols, true));
 
     double delta;
+    double absolute_tol;
 
-    #if defined(USE_BLAS)
+#if defined(USE_BLAS)
     /*======================================
      * BLAS level 1 call to work out the inner vector product (dot product)
      ======================================*/
+    // calculate the new value of the magnitude of the residual squared
     delta = cblas_ddot(r->size(), (double *) (r->values), 1, (double *) r->values, 1);
 
-    #else
+    // convert absolute tolerance to relative tolerance
+    double absolute_tol = epsilon / sqrt(cblas_ddot(b->size(), (double *) (b->values), 1, (double *) b->values, 1));
+#else
     // calculate delta parameter which is the result of the inner product of r with itself
     delta = r->innerVectorProduct(*r);
-    #endif
+
+    // convert absolute tolerance to relative tolerance
+    absolute_tol = epsilon / sqrt(b->innerVectorProduct(*b));
+#endif
 
     // iterate until the convergence criteria is reached or we hit the max iterations
-    while (iteration < max_iterations && (sqrt(delta) > epsilon * sqrt(b->innerVectorProduct(*b))))
+    while (iteration < max_iterations && (sqrt(delta) / b->size() > absolute_tol))
     {
         // for the first iterations set p = r
         if (iteration == 0)
         {
-            #if defined(USE_BLAS)
+#if defined(USE_BLAS)
             /*====================================
              * use low level BLAS routine to quickly copy over desired values to where matrix/vector.
             ==================================== */
             cblas_dcopy(p->size(), (double *) r->values, 1, (double *) p->values, 1);
-
-            #else
+#else
             for (int i = 0; i < p->size(); i++)
             {
                 p->values[i] = r->values[i];
             }
-            #endif
+#endif
         }
         // for all the other iterations
         else {
-
             // update beta based on the delta values
             beta = delta / delta_old;
 
@@ -338,52 +342,57 @@ Matrix<T>* Solver<T>::solvesolveConjugateGradient(Matrix<T>* LHS, Matrix<T>* b, 
 
         Matrix<T> *Ap;
 
-        #if defined(USE_BLAS)
-            /*======================================
-            * BLAS call to do the matrix vector multiplication
-            * ======================================*/
-            Ap = new Matrix<T>(LHS->rows, p->cols, true);
+#if defined(USE_BLAS)
+        /*======================================
+        * BLAS call to do the matrix vector multiplication
+        * ======================================*/
+        Ap = new Matrix<T>(LHS->rows, p->cols, true);
 
-            cblas_dgemv(CblasRowMajor, CblasNoTrans, LHS->rows, LHS->cols, 1, (double *) LHS->values, LHS->rows, (double *) b->values, 1, 1, (double *) Ap->values, 1);
+        cblas_dgemv(CblasRowMajor, CblasNoTrans, LHS->rows, LHS->cols, 1, (double *) LHS->values, LHS->rows, (double *) b->values, 1, 1, (double *) Ap->values, 1);
 
-            cblas_dcopy(w->size(), (double *) Ap, 1, (double *) w->values, 1);
+        cblas_dcopy(w->size(), (double *) Ap, 1, (double *) w->values, 1);
 
-            alpha = delta / cblas_ddot(p->size(), (double *) (p->values), 1, (double *) w->values, 1);
+        alpha = delta / cblas_ddot(p->size(), (double *) (p->values), 1, (double *) w->values, 1);
 
-            cblas_daxpy(x->size(), (double) alpha, (double *) x->values, 1, (double *) x->values, 1);
+        cblas_daxpy(x->size(), (double) alpha, (double *) x->values, 1, (double *) x->values, 1);
 
-            cblas_daxpy(r->size(), (double) -alpha, (double *) w->values, 1, (double *) r->values, 1);
+        cblas_daxpy(r->size(), (double) -alpha, (double *) w->values, 1, (double *) r->values, 1);
+#else
+        Ap = LHS->matMatMult(*p);
 
-        #else
+        // set w = Ap for this iteration
+        for (int i = 0; i < w->size(); i++)
+        {
+            w->values[i] = Ap->values[i];
+        }
 
-            Ap = LHS->matMatMult(*p);
+        // update the alpha value based on delta and the inner product of p and w
+        alpha = delta / p->innerVectorProduct(*w);
 
-            // set w = Ap for this iteration
-            for (int i = 0; i < w->size(); i++)
-            {
-                w->values[i] = Ap->values[i];
-            }
+        // set x = x + alpha * p for this iteration
+        for (int i = 0; i < x->size(); i++)
+        {
+            x->values[i] = x->values[i] + alpha * p->values[i];
+        }
 
-            // update the alpha value based on delta and the inner product of p and w
-            alpha = delta / p->innerVectorProduct(*w);
-
-            // set x = x + alpha * p for this iteration
-            for (int i = 0; i < x->size(); i++)
-            {
-                x->values[i] = x->values[i] + alpha * p->values[i];
-            }
-
-            // set r = r - alpha * w for this iteration
-            for (int i = 0; i < r->size(); i++)
-            {
-                r->values[i] = r->values[i] - alpha * w->values[i];
-            }
-        #endif
-
+        // set r = r - alpha * w for this iteration
+        for (int i = 0; i < r->size(); i++)
+        {
+            r->values[i] = r->values[i] - alpha * w->values[i];
+        }
+#endif
         // update both delta and delta_old for this iteration
         delta_old = delta;
-        delta = r->innerVectorProduct(*r);
 
+#if defined(USE_BLAS)
+        /*======================================
+        * BLAS level 1 call to work out the inner vector product (dot product)
+        ======================================*/
+        delta = cblas_ddot(r->size(), (double *) (r->values), 1, (double *) r->values, 1);
+#else
+        // calculate delta parameter which is the result of the inner product of r with itself
+        delta = r->innerVectorProduct(*r);
+#endif
         ++iteration;
         delete Ap;
     }
@@ -410,22 +419,15 @@ void Solver<T>::luDecomposition(Matrix<T>* LHS, Matrix<T>* upper_tri, Matrix<T>*
     // intialize the scaling factor s to -1
     double s = -1;
 
-
-    #if defined(USE_BLAS)
-
+#if defined(USE_BLAS)
     cblas_dcopy(LHS->size(), (double *) LHS, 1, (double *) upper_tri->values, 1);
-
-    #else
-
+#else
     // copy the values of A into the upper triangular matrix
     for (int i = 0; i < LHS->size(); i++)
     {
         upper_tri->values[i] = LHS->values[i];
     }
-
-    #endif
-
-
+#endif
 
     // loop over each pivot row
     for (int k = 0; k < LHS->rows - 1; k++)
@@ -451,7 +453,6 @@ void Solver<T>::luDecomposition(Matrix<T>* LHS, Matrix<T>* upper_tri, Matrix<T>*
         lower_tri->values[i * lower_tri->rows + i] = 1;
     }
 }
-
 
 template<class T>
 void Solver<T>::luDecompositionPivot(Matrix<T>* LHS, Matrix<T>* upper_tri, Matrix<T>* lower_tri, Matrix<T>* permutation)
@@ -723,7 +724,7 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
 
 
 template<class T>
-Matrix<T>* Solver<T>::solvesolveConjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
+Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
 #ifdef PERFORMANCE_INFO
     clock_t tStart = clock();

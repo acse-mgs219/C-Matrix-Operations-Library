@@ -1,4 +1,4 @@
-# Install script for directory: /Users/fazi/Desktop/acse-5-assignment-unique-pointers
+# Install script for directory: /Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

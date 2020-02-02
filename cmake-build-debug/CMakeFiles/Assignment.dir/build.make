@@ -43,10 +43,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/fazi/Desktop/acse-5-assignment-unique-pointers
+CMAKE_SOURCE_DIR = "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers"
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug
+CMAKE_BINARY_DIR = "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/cmake-build-debug"
 
 # Include any dependencies generated for this target.
 include CMakeFiles/Assignment.dir/depend.make
@@ -59,55 +59,55 @@ include CMakeFiles/Assignment.dir/flags.make
 
 CMakeFiles/Assignment.dir/Matrix.cpp.o: CMakeFiles/Assignment.dir/flags.make
 CMakeFiles/Assignment.dir/Matrix.cpp.o: ../Matrix.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Assignment.dir/Matrix.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Assignment.dir/Matrix.cpp.o -c /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Assignment.dir/Matrix.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Assignment.dir/Matrix.cpp.o -c "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/Matrix.cpp"
 
 CMakeFiles/Assignment.dir/Matrix.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Assignment.dir/Matrix.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.cpp > CMakeFiles/Assignment.dir/Matrix.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/Matrix.cpp" > CMakeFiles/Assignment.dir/Matrix.cpp.i
 
 CMakeFiles/Assignment.dir/Matrix.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Assignment.dir/Matrix.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fazi/Desktop/acse-5-assignment-unique-pointers/Matrix.cpp -o CMakeFiles/Assignment.dir/Matrix.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/Matrix.cpp" -o CMakeFiles/Assignment.dir/Matrix.cpp.s
 
 CMakeFiles/Assignment.dir/test/test.cpp.o: CMakeFiles/Assignment.dir/flags.make
 CMakeFiles/Assignment.dir/test/test.cpp.o: ../test/test.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Assignment.dir/test/test.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Assignment.dir/test/test.cpp.o -c /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/test.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Assignment.dir/test/test.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Assignment.dir/test/test.cpp.o -c "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/test/test.cpp"
 
 CMakeFiles/Assignment.dir/test/test.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Assignment.dir/test/test.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/test.cpp > CMakeFiles/Assignment.dir/test/test.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/test/test.cpp" > CMakeFiles/Assignment.dir/test/test.cpp.i
 
 CMakeFiles/Assignment.dir/test/test.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Assignment.dir/test/test.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fazi/Desktop/acse-5-assignment-unique-pointers/test/test.cpp -o CMakeFiles/Assignment.dir/test/test.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/test/test.cpp" -o CMakeFiles/Assignment.dir/test/test.cpp.s
 
 CMakeFiles/Assignment.dir/CSRMatrix.cpp.o: CMakeFiles/Assignment.dir/flags.make
 CMakeFiles/Assignment.dir/CSRMatrix.cpp.o: ../CSRMatrix.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Assignment.dir/CSRMatrix.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Assignment.dir/CSRMatrix.cpp.o -c /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Assignment.dir/CSRMatrix.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Assignment.dir/CSRMatrix.cpp.o -c "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/CSRMatrix.cpp"
 
 CMakeFiles/Assignment.dir/CSRMatrix.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Assignment.dir/CSRMatrix.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.cpp > CMakeFiles/Assignment.dir/CSRMatrix.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/CSRMatrix.cpp" > CMakeFiles/Assignment.dir/CSRMatrix.cpp.i
 
 CMakeFiles/Assignment.dir/CSRMatrix.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Assignment.dir/CSRMatrix.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fazi/Desktop/acse-5-assignment-unique-pointers/CSRMatrix.cpp -o CMakeFiles/Assignment.dir/CSRMatrix.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/CSRMatrix.cpp" -o CMakeFiles/Assignment.dir/CSRMatrix.cpp.s
 
 CMakeFiles/Assignment.dir/main.cpp.o: CMakeFiles/Assignment.dir/flags.make
 CMakeFiles/Assignment.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Assignment.dir/main.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Assignment.dir/main.cpp.o -c /Users/fazi/Desktop/acse-5-assignment-unique-pointers/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Assignment.dir/main.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Assignment.dir/main.cpp.o -c "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/main.cpp"
 
 CMakeFiles/Assignment.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Assignment.dir/main.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/fazi/Desktop/acse-5-assignment-unique-pointers/main.cpp > CMakeFiles/Assignment.dir/main.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/main.cpp" > CMakeFiles/Assignment.dir/main.cpp.i
 
 CMakeFiles/Assignment.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Assignment.dir/main.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fazi/Desktop/acse-5-assignment-unique-pointers/main.cpp -o CMakeFiles/Assignment.dir/main.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/main.cpp" -o CMakeFiles/Assignment.dir/main.cpp.s
 
 # Object files for target Assignment
 Assignment_OBJECTS = \
@@ -125,7 +125,7 @@ Assignment: CMakeFiles/Assignment.dir/CSRMatrix.cpp.o
 Assignment: CMakeFiles/Assignment.dir/main.cpp.o
 Assignment: CMakeFiles/Assignment.dir/build.make
 Assignment: CMakeFiles/Assignment.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable Assignment"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable Assignment"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Assignment.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -138,6 +138,6 @@ CMakeFiles/Assignment.dir/clean:
 .PHONY : CMakeFiles/Assignment.dir/clean
 
 CMakeFiles/Assignment.dir/depend:
-	cd /Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/fazi/Desktop/acse-5-assignment-unique-pointers /Users/fazi/Desktop/acse-5-assignment-unique-pointers /Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug /Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug /Users/fazi/Desktop/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles/Assignment.dir/DependInfo.cmake --color=$(COLOR)
+	cd "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/cmake-build-debug" && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers" "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers" "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/cmake-build-debug" "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/cmake-build-debug" "/Users/fazi/Desktop/Clean Repo/acse-5-assignment-unique-pointers/cmake-build-debug/CMakeFiles/Assignment.dir/DependInfo.cmake" --color=$(COLOR)
 .PHONY : CMakeFiles/Assignment.dir/depend
 
