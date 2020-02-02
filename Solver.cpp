@@ -6,12 +6,13 @@
 
 /////// DENSE MATRIX SOLVERS ///////
 template <class T>
-Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T initial_guess[])
+Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T initial_guess[], bool sortMatrix)
 {
 #ifdef PERFORMANCE_INFO
     clock_t tStart = clock();
-    int iters = 0;
 #endif
+    if (sortMatrix)
+        LHS->sort_mat(b);
     if (initial_guess == nullptr)
     {
         // If the user has not provided an initial guess, use b as initial guess
@@ -43,9 +44,6 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
     // iterate until we hit the convergence criteria or max iterations
     while (residual > tolerance && iteration < max_iterations)
     {
-#ifdef PERFORMANCE_INFO
-        iters++;
-#endif
         // loop over each row of the left hand side, each column of b, and calculate the sum
         for (int i = 0; i < LHS->rows; i++)
         {
@@ -77,25 +75,26 @@ Matrix<T>* Solver<T>::solveJacobi(Matrix<T>* LHS, Matrix<T>* b, double tolerance
         }
 
         // calculate the RMSE norm of the residuals
-        residual = sqrt(residual / b->size());
+        residual = sqrt(residual) / b->size();
         ++iteration;
     }
 
 #ifdef PERFORMANCE_INFO
     clock_t tEnd = clock();
     double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
-    std::cout << "Completed in " << time << " ms and " << iters << " iterations.\n";
+    std::cout << "Completed in " << time << " ms and " << iteration << " iterations.\n";
 #endif
     return x_var;
 }
 
 template<class T>
-Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T* initial_guess)
+Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tolerance, int max_iterations, T* initial_guess, bool sortMatrix)
 {
 #ifdef PERFORMANCE_INFO
     clock_t tStart = clock();
-    int iters = 0;
 #endif
+    if (sortMatrix)
+        LHS->sort_mat(b);
     if (initial_guess == nullptr)
     {
         // If the user has not provided an initial guess, use b as initial guess
@@ -120,9 +119,6 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
     // iterate until we hit the convergence criteria or max_iterations
     while (residual > tolerance&& iteration < max_iterations)
     {
-#ifdef PERFORMANCE_INFO
-        iters++;
-#endif
         // loop over each row in the LHS matrix and multiply into the column of b
         for (int i = 0; i < LHS->rows; i++)
         {
@@ -152,14 +148,14 @@ Matrix<T>* Solver<T>::solveGaussSeidel(Matrix<T>* LHS, Matrix<T>* b, double tole
         }
 
         // calculate RMSE to check for convergence condition
-        residual = sqrt(residual / b->size());
+        residual = sqrt(residual) / b->size();
 
         ++iteration;
     }
 #ifdef PERFORMANCE_INFO
     clock_t tEnd = clock();
     double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
-    std::cout << "Completed in " << time << " ms and " << iters << " iterations.\n";
+    std::cout << "Completed in " << time << " ms and " << iteration << " iterations.\n";
 #endif
     return x_var;
 }
@@ -245,7 +241,6 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
 {
 #ifdef PERFORMANCE_INFO
     clock_t tStart = clock();
-    int iters = 0;
 #endif
     if (initial_guess == nullptr)
     {
@@ -312,9 +307,6 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
     // iterate until the convergence criteria is reached or we hit the max iterations
     while (iteration < max_iterations && (sqrt(delta) > epsilon * sqrt(b->innerVectorProduct(*b))))
     {
-#ifdef PERFORMANCE_INFO
-        iters++;
-#endif
         // for the first iterations set p = r
         if (iteration == 0)
         {
@@ -401,7 +393,7 @@ Matrix<T>* Solver<T>::conjugateGradient(Matrix<T>* LHS, Matrix<T>* b, double eps
 #ifdef PERFORMANCE_INFO
     clock_t tEnd = clock();
     double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
-    std::cout << "Completed in " << time << " ms and " << iters << " iterations.\n";
+    std::cout << "Completed in " << time << " ms and " << iteration << " iterations.\n";
 #endif
     return x;
 }
@@ -733,6 +725,9 @@ void Solver<T>::incompleteCholesky(Matrix<T> *matrix)
 template<class T>
 Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double epsilon, int max_iterations, T initial_guess[])
 {
+#ifdef PERFORMANCE_INFO
+    clock_t tStart = clock();
+#endif
     if (initial_guess == nullptr)
     {
         // If the user has not provided an initial guess, use b as initial guess
@@ -823,7 +818,11 @@ Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double 
         delete Ap;
         iteration++;
     }
-
+#ifdef PERFORMANCE_INFO
+    clock_t tEnd = clock();
+    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
+    std::cout << "Completed in " << time << " ms and " << iteration << " iterations.\n";
+#endif
     return x;
 }
 
@@ -832,7 +831,13 @@ Matrix<T>* Solver<T>::conjugateGradient(CSRMatrix<T>* LHS, Matrix<T>* b, double 
 /// SPARSE MATRIX FUNCTIONS
 
 template <class T>
-Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
+Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b, double tolerance, int max_iterations, bool sortMatrix)
+{
+#ifdef PERFORMANCE_INFO
+    clock_t tStart = clock();
+#endif
+    if (sortMatrix)
+        LHS->sort_mat(mat_b);
     Matrix<T>* output = new Matrix<T>(LHS->cols, 1, true);
     T* temp = new T[LHS->rows];
     for (int i = 0; i < LHS->rows; i++)
@@ -842,7 +847,7 @@ Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
 
     T* diagonal = new T[LHS->rows];
 
-    int iteration = 10;
+    int it_max = max_iterations;
 
     //find diagonal elements
     for (int i = 0; i < LHS->rows; i++)
@@ -856,7 +861,9 @@ Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
         }
     }
 
-    for (int k = 0; k < iteration; k++)//count for iterations, 10 times maximium
+    int iterations = 0;
+
+    for (; iterations < it_max; iterations++)//count for iterations, 10 times maximium
     {
         for (int i = 0; i < LHS->rows; i++)
         {
@@ -869,22 +876,28 @@ Matrix<T>* Solver<T>::solveJacobi(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
             temp[i] = temp[i] / diagonal[i];
         }
         for (int i = 0; i < LHS->rows; i++) output->values[i] = temp[i];
-        if (Solver<T>::check_finish(LHS, mat_b, output)) break;
+        if (Solver<T>::check_finish(LHS, mat_b, output, tolerance)) break;
     }
 
     delete[] temp;
-
-    //cout << "Jacobi solution for the sparse matrix:" << endl;
-    //for (int i = 0; i < LHS->rows; i++)
-    //{
-    //    cout << output[i] << " ";
-    //}
     delete[] diagonal;
+
+#ifdef PERFORMANCE_INFO
+    clock_t tEnd = clock();
+    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
+    std::cout << "Completed in " << time << " ms and " << iterations << " iterations.\n";
+#endif
     return output;
 }
 
 template <class T>
-Matrix<T>* Solver<T>::solveGaussSeidel(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
+Matrix<T>* Solver<T>::solveGaussSeidel(CSRMatrix<T>* LHS, Matrix<T>* mat_b, double tolerance, int max_iterations, bool sortMatrix)
+{
+#ifdef PERFORMANCE_INFO
+    clock_t tStart = clock();
+#endif
+    if (sortMatrix)
+        LHS->sort_mat(mat_b);
     Matrix<T>* output = new Matrix<T>(LHS->cols, 1, true);
     for (int i = 0; i < LHS->cols; i++)
     {
@@ -894,7 +907,7 @@ Matrix<T>* Solver<T>::solveGaussSeidel(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
     T temp;
     T* diag_ele = new T[LHS->cols];
 
-    int it_max = 10;
+    int it_max = max_iterations;
 
     //find diagonal elements
     for (int i = 0; i < LHS->rows; i++)
@@ -908,8 +921,8 @@ Matrix<T>* Solver<T>::solveGaussSeidel(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
         }
     }
 
-
-    for (int k = 0; k < it_max; k++)//count for iterations, k times maximium
+    int iterations = 0;
+    for (; iterations < it_max; iterations++)//count for iterations, k times maximium
     {
         for (int i = 0; i < LHS->rows; i++) {
             temp = mat_b->values[i];
@@ -919,25 +932,25 @@ Matrix<T>* Solver<T>::solveGaussSeidel(CSRMatrix<T>* LHS, Matrix<T>* mat_b) {
             }
             output->values[i] = temp / diag_ele[i];
         }
-        if (Solver<T>::check_finish(LHS, mat_b, output)) break;
+        if (Solver<T>::check_finish(LHS, mat_b, output, tolerance)) break;
     }
 
-    //    cout << "Gauss-Seidel solution for the sparse matrix:" << endl;
-    //    for (int i = 0; i < LHS->rows; i++)
-    //    {
-    //        cout << output[i] << " ";
-    //    }
     delete[] diag_ele;
+#ifdef PERFORMANCE_INFO
+    clock_t tEnd = clock();
+    double time = (1000.0 * (tEnd - tStart)) / CLOCKS_PER_SEC;
+    std::cout << "Completed in " << time << " ms and " << iterations << " iterations.\n";
+#endif
     return output;
 }
 
 
 template <class T>
-bool Solver<T>::check_finish(CSRMatrix<T>* LHS, Matrix<T>* mat_b, Matrix<T>* output)
+bool Solver<T>::check_finish(CSRMatrix<T>* LHS, Matrix<T>* mat_b, Matrix<T>* output, double tolerance)
 {
-    T tol = 0.00001;
+    double tol = tolerance;
     T* cal_out = new T[LHS->rows];
-    T res = 0;
+    double res = 0;
 
     for (int i = 0; i < LHS->rows; i++)
     {
@@ -946,12 +959,11 @@ bool Solver<T>::check_finish(CSRMatrix<T>* LHS, Matrix<T>* mat_b, Matrix<T>* out
         {
             cal_out[i] += LHS->values[val_index] * output->values[LHS->col_index[val_index]];
         }
-        res += abs(mat_b->values[i] - cal_out[i]);
+        res += pow(abs(mat_b->values[i] - cal_out[i]),2);
     }
 
     delete[] cal_out;
-    if ((res / LHS->rows) < tol)
+    if ((sqrt(res) / LHS->rows) < tol)
         return true;
-    else
-        return false;
+    return false;
 }

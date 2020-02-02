@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
-#include "cblas.h"
+//#include "cblas.h"
 
 // constructor - creates a matrix initialized to 0
 template <class T>
@@ -152,6 +152,44 @@ void Matrix<T>::makeRandomSPD()
         for (int j = 0; j < this->cols; j++)
         {
             this->values[i * this->cols + j] = c->values[i * this->cols + j];
+        }
+    }
+    delete tr;
+    delete c;
+}
+
+template <class T>
+void Matrix<T>::makeRandomSparseSPD()
+{
+    auto tr = new Matrix<T>(this->rows, this->cols, true);
+    // Makes this into a lower triangular matrix, with b its transpose
+    for (int i = 0; i < this->rows; i++)
+    {
+        for (int j = 0; j <= i; j++)
+        {
+            this->values[i * this->cols + j] = rand() % 100 + 1; // make sure no value on the diagonal is 0
+            if (i == j)
+                this->values[i * this->cols + j] += 100 * this->cols; // make sure eigen value is positive
+            tr->values[j * this->cols + i] = this->values[i * this->cols + j];
+        }
+
+        for (int j = i + 1; j < this->cols; j++)
+        {
+            this->values[i * this->cols + j] = 0;
+            tr->values[j * this->cols + i] = 0;
+        }
+    }
+
+    // L * L' is always SPD if all values on L's diagonal are strictly positive
+    auto c = this->matMatMult(*tr);
+    for (int i = 0; i < this->rows; i++)
+    {
+        for (int j = 0; j < this->cols; j++)
+        {
+            if (rand() % 100 > 70 || i == j)
+                this->values[i * this->cols + j] = c->values[i * this->cols + j];
+            else
+                this->values[i * this->cols + j] = 0;
         }
     }
     delete tr;
@@ -554,21 +592,14 @@ void Matrix<T>::sort_mat(Matrix<T>* rhs)
     auto* temp_rhs = new double[this->rows];
 
     std::vector <bool> check_list(this->cols, true);
-    //    check_list[1] = false;
-    //    check_list[0] = false;
-    //    check_list[2] = 0;
-    //    check_list[3] = false;
+
     while (!(std::none_of(check_list.begin(), check_list.end(), [](bool v) { return v; })))
     {
-        //        std::cout<<"some are still inside";
         std::vector <int> unique_list(this->cols, -1);
 
-        //update unique_list with hanchao's function
+        //update unique_list with find_unique function
         this->find_unique(check_list, unique_list);
-        //if column j has a unique entry on row i (equals to "unique_list[j]")
-        //then in temp_mat, set row j equals to (row i in original matrix)
-        //so that in temp_mat, the entry on [i,j] is the unique one;
-        //set this column j as false in the while loop to be excluded
+        //if column j has a unique entry on row i (equals to "unique_list[j]"), then in temp_mat, set row j equals to (row i in original matrix), so that in temp_mat, the entry on [i,j] is the unique one, and then set this column j as false in the while loop to be excluded
         for (int j = 0; j < this->cols; j++)
         {
             if (unique_list[j] != -1)
@@ -583,31 +614,31 @@ void Matrix<T>::sort_mat(Matrix<T>* rhs)
             }
         }
 
-        //next, fill the 1st available column with max value,
-        //and remove it from check_list;
-        //remember to delete
-
+        //Then fill the first available column with max value, and remove it from check_list;
         for (int j = 0; j < this->cols; j++)
         {
-            //            std::cout<<"unique value: "<<check_list[j]<<std::endl;
+
+            // only need to deal with columns whose status is true.
             if (check_list[j])
             {
-                //                std::cout<<"random assignment in progress: "<< j<<std::endl;
+
                 int index_row(-1);
                 int max_value(0);
-                //now we fill temp_mat row j with value in row???? let's find out
+                // loop over columns
                 for (int row = j; row < this->rows;row++)
                 {
+                    // find the max value of column's elements
                     if (abs(this->values[row * this->rows + j]) > abs(max_value))
                     {
                         index_row = row;
                         max_value = this->values[row * this->rows + j];
                     }
                 }
-                // now index_row takes the index of row???
+
                 // fill and exclude
-                if (index_row != -1) {
-                    for (int kk = 0; kk < this->cols;kk++)
+                if (index_row != -1)
+                {
+                    for (int kk = 0; kk < this->cols; kk++)
                     {
                         temp_mat->values[j * this->cols + kk] = this->values[index_row * this->cols + kk];
                         this->values[index_row * this->cols + kk] = 0;
@@ -615,19 +646,12 @@ void Matrix<T>::sort_mat(Matrix<T>* rhs)
                     temp_rhs[j] = rhs->values[index_row];
                     check_list[j] = false;
                 }
-
-                if (index_row == -1)
-                {
-                    std::cout << std::endl << "index cannot be found here: " << j << std::endl;
-
-                }
-                //                std::cout<<"random assignment finished: "<< j<<std::endl;
                 j = this->cols;
             }
         }
-
     }
 
+    // generate the new output matrix
     for (int i = 0; i < this->size_of_values; i++)
     {
         this->values[i] = temp_mat->values[i];
@@ -648,4 +672,3 @@ int Matrix<T>::size()
 {
     return this->size_of_values;
 }
-
