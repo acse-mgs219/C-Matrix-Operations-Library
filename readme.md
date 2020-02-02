@@ -17,6 +17,9 @@
 * The project makes extensive use of txt files that contain different matrix structures and vectors that combined produce linear systems of the form **Ax = b**. If using Visual Studio, the generated exe will always be able to read the files. If compiling manually, please make sure to generate the exe in the same director as main.cpp so that it can read the files.
 
 
+### Performance test results
+
+* We have run several performance tests, testing the performance of all the solvers for different size matrices, with and without BLAS and with and without Compiler Optimizations. The raw results of those tests were written to files that were saved under PerformanceTestResults.
 
 ### Matrix Operations
 
